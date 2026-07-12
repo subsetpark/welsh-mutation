@@ -1,29 +1,9 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { sm } from '../src/predicate.ts'
+import { LEXICON as L } from '../src/lexicon.ts'
 import type { Environment, Lexeme, RuleId } from '../src/types.ts'
 
-// ─── lexeme fixtures (radicals) ───
-const L = {
-  ty: { id: 'tŷ', cat: 'N', gender: 'm', number: 'sg', initClass: 't' },
-  beic: { id: 'beic', cat: 'N', gender: 'm', number: 'sg', initClass: 'b' },
-  cath: { id: 'cath', cat: 'N', gender: 'f', number: 'sg', initClass: 'c' },
-  merch: { id: 'merch', cat: 'N', gender: 'f', number: 'sg', initClass: 'm' },
-  llong: { id: 'llong', cat: 'N', gender: 'f', number: 'sg', initClass: 'll' },
-  bach: { id: 'bach', cat: 'Adj', initClass: 'b' },
-  gwen: { id: 'gwyn', cat: 'Adj', initClass: 'g' },
-  drws: { id: 'drws', cat: 'N', gender: 'm', number: 'sg', initClass: 'd' },
-  plant: { id: 'plant', cat: 'N', gender: 'm', number: 'pl', initClass: 'p' },
-  mynd: { id: 'mynd', cat: 'Vnoun', initClass: 'm' },
-  collais: { id: 'colli', cat: 'V', initClass: 'c' },
-  dylset: { id: 'dylu', cat: 'V', initClass: 'd' },
-  parith: { id: 'para', cat: 'V', initClass: 'p' },
-  dwy: { id: 'dwy', cat: 'Num', initClass: 'd' },
-  gem: { id: 'gêm', cat: 'N', gender: 'f', number: 'sg', initClass: 'g', immutable: true },
-  Emrys: { id: 'Emrys', cat: 'N', initClass: 'other', immutable: true },
-  Dafydd: { id: 'Dafydd', cat: 'N', initClass: 'd', immutable: true },
-  ysgol: { id: 'ysgol', cat: 'N', gender: 'f', number: 'sg', initClass: 'other' },
-} satisfies Record<string, Lexeme>
 
 const E = {
   none: { prev: null, agreement: null, position: null },
@@ -58,8 +38,8 @@ expectSM('mor + b: mor fach', L.bach, E.after('mor'), ['lex:mor'])
 expectNoSM('mor + ll: mor llong (SM-ltd spares ll-)', L.llong, E.after('mor'))
 
 // mixed mutation (King §10): SM for voiced/liquids, AM (⇒ no SM) for c/p/t
-expectSM('ni ddylset — mixed yields SM on d-', L.dylset, E.after('ni'), ['lex:ni'])
-expectNoSM('ni pharith — mixed yields AM on p-, not SM', L.parith, E.after('ni'))
+expectSM('ni ddylset — mixed yields SM on d-', L.dylu, E.after('ni'), ['lex:ni'])
+expectNoSM('ni pharith — mixed yields AM on p-, not SM', L.para, E.after('ni'))
 
 // AM/NM triggers never license SM
 expectNoSM("ei chath (3sg f 'her') — AM, not SM", L.cath, E.after('ei.3sgf'))
@@ -75,7 +55,7 @@ expectSM('cath fach — adjective after fem sg noun', L.bach, {
   position: null,
 }, ['gend:agr-mod'])
 expectSM('y ferch fach WEN — chain: 2nd adjective still mutates (agreement, not adjacency)',
-  L.gwen, {
+  L.gwyn, {
     prev: { lemma: 'bach', relationToTarget: 'other', isXPRightEdge: false },
     agreement: { controllerGender: 'f', controllerNumber: 'sg', relation: 'modifier' },
     position: null,
@@ -105,13 +85,13 @@ expectSM('DDWY flynedd yn ôl — adverbial NP (King 11b)', L.dwy, {
 expectSM('Dewch fan hyn, BLANT! — vocative (King 11c)', L.plant, {
   prev: null, agreement: null, position: 'vocative',
 }, ['synt:vocative'])
-expectSM("GOLLES i'r tocyn — colloquial v1 inflected verb (King 11d)", L.collais, {
+expectSM("GOLLES i'r tocyn — colloquial v1 inflected verb (King 11d)", L.colli, {
   prev: null, agreement: null, position: 'v1-finite-aff',
 }, ['synt:v1-aff'])
-expectSM('DDylset ti ddim — v1 neg: mixed yields SM on d- (King §10)', L.dylset, {
+expectSM('DDylset ti ddim — v1 neg: mixed yields SM on d- (King §10)', L.dylu, {
   prev: null, agreement: null, position: 'v1-finite-neg',
 }, ['synt:v1-neg-mixed'])
-expectNoSM('Pharith hi ddim — v1 neg: mixed yields AM on p-', L.parith, {
+expectNoSM('Pharith hi ddim — v1 neg: mixed yields AM on p-', L.para, {
   prev: null, agreement: null, position: 'v1-finite-neg',
 })
 
@@ -128,55 +108,41 @@ expectSM('multiply licensed: trigger + XP edge', L.ty, {
 }, ['lex:i', 'synt:xp-edge'])
 
 // ─── King-complete lexicon: multi-frame lemmas ───
-const L2 = {
-  dauNum: { id: 'dau', cat: 'Num', initClass: 'd' },
-  blynedd: { id: 'blynedd', cat: 'N', gender: 'f', number: 'sg', initClass: 'b' },
-  ceffyl: { id: 'ceffyl', cat: 'N', gender: 'm', number: 'sg', initClass: 'c' },
-  dyn: { id: 'dyn', cat: 'N', gender: 'm', number: 'sg', initClass: 'd' },
-  gorsaf: { id: 'gorsaf', cat: 'N', gender: 'f', number: 'sg', initClass: 'g' },
-  dosbarth: { id: 'dosbarth', cat: 'N', gender: 'm', number: 'sg', initClass: 'd' },
-  dim: { id: 'dim', cat: 'Prt', initClass: 'd' },
-  daeth: { id: 'dod', cat: 'V', initClass: 'd' },
-  parith2: { id: 'para', cat: 'V', initClass: 'p' },
-  dewch: { id: 'dod', cat: 'V', initClass: 'd' },
-  car: { id: 'car', cat: 'N', gender: 'm', number: 'sg', initClass: 'c' },
-  tref: { id: 'tref', cat: 'N', gender: 'f', number: 'sg', initClass: 't' },
-} satisfies Record<string, Lexeme>
 
 // y: one lemma, two frames
-expectSM('y DDAU — article mutates dau (King §29, Num frame)', L2.dauNum, E.after('y'), ['lex:y'])
-expectNoSM('y DYN — masc noun: neither y-frame applies', L2.dyn, E.after('y'))
+expectSM('y DDAU — article mutates dau (King §29, Num frame)', L.dau, E.after('y'), ['lex:y'])
+expectNoSM('y DYN — masc noun: neither y-frame applies', L.dyn, E.after('y'))
 // chwe: AM generally, NM on year-words — never SM
-expectNoSM('chwe CHEFFYL — AM frame, no SM', L2.ceffyl, E.after('chwe'))
-expectNoSM('chwe MLYNEDD — NM lexeme-list frame, no SM', L2.blynedd, E.after('chwe'))
+expectNoSM('chwe CHEFFYL — AM frame, no SM', L.ceffyl, E.after('chwe'))
+expectNoSM('chwe MLYNEDD — NM lexeme-list frame, no SM', L.blynedd, E.after('chwe'))
 // dwy° still plain SM on blynedd (dwy °flynedd, King §176)
-expectSM('dwy FLYNEDD — dwy° SM', L2.blynedd, E.after('dwy'), ['lex:dwy'])
+expectSM('dwy FLYNEDD — dwy° SM', L.blynedd, E.after('dwy'), ['lex:dwy'])
 
 // ─── prenominal adjectives (King §§96-99) ───
-expectSM('hen DDYN', L2.dyn, E.after('hen'), ['lex:hen'])
+expectSM('hen DDYN', L.dyn, E.after('hen'), ['lex:hen'])
 expectSM('unig BLENTYN — prenominal unig°', L.plant, E.after('unig'), ['lex:unig'])
-expectNoSM('pob DYN — the one non-triggering prenominal (King §97)', L2.dyn, E.after('pob'))
-expectSM('rhyw DDYN (King §115)', L2.dyn, E.after('rhyw'), ['lex:rhyw'])
-expectNoSM('rhai DYNION — rhai does not trigger (King §115)', L2.dyn, E.after('rhai'))
+expectNoSM('pob DYN — the one non-triggering prenominal (King §97)', L.dyn, E.after('pob'))
+expectSM('rhyw DDYN (King §115)', L.dyn, E.after('rhyw'), ['lex:rhyw'])
+expectNoSM('rhai DYNION — rhai does not trigger (King §115)', L.dyn, E.after('rhai'))
 
 // ─── ordinals (King §170) ───
 expectSM('ail DDESG — ail° both genders', L.cath, E.after('ail'), ['lex:ail'])
-expectSM('y bumed ORSAF — pumed + fem noun', L2.gorsaf, E.after('pumed'), ['lex:pumed'])
-expectNoSM('y pumed DOSBARTH — pumed + masc noun radical', L2.dosbarth, E.after('pumed'))
-expectSM('y drydedd DREF — trydedd + fem', L2.tref, E.after('trydedd'), ['lex:trydedd'])
+expectSM('y bumed ORSAF — pumed + fem noun', L.gorsaf, E.after('pumed'), ['lex:pumed'])
+expectNoSM('y pumed DOSBARTH — pumed + masc noun radical', L.dosbarth, E.after('pumed'))
+expectSM('y drydedd DREF — trydedd + fem', L.tre, E.after('trydedd'), ['lex:trydedd'])
 
 // ─── prepositions: absence is data (King §§461-476) ───
 expectNoSM('mewn TŶ — mewn triggers nothing', L.ty, E.after('mewn'))
-expectNoSM('rhwng CAERDYDD... — rhwng triggers nothing (King §466)', L2.car, E.after('rhwng'))
-expectSM('oddiwrth DY rieni — oddiwrth° SM', L2.dyn, E.after('oddiwrth'), ['lex:oddiwrth'])
-expectSM('mo: weles i MOnot… — mo carries SM of dim o°', L2.dyn, E.after('mo'), ['lex:mo'])
-expectNoSM('ar ôl CINIO — compound prep, no mutation (King §475)', L2.car, E.after('ar ôl'))
+expectNoSM('rhwng CAERDYDD... — rhwng triggers nothing (King §466)', L.car, E.after('rhwng'))
+expectSM('oddiwrth DY rieni — oddiwrth° SM', L.dyn, E.after('oddiwrth'), ['lex:oddiwrth'])
+expectSM('mo: weles i MOnot… — mo carries SM of dim o°', L.dyn, E.after('mo'), ['lex:mo'])
+expectNoSM('ar ôl CINIO — compound prep, no mutation (King §475)', L.car, E.after('ar ôl'))
 
 // ─── conjunctions & relatives ───
-expectSM('sy DDIM — SM on dim after sy (King §479)', L2.dim, E.after('sy'), ['lex:sy'])
-expectSM('na DDAETH — neg relative, mixed yields SM on d-', L2.daeth, E.after('na.rel'), ['lex:na.rel'])
-expectNoSM('na PHARITH — neg relative, mixed yields AM on p-', L2.parith2, E.after('na.rel'))
-expectNoSM('os DAW e — os triggers nothing (King §502)', L2.daeth, E.after('os'))
+expectSM('sy DDIM — SM on dim after sy (King §479)', L.dim, E.after('sy'), ['lex:sy'])
+expectSM('na DDAETH — neg relative, mixed yields SM on d-', L.dod, E.after('na.rel'), ['lex:na.rel'])
+expectNoSM('na PHARITH — neg relative, mixed yields AM on p-', L.para, E.after('na.rel'))
+expectNoSM('os DAW e — os triggers nothing (King §502)', L.dod, E.after('os'))
 expectSM('siswrn neu GYLLELL — neu° on noun', L.cath, E.after('neu'), ['lex:neu'])
 expectNoSM('Arhoswch neu DEWCH — neu SM cancelled before imperative (King §512)',
-  L2.dewch, E.after('neu'))
+  L.dewch, E.after('neu'))

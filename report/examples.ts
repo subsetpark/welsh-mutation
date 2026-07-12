@@ -4,7 +4,7 @@
  */
 
 import { clause, gap, leaf, phrase, type TreeNode, type TreePath } from '../src/tree.ts'
-import type { Lexeme, NoMutationReason, RuleId } from '../src/types.ts'
+import type { NoMutationReason, RuleId } from '../src/types.ts'
 
 export interface ExampleTarget {
   path: TreePath
@@ -22,80 +22,14 @@ export interface Example {
   note?: string
 }
 
-// ─── lexemes ───
-const L = {
-  gwelodd: { id: 'gweld', cat: 'V', initClass: 'g' },
-  golles: { id: 'colli', cat: 'V', initClass: 'c' },
-  prynodd: { id: 'prynu', cat: 'V', initClass: 'p' },
-  dylset: { id: 'dylu', cat: 'V', initClass: 'd' },
-  parith: { id: 'para', cat: 'V', initClass: 'p' },
-  roedd: { id: 'bod', cat: 'V', initClass: 'other', immutable: true },
-  daw: { id: 'dod', cat: 'V', initClass: 'd' },
-  aeth: { id: 'mynd', cat: 'V', initClass: 'other' },
-  dewch: { id: 'dod', cat: 'Vimp', initClass: 'd' },
-  mae: { id: 'mae', cat: 'V', initClass: 'other', immutable: true },
-  Mair: { id: 'Mair', cat: 'N', initClass: 'm', immutable: true },
-  Emrys: { id: 'Emrys', cat: 'N', initClass: 'other', immutable: true },
-  Dafydd: { id: 'Dafydd', cat: 'N', initClass: 'd', immutable: true },
-  pwy: { id: 'pwy', cat: 'Other', initClass: 'p' },
-  ti: { id: 'ti', cat: 'Other', initClass: 't', immutable: true },
-  hi: { id: 'hi', cat: 'Other', initClass: 'other' },
-  e: { id: 'e', cat: 'Other', initClass: 'other' },
-  i_pron: { id: 'i.pron', cat: 'Other', initClass: 'other' },
-  ty: { id: 'tŷ', cat: 'N', gender: 'm', number: 'sg', initClass: 't' },
-  beic: { id: 'beic', cat: 'N', gender: 'm', number: 'sg', initClass: 'b' },
-  draig: { id: 'draig', cat: 'N', gender: 'f', number: 'sg', initClass: 'd' },
-  cath: { id: 'cath', cat: 'N', gender: 'f', number: 'sg', initClass: 'c' },
-  cathod: { id: 'cathod', cat: 'N', gender: 'f', number: 'pl', initClass: 'c' },
-  llong: { id: 'llong', cat: 'N', gender: 'f', number: 'sg', initClass: 'll' },
-  merch: { id: 'merch', cat: 'N', gender: 'f', number: 'sg', initClass: 'm' },
-  dyn: { id: 'dyn', cat: 'N', gender: 'm', number: 'sg', initClass: 'd' },
-  dynes: { id: 'dynes', cat: 'N', gender: 'f', number: 'sg', initClass: 'd' },
-  dinas: { id: 'dinas', cat: 'N', gender: 'f', number: 'sg', initClass: 'd' },
-  tre: { id: 'tre', cat: 'N', gender: 'f', number: 'sg', initClass: 't' },
-  canol: { id: 'canol', cat: 'N', gender: 'm', number: 'sg', initClass: 'c' },
-  ci: { id: 'ci', cat: 'N', gender: 'm', number: 'sg', initClass: 'c' },
-  ceffyl: { id: 'ceffyl', cat: 'N', gender: 'm', number: 'sg', initClass: 'c' },
-  blynedd: { id: 'blynedd', cat: 'N', gender: 'f', number: 'sg', initClass: 'b' },
-  plant: { id: 'plant', cat: 'N', gender: 'm', number: 'pl', initClass: 'p' },
-  tocyn: { id: 'tocyn', cat: 'N', gender: 'm', number: 'sg', initClass: 't' },
-  gem: { id: 'gêm', cat: 'N', gender: 'f', number: 'sg', initClass: 'g', immutable: true },
-  ysgol: { id: 'ysgol', cat: 'N', gender: 'f', number: 'sg', initClass: 'other' },
-  bach: { id: 'bach', cat: 'Adj', initClass: 'b' },
-  gwen: { id: 'gwyn', cat: 'Adj', initClass: 'g' },
-  mawr: { id: 'mawr', cat: 'Adj', initClass: 'm' },
-  coch: { id: 'coch', cat: 'Adj', initClass: 'c' },
-  llawn: { id: 'llawn', cat: 'Adj', initClass: 'll' },
-  hen: { id: 'hen', cat: 'Adj', initClass: 'other' },
-  prif: { id: 'prif', cat: 'Adj', initClass: 'p' },
-  mynd: { id: 'mynd', cat: 'Vnoun', initClass: 'm' },
-  prynu: { id: 'prynu', cat: 'Vnoun', initClass: 'p' },
-  rhaid: { id: 'rhaid', cat: 'N', initClass: 'rh' },
-  wedi: { id: 'wedi', cat: 'Prt', initClass: 'other' },
-  dim: { id: 'dim', cat: 'Prt', initClass: 'd' },
-  y: { id: 'y', cat: 'Other', initClass: 'other' },
-  i_prep: { id: 'i', cat: 'Other', initClass: 'other' },
-  dy: { id: 'dy', cat: 'Other', initClass: 'd', immutable: true },
-  ei: { id: 'ei', cat: 'Other', initClass: 'other' },
-  fy: { id: 'fy', cat: 'Other', initClass: 'other' },
-  mor: { id: 'mor', cat: 'Adv', initClass: 'm', immutable: true },
-  neu: { id: 'neu', cat: 'Other', initClass: 'other' },
-  pob: { id: 'pob', cat: 'Other', initClass: 'p' },
-  dau: { id: 'dau', cat: 'Num', initClass: 'd' },
-  dwy: { id: 'dwy', cat: 'Num', initClass: 'd' },
-  tair: { id: 'tair', cat: 'Num', initClass: 't' },
-  chwe: { id: 'chwe', cat: 'Num', initClass: 'other' },
-  yn: { id: 'yn', cat: 'Other', initClass: 'other' },
-  yn_ol: { id: 'yn ôl', cat: 'Adv', initClass: 'other' },
-  os: { id: 'os', cat: 'Other', initClass: 'other' },
-} satisfies Record<string, Lexeme>
+import { LEXICON as L } from '../src/lexicon.ts'
 
 export const CONTACT: Example[] = [
   {
     id: 'prep-i',
     welsh: 'i °dŷ',
     gloss: "'to a house' — the preposition i° governs SM on its dependent (King §460)",
-    tree: phrase('PP', [leaf(L.i_prep), phrase('NP', [leaf(L.ty)])]),
+    tree: phrase('PP', [leaf(L.i), phrase('NP', [leaf(L.ty)])]),
     targets: [{ path: [1, 0], expect: ['lex:i'] }],
   },
   {
@@ -245,7 +179,7 @@ export const GENDER: Example[] = [
     id: 'adj-chain',
     welsh: 'y °ferch °fach °wen',
     gloss: "'the little white girl' — the second adjective is not adjacent to the noun, yet mutates: agreement is a feature borne by the target (Breit 2019), not a contact effect",
-    tree: phrase('NP', [leaf(L.y), leaf(L.merch), phrase('AP', [leaf(L.bach)]), phrase('AP', [leaf(L.gwen)])]),
+    tree: phrase('NP', [leaf(L.y), leaf(L.merch), phrase('AP', [leaf(L.bach)]), phrase('AP', [leaf(L.gwyn)])]),
     targets: [
       { path: [1], expect: ['gend:art-fem-sg'] },
       { path: [2, 0], expect: ['gend:agr-mod'] },
@@ -294,7 +228,7 @@ export const SYNTACTIC: Example[] = [
     id: 'dom-basic',
     welsh: 'Gwelodd Mair °dŷ',
     gloss: "'Mair saw a house' — direct object mutation: the subject NP's right edge licenses, not the verb (Harlow 1989; Borsley 1997; Tallerman 2006)",
-    tree: clause('S', [leaf(L.gwelodd), phrase('NP', [leaf(L.Mair)]), phrase('NP', [leaf(L.ty)])]),
+    tree: clause('S', [leaf(L.gweld), phrase('NP', [leaf(L.Mair)]), phrase('NP', [leaf(L.ty)])]),
     targets: [{ path: [2, 0], expect: ['synt:xp-edge'] }],
     note: 'The verb also carries colloquial v1 SM (°Welodd) — see the v1 examples below; the verdict annotation on the verb reflects this.',
   },
@@ -343,7 +277,7 @@ export const SYNTACTIC: Example[] = [
     gloss: "'Who saw a dragon?' — the extraction gap occupies the subject position and counts as a phrase edge; the verb's own SM (°welodd < gwelodd) comes from the fronted wh-phrase's edge",
     tree: clause('S', [
       phrase('NP', [leaf(L.pwy)]),
-      leaf(L.gwelodd),
+      leaf(L.gweld),
       gap('NP'),
       phrase('NP', [leaf(L.draig)]),
     ]),
@@ -355,7 +289,7 @@ export const SYNTACTIC: Example[] = [
     gloss: "'Emrys must go' — the PP's right edge c-commands and licenses the verbal noun; King files this under 'sentence construction' (§5e: unblockable), for the XPTH it is the same rule as DOM",
     tree: clause('S', [
       leaf(L.rhaid),
-      phrase('PP', [leaf(L.i_prep), phrase('NP', [leaf(L.Emrys)])]),
+      phrase('PP', [leaf(L.i), phrase('NP', [leaf(L.Emrys)])]),
       phrase('VNP', [leaf(L.mynd)]),
     ]),
     targets: [{ path: [2, 0], expect: ['synt:xp-edge'] }],
@@ -365,7 +299,7 @@ export const SYNTACTIC: Example[] = [
     welsh: "°Golles i'r tocyn",
     gloss: "'I lost the ticket' — DOM lands on the first WORD of the object; here that is the article (no SM reflex), so the noun stays radical",
     tree: clause('S', [
-      leaf(L.golles),
+      leaf(L.colli),
       phrase('NP', [leaf(L.i_pron)]),
       phrase('NP', [leaf(L.y, 'y'), leaf(L.tocyn)]),
     ]),
@@ -378,7 +312,7 @@ export const SYNTACTIC: Example[] = [
     id: 'post-subject-dim',
     welsh: '°Ddylset ti °ddim',
     gloss: "'You shouldn't' — two mutations, two subsystems: mixed particle-residue on the negative verb, subject-edge SM on dim (King §§10, 11a)",
-    tree: clause('S', [leaf(L.dylset), phrase('NP', [leaf(L.ti)]), leaf(L.dim)], 'neg'),
+    tree: clause('S', [leaf(L.dylu), phrase('NP', [leaf(L.ti)]), leaf(L.dim)], 'neg'),
     targets: [
       { path: [0], expect: ['synt:v1-neg-mixed'] },
       { path: [2], expect: ['synt:xp-edge'] },
@@ -388,14 +322,14 @@ export const SYNTACTIC: Example[] = [
     id: 'v1-neg-am',
     welsh: 'Pharith hi °ddim',
     gloss: "'It won't last' — the negative v1 grade is MIXED: AM on p-, so no soft mutation; the grade tracks the dropped particle ni (King §10)",
-    tree: clause('S', [leaf(L.parith), phrase('NP', [leaf(L.hi)]), leaf(L.dim)], 'neg'),
+    tree: clause('S', [leaf(L.para), phrase('NP', [leaf(L.hi)]), leaf(L.dim)], 'neg'),
     targets: [{ path: [0], expect: 'no-license' }],
   },
   {
     id: 'v1-shielded',
     welsh: 'os daw e',
     gloss: "'if he comes' — the subordinator occupies clause-initial position, so the verb is not v1 and stays radical (King §502)",
-    tree: clause('S', [leaf(L.os), leaf(L.daw), phrase('NP', [leaf(L.e)])]),
+    tree: clause('S', [leaf(L.os), leaf(L.dod), phrase('NP', [leaf(L.e)])]),
     targets: [{ path: [1], expect: 'no-license' }],
   },
   {
@@ -436,14 +370,14 @@ export const VETOES: Example[] = [
     id: 'veto-name',
     welsh: 'i Dafydd',
     gloss: "'to Dafydd' — personal names do not mutate in the modern language (King §12d, §36)",
-    tree: phrase('PP', [leaf(L.i_prep), phrase('NP', [leaf(L.Dafydd)])]),
+    tree: phrase('PP', [leaf(L.i), phrase('NP', [leaf(L.Dafydd)])]),
     targets: [{ path: [1, 0], expect: 'veto:immutable' }],
   },
   {
     id: 'veto-no-reflex',
     welsh: 'i ysgol',
     gloss: "'to school' — vowel-initial words have no SM reflex; the question does not arise (King §5a)",
-    tree: phrase('PP', [leaf(L.i_prep), phrase('NP', [leaf(L.ysgol)])]),
+    tree: phrase('PP', [leaf(L.i), phrase('NP', [leaf(L.ysgol)])]),
     targets: [{ path: [1, 0], expect: 'veto:no-reflex' }],
   },
 ]

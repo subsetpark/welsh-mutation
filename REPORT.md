@@ -386,7 +386,7 @@ S
 
 ```text
 S
-├─0 bod ⟨V⟩ immutable → radical (veto:immutable)
+├─0 bod ⟨V⟩ → radical (veto:no-reflex)
 ├─1 NP
 │  └─0 dyn ⟨N m sg⟩ → radical (no-license)
 ├─2 wedi ⟨Prt⟩ → radical (veto:no-reflex)
@@ -401,7 +401,7 @@ S
 
 ```text
 S
-├─0 bod ⟨V⟩ immutable → radical (veto:immutable)
+├─0 bod ⟨V⟩ → radical (veto:no-reflex)
 ├─1 NP
 │  └─0 dyn ⟨N m sg⟩ → radical (no-license)
 ├─2 wedi ⟨Prt⟩ → radical (veto:no-reflex)

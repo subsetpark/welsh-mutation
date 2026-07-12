@@ -5,45 +5,8 @@ import {
   clause, environmentFor, gap, leaf, phrase, resolveLeaf,
   type TreeNode, type TreePath,
 } from '../src/tree.ts'
-import type { Lexeme, RuleId } from '../src/types.ts'
-
-const LEX = {
-  gwelodd: { id: 'gweld', cat: 'V', initClass: 'g' },
-  golles: { id: 'colli', cat: 'V', initClass: 'c' },
-  dylset: { id: 'dylu', cat: 'V', initClass: 'd' },
-  roedd: { id: 'bod', cat: 'V', initClass: 'rh' },
-  prynodd: { id: 'prynu', cat: 'V', initClass: 'p' },
-  daw: { id: 'dod', cat: 'V', initClass: 'd' },
-  Mair: { id: 'Mair', cat: 'N', initClass: 'm', immutable: true },
-  Emrys: { id: 'Emrys', cat: 'N', initClass: 'other', immutable: true },
-  pwy: { id: 'pwy', cat: 'Other', initClass: 'p' },
-  ti: { id: 'ti', cat: 'Other', initClass: 't', immutable: true },
-  i_pron: { id: 'i.pron', cat: 'Other', initClass: 'other' },
-  e: { id: 'e', cat: 'Other', initClass: 'other' },
-  ty: { id: 'tŷ', cat: 'N', gender: 'm', number: 'sg', initClass: 't' },
-  beic: { id: 'beic', cat: 'N', gender: 'm', number: 'sg', initClass: 'b' },
-  draig: { id: 'draig', cat: 'N', gender: 'f', number: 'sg', initClass: 'd' },
-  cath: { id: 'cath', cat: 'N', gender: 'f', number: 'sg', initClass: 'c' },
-  merch: { id: 'merch', cat: 'N', gender: 'f', number: 'sg', initClass: 'm' },
-  dyn: { id: 'dyn', cat: 'N', gender: 'm', number: 'sg', initClass: 'd' },
-  dynes: { id: 'dynes', cat: 'N', gender: 'f', number: 'sg', initClass: 'd' },
-  tocyn: { id: 'tocyn', cat: 'N', gender: 'm', number: 'sg', initClass: 't' },
-  tre: { id: 'tre', cat: 'N', gender: 'f', number: 'sg', initClass: 't' },
-  ci: { id: 'ci', cat: 'N', gender: 'm', number: 'sg', initClass: 'c' },
-  bach: { id: 'bach', cat: 'Adj', initClass: 'b' },
-  gwen: { id: 'gwyn', cat: 'Adj', initClass: 'g' },
-  mawr: { id: 'mawr', cat: 'Adj', initClass: 'm' },
-  coch: { id: 'coch', cat: 'Adj', initClass: 'c' },
-  mynd: { id: 'mynd', cat: 'Vnoun', initClass: 'm' },
-  prynu: { id: 'prynu', cat: 'Vnoun', initClass: 'p' },
-  rhaid: { id: 'rhaid', cat: 'N', initClass: 'rh' },
-  wedi: { id: 'wedi', cat: 'Prt', initClass: 'other' },
-  dim: { id: 'dim', cat: 'Prt', initClass: 'd' },
-  y: { id: 'y', cat: 'Other', initClass: 'other' },
-  i_prep: { id: 'i', cat: 'Other', initClass: 'other' },
-  yn_loc: { id: 'yn', cat: 'Other', initClass: 'other' },
-  os: { id: 'os', cat: 'Other', initClass: 'other' },
-} satisfies Record<string, Lexeme>
+import { LEXICON as LEX } from '../src/lexicon.ts'
+import type { RuleId } from '../src/types.ts'
 
 const check = (name: string, root: TreeNode, path: TreePath, expected: RuleId[] | 'radical') =>
   test(name, () => {
@@ -60,7 +23,7 @@ const check = (name: string, root: TreeNode, path: TreePath, expected: RuleId[] 
 
 // ─── DOM core (King §14; XPTH) ───
 check('Gwelodd Mair DŶ — DOM from subject-NP edge',
-  clause('S', [leaf(LEX.gwelodd), phrase('NP', [leaf(LEX.Mair)]), phrase('NP', [leaf(LEX.ty)])]),
+  clause('S', [leaf(LEX.gweld), phrase('NP', [leaf(LEX.Mair)]), phrase('NP', [leaf(LEX.ty)])]),
   [2, 0], ['synt:xp-edge'])
 
 check('Roedd dyn wedi prynu BEIC — nonfinite object stays radical',
@@ -80,7 +43,7 @@ check('prynu [yn y dre] FEIC — intervening PP licenses via its right edge',
     leaf(LEX.wedi),
     phrase('VNP', [
       leaf(LEX.prynu),
-      phrase('PP', [leaf(LEX.yn_loc, 'yn.loc'), phrase('NP', [leaf(LEX.y), leaf(LEX.tre)])]),
+      phrase('PP', [leaf(LEX.yn, 'yn.loc'), phrase('NP', [leaf(LEX.y), leaf(LEX.tre)])]),
       phrase('NP', [leaf(LEX.beic)]),
     ]),
   ]),
@@ -98,7 +61,7 @@ check('BEIC prynodd y ddynes — fronted object, nothing precedes',
 check('Rhaid i Emrys FYND — PP right edge c-commands the VN',
   clause('S', [
     leaf(LEX.rhaid),
-    phrase('PP', [leaf(LEX.i_prep), phrase('NP', [leaf(LEX.Emrys)])]),
+    phrase('PP', [leaf(LEX.i), phrase('NP', [leaf(LEX.Emrys)])]),
     phrase('VNP', [leaf(LEX.mynd)]),
   ]),
   [2, 0], ['synt:xp-edge'])
@@ -106,7 +69,7 @@ check('Rhaid i Emrys FYND — PP right edge c-commands the VN',
 check('Pwy welodd _ DDRAIG — extraction gap counts as an XP',
   clause('S', [
     phrase('NP', [leaf(LEX.pwy)]),
-    leaf(LEX.gwelodd),
+    leaf(LEX.gweld),
     gap('NP'),
     phrase('NP', [leaf(LEX.draig)]),
   ]),
@@ -114,7 +77,7 @@ check('Pwy welodd _ DDRAIG — extraction gap counts as an XP',
 
 // ─── contact + gender through the tree ───
 check('i DŶ — preposition head, relation=dependent',
-  phrase('PP', [leaf(LEX.i_prep), phrase('NP', [leaf(LEX.ty)])]),
+  phrase('PP', [leaf(LEX.i), phrase('NP', [leaf(LEX.ty)])]),
   [1, 0], ['lex:i'])
 
 check('y GATH — article frame via lemma y',
@@ -126,7 +89,7 @@ check('cath MERCH — possessor derived from genitive configuration',
   [1, 0], 'radical')
 
 check('y ferch fach WEN — agreement from NP head across the chain',
-  phrase('NP', [leaf(LEX.y), leaf(LEX.merch), phrase('AP', [leaf(LEX.bach)]), phrase('AP', [leaf(LEX.gwen)])]),
+  phrase('NP', [leaf(LEX.y), leaf(LEX.merch), phrase('AP', [leaf(LEX.bach)]), phrase('AP', [leaf(LEX.gwyn)])]),
   [3, 0], ['gend:agr-mod'])
 
 // The datum forcing the NP-internal XPTH exclusion: masculine chains show
@@ -138,7 +101,7 @@ check('ci mawr COCH — masc chain: no gender license, no NP-internal xp-edge',
 // ─── positions from tree geometry ───
 {
   const golles_ir_tocyn = () => clause('S', [
-    leaf(LEX.golles),
+    leaf(LEX.colli),
     phrase('NP', [leaf(LEX.i_pron)]),
     phrase('NP', [leaf(LEX.y), leaf(LEX.tocyn)]),
   ])
@@ -151,15 +114,15 @@ check('ci mawr COCH — masc chain: no gender license, no NP-internal xp-edge',
 }
 
 check('DDylset ti ddim — negative clause-initial verb takes mixed',
-  clause('S', [leaf(LEX.dylset), phrase('NP', [leaf(LEX.ti)]), leaf(LEX.dim)], 'neg'),
+  clause('S', [leaf(LEX.dylu), phrase('NP', [leaf(LEX.ti)]), leaf(LEX.dim)], 'neg'),
   [0], ['synt:v1-neg-mixed'])
 
 check('Ddylset ti DDIM — dim mutates off the subject XP edge (King §11a)',
-  clause('S', [leaf(LEX.dylset), phrase('NP', [leaf(LEX.ti)]), leaf(LEX.dim)], 'neg'),
+  clause('S', [leaf(LEX.dylu), phrase('NP', [leaf(LEX.ti)]), leaf(LEX.dim)], 'neg'),
   [2], ['synt:xp-edge'])
 
 check('os DAW e — subordinator inside the clause shields v1 (King §502)',
-  clause('S', [leaf(LEX.os), leaf(LEX.daw), phrase('NP', [leaf(LEX.e)])]),
+  clause('S', [leaf(LEX.os), leaf(LEX.dod), phrase('NP', [leaf(LEX.e)])]),
   [1], 'radical')
 
 // ─── path addressing: soundness with repeated words ───
@@ -167,7 +130,7 @@ check('os DAW e — subordinator inside the clause shields v1 (King §502)',
   // Gwelodd y dyn DDYN 'the man saw a man': same lexeme twice, opposite
   // verdicts, distinguished purely positionally.
   const tree = () => clause('S', [
-    leaf(LEX.gwelodd),
+    leaf(LEX.gweld),
     phrase('NP', [leaf(LEX.y), leaf(LEX.dyn)]),
     phrase('NP', [leaf(LEX.dyn)]),
   ])
@@ -180,7 +143,7 @@ check('os DAW e — subordinator inside the clause shields v1 (King §502)',
 test('aliased node object is rejected — geometry requires a genuine tree', () => {
   const shared = leaf(LEX.dyn)
   const root = clause('S', [
-    leaf(LEX.gwelodd),
+    leaf(LEX.gweld),
     phrase('NP', [shared]),
     phrase('NP', [shared]),
   ])
