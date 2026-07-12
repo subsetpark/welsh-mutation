@@ -1,6 +1,7 @@
 /**
  * The report's example corpus. Every target's expected verdict is asserted
- * at build time (report.ts), so the document cannot drift from the program.
+ * at build time (report.ts), so the generated document cannot drift from the
+ * analysis it presents. (Build machinery is invisible in the document itself.)
  */
 
 import { clause, gap, leaf, phrase, type TreeNode, type TreePath } from '../src/tree.ts'
@@ -42,15 +43,15 @@ export const CONTACT: Example[] = [
   {
     id: 'poss-ei-contrast',
     welsh: 'ei °gath e — ei chath hi',
-    gloss: "'his cat' (SM) vs 'her cat' (AM, hence radical for the SM predicate) — one orthographic word, two lemmas, two grades (King §112)",
+    gloss: "'his cat' (SM) vs 'her cat' (AM — outside soft mutation) — one orthographic word, two lemmas, two grades (King §112)",
     tree: phrase('NP', [leaf(L.ei, 'ei.3sgm'), leaf(L.cath), leaf(L.e)]),
     targets: [{ path: [1], expect: ['lex:ei.3sgm'] }],
-    note: "With lemma `ei.3sgf` the frame grade is AM: the same tree position yields `radical (no-license)` — 'her' never soft-mutates.",
+    note: "As `ei.3sgf` the governed grade is AM: the same position shows `radical (no-license)` — 'her' never soft-mutates.",
   },
   {
     id: 'poss-fy',
     welsh: 'fy nghath',
-    gloss: "'my cat' — fy governs NM, so the SM predicate correctly refuses (King §110)",
+    gloss: "'my cat' — fy governs NM, so soft mutation is correctly withheld (King §110)",
     tree: phrase('NP', [leaf(L.fy), leaf(L.cath)]),
     targets: [{ path: [1], expect: 'no-license' }],
   },
@@ -96,7 +97,7 @@ export const CONTACT: Example[] = [
     gloss: "'six years' (NM via the year-word frame) vs 'two years' (plain SM) — one lemma, two frames (King §176)",
     tree: phrase('NP', [leaf(L.chwe), leaf(L.blynedd)]),
     targets: [{ path: [1], expect: 'no-license' }],
-    note: 'chwe carries two frames: AM generally, NM restricted to blwydd/blynedd/diwrnod. Neither yields SM. dwy °flynedd (example above) shows the same noun soft-mutating after a genuine SM trigger.',
+    note: 'chwe governs two distinct conditions: AM generally, NM restricted to blwydd/blynedd/diwrnod. Neither yields SM. dwy °flynedd (example above) shows the same noun soft-mutating after a genuine SM trigger.',
   },
   {
     id: 'hen-prenominal',
@@ -132,7 +133,7 @@ export const CONTACT: Example[] = [
       { path: [0, 1], expect: ['gend:art-fem-sg'] },
       { path: [2, 1], expect: 'no-license' },
     ],
-    note: "No blocking rule exists in the program: 'r simply IS the preceding element, and its own frame (feminine singular nouns) does not apply to masculine ci.",
+    note: "No blocking statement is needed: 'r simply IS the preceding element, and the condition it governs (feminine singular nouns) does not extend to masculine ci.",
   },
 ]
 
@@ -212,7 +213,7 @@ export const GENDER: Example[] = [
     gloss: "'a girl's cat' — the possessor is immune despite string adjacency to a feminine noun (Mittendorf & Sadler 2006; Dowle 2024)",
     tree: phrase('NP', [leaf(L.cath), phrase('NP', [leaf(L.merch)])]),
     targets: [{ path: [1, 0], expect: 'no-license' }],
-    note: 'Derived, not stipulated: the genitive configuration [NP N NP] yields relation=possessor, and possessors are simply outside every licensing relation.',
+    note: 'Derived, not stipulated: in the genitive configuration [NP N NP] the second nominal stands in the possessor relation, and possessors fall outside every licensing relation.',
   },
   {
     id: 'genitive-internal',
@@ -230,7 +231,7 @@ export const SYNTACTIC: Example[] = [
     gloss: "'Mair saw a house' — direct object mutation: the subject NP's right edge licenses, not the verb (Harlow 1989; Borsley 1997; Tallerman 2006)",
     tree: clause('S', [leaf(L.gweld), phrase('NP', [leaf(L.Mair)]), phrase('NP', [leaf(L.ty)])]),
     targets: [{ path: [2, 0], expect: ['synt:xp-edge'] }],
-    note: 'The verb also carries colloquial v1 SM (°Welodd) — see the v1 examples below; the verdict annotation on the verb reflects this.',
+    note: 'The verb also carries colloquial v1 SM (°Welodd) — see the v1 examples below; the annotation on the verb reflects this.',
   },
   {
     id: 'dom-periphrastic',
@@ -335,7 +336,7 @@ export const SYNTACTIC: Example[] = [
   {
     id: 'adv-np',
     welsh: '°Ddwy °flynedd yn ôl aeth hi adre',
-    gloss: "'Two years ago she went home' — adverbial NPs mutate at their first word (King §11b); note the geometrically identical fronted object (dom-fronted) does NOT — the difference is authored, not derived",
+    gloss: "'Two years ago she went home' — adverbial NPs mutate at their first word (King §11b); note the structurally identical fronted object (dom-fronted) does NOT — the difference is adjunct-vs-argument status, not configuration",
     tree: clause('S', [
       phrase('NP', [leaf(L.dwy), leaf(L.blynedd), leaf(L.yn_ol)], 'adverbial'),
       leaf(L.aeth),

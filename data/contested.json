@@ -3,11 +3,11 @@
   "entries": [
     {
       "id": "euphony:s-d",
-      "note": "d- often fails to mutate after preceding -s: nos da, wythnos diwetha (King §12e note). King treats as euphonic override of gend:agr-mod."
+      "note": "d- often fails to mutate after preceding -s: nos da, wythnos diwetha (King §12e note). King treats this as a euphonic override of the gender-agreement rule."
     },
     {
       "id": "am-erosion",
-      "note": "AM after â/gyda/tri frequently realized as SM or radical colloquially (King p.12; corpus: gyda 2.94% AM). We encode King's prescription (AM ⇒ no SM), but SM here is attested vernacular."
+      "note": "AM after â/gyda/tri frequently realized as SM or radical colloquially (King p.12; corpus: gyda 2.94% AM). The prescriptive rule (AM ⇒ no SM) is stated here; SM in these contexts is attested vernacular."
     },
     {
       "id": "immutable-variation",
@@ -15,7 +15,7 @@
     },
     {
       "id": "v1-neg-sm",
-      "note": "Negative inflected verbs prescriptively take mixed mutation, but plain SM is common speech (King §10: 'more a feature of the literary language'). We encode mixed."
+      "note": "Negative inflected verbs prescriptively take mixed mutation, but plain SM is common speech (King §10: 'more a feature of the literary language'). The mixed grade is stated here."
     },
     {
       "id": "placenames",
@@ -39,11 +39,11 @@
     },
     {
       "id": "tra-grade",
-      "note": "Degree adverb tra: King marks tra° (SM, §95); the literary tradition prescribes AM (tra chyflym). We encode King's SM."
+      "note": "Degree adverb tra: King marks tra° (SM, §95); the literary tradition prescribes AM (tra chyflym). King's SM is stated here."
     },
     {
       "id": "am-dialect-mn",
-      "note": "In some dialects AM extends to radical m-/n- (m > mh, n > nh), 'regarded as non-standard' (King App A p.488). Irrelevant to the SM predicate but a pipeline hazard: mh-/nh- surface forms are not always NM."
+      "note": "In some dialects AM extends to radical m-/n- (m > mh, n > nh), 'regarded as non-standard' (King App A p.488). Irrelevant to soft mutation itself, but a hazard for analysis: mh-/nh- surface forms are not always NM."
     }
   ]
 }
