@@ -1,0 +1,49 @@
+{
+  "_source": "Contexts where prescriptive colloquial usage is genuinely disputed or variable. Test failures here are CONTESTED, not wrong.",
+  "entries": [
+    {
+      "id": "euphony:s-d",
+      "note": "d- often fails to mutate after preceding -s: nos da, wythnos diwetha (King §12e note). King treats as euphonic override of gend:agr-mod."
+    },
+    {
+      "id": "am-erosion",
+      "note": "AM after â/gyda/tri frequently realized as SM or radical colloquially (King p.12; corpus: gyda 2.94% AM). We encode King's prescription (AM ⇒ no SM), but SM here is attested vernacular."
+    },
+    {
+      "id": "immutable-variation",
+      "note": "lle, byth: immutability 'usage varies' (King §12b)."
+    },
+    {
+      "id": "v1-neg-sm",
+      "note": "Negative inflected verbs prescriptively take mixed mutation, but plain SM is common speech (King §10: 'more a feature of the literary language'). We encode mixed."
+    },
+    {
+      "id": "placenames",
+      "note": "Non-Welsh placenames prescriptively immutable (i Birmingham), but i Firmingham 'not uncommon' in speech (King §12c). After yn 'in', foreign names 'even more chaotic': yng Nghamden / yn Gamden / yn Camden all heard (King §472)."
+    },
+    {
+      "id": "nm-blynedd",
+      "note": "NM of blynedd/blwydd after chwe and wyth 'sometimes followed by the radical': chwe blynedd, wyth blynedd (King §176 note a)."
+    },
+    {
+      "id": "yn-loc-sm",
+      "note": "NM after yn 'in' is 'precarious at best' in speech; if any mutation heard it is usually SM (yn °Fangor, yn °Geredigion), though SM of G- names is resisted (yn Gogledd Cymru) and bare radical is common (yn Bangor). Formal written language allows none of these (King §472). Fixed exception either way: yn °Gymraeg takes SM even in the literary language (blocked NM from a lost article)."
+    },
+    {
+      "id": "tan-conj",
+      "note": "tan as a conjunction (tan iddo ffonio) 'certainly used' in some areas but 'some speakers regard this as substandard'; standard is nes (King §467)."
+    },
+    {
+      "id": "cyn-finite",
+      "note": "cyn + inflected verb (cyn daeth e adre) 'regarded as substandard' for cyn iddo °ddod adre (King §509)."
+    },
+    {
+      "id": "tra-grade",
+      "note": "Degree adverb tra: King marks tra° (SM, §95); the literary tradition prescribes AM (tra chyflym). We encode King's SM."
+    },
+    {
+      "id": "am-dialect-mn",
+      "note": "In some dialects AM extends to radical m-/n- (m > mh, n > nh), 'regarded as non-standard' (King App A p.488). Irrelevant to the SM predicate but a pipeline hazard: mh-/nh- surface forms are not always NM."
+    }
+  ]
+}

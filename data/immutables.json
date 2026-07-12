@@ -1,0 +1,26 @@
+{
+  "_source": "King §12, Appendix A p.489: words/classes resistant to mutation. Feeds Lexeme.immutable in the future pipeline; tests hand-set the flag. Class-level rules cannot be a lexeme list and are recorded as classes.",
+  "lexemes": [
+    { "id": "beth", "why": "fixed mutation of peth (King §12a)" },
+    { "id": "ddoe", "why": "fixed mutation of doe (King App A)" },
+    { "id": "dros", "why": "fixed mutation of tros (King §12a)" },
+    { "id": "dy", "why": "King §12b" },
+    { "id": "pan", "why": "King §12b" },
+    { "id": "mae", "why": "King §12b" },
+    { "id": "mai", "why": "King §12b" },
+    { "id": "taw", "why": "King §12b" },
+    { "id": "mor", "why": "King §12b" },
+    { "id": "tua", "why": "King §12b ('sometimes seen with AM, however' — CONTESTED)" },
+    { "id": "byth", "why": "King §12b, sense 'ever/never' — usage varies, CONTESTED (immutable-variation)" },
+    { "id": "lle", "why": "King §12b, sense 'where', sometimes — CONTESTED (immutable-variation)" },
+    { "id": "tu", "why": "King §12b, usually, in tu allan / tu hwnt — CONTESTED (immutable-variation)" },
+    { "id": "gêm", "why": "g-initial loanword (King §12e)" },
+    { "id": "garej", "why": "g-initial loanword (King §12e)" },
+    { "id": "gro", "why": "very short native g- word: ar gro'r afon (King §12e)" }
+  ],
+  "classes": [
+    { "class": "personal-name", "why": "personal names do not mutate in the modern language: i Dafydd, i Pedr (King §12d, §36)" },
+    { "class": "non-welsh-placename", "why": "i Birmingham; but places with special Welsh names DO mutate (i °Fanceinion), as do Welsh geographical names incl. ll-: i °Landeilo (King §12c, §§37-38); speech variable — CONTESTED (placenames)" },
+    { "class": "already-mutated", "why": "a consonant already mutated cannot mutate again (King §5c)" }
+  ]
+}
