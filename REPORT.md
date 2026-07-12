@@ -368,8 +368,8 @@ is the presence or absence of those positions, not a different theory.
 Imperatives resist both v1 mutation and *neu°* (King §512), and so constitute
 a category of their own.
 
-**Gwelodd Mair °dŷ**  
-'Mair saw a house' — direct object mutation: the subject NP's right edge licenses, not the verb (Harlow 1989; Borsley 1997; Tallerman 2006)
+**°Welodd Mair °dŷ**  
+'Mair saw a house' — direct object mutation: the subject NP's right edge licenses the object, not the verb (Harlow 1989; Borsley 1997; Tallerman 2006)
 
 ```text
 S
@@ -380,7 +380,7 @@ S
    └─0 tŷ ⟨N m sg⟩ → SM (synt:xp-edge)
 ```
 
-> The verb also carries colloquial v1 SM (°Welodd) — see the v1 examples below; the annotation on the verb reflects this.
+> The verb carries its own, independent mutation: colloquial clause-initial SM (§5 below). In the literary register the verb stands radical — Gwelodd Mair °dŷ — which is how the classic examples are cited in the theoretical literature; the object mutation is identical in both registers.
 
 **Roedd dyn wedi prynu beic**  
 'A man had bought a bike' — the object of a NON-finite verb stays radical: no phrase edge precedes it
