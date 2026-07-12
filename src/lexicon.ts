@@ -86,7 +86,7 @@ export const LEXICON = {
   dim: { id: 'dim', cat: 'Prt', initClass: 'd' },
   y: { id: 'y', cat: 'Other', initClass: 'other' },
   i: { id: 'i', cat: 'Other', initClass: 'other' },
-  i_pron: { id: 'i.pron', cat: 'Other', initClass: 'other' },
+  i_pron: { id: 'i', cat: 'Other', initClass: 'other' },
   dy: { id: 'dy', cat: 'Other', initClass: 'd', immutable: true },     // King §12b
   ei: { id: 'ei', cat: 'Other', initClass: 'other' },
   fy: { id: 'fy', cat: 'Other', initClass: 'other' },

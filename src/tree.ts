@@ -40,6 +40,12 @@ export interface Leaf {
   lexeme: Lexeme
   /** Trigger-lexicon key when it differs from lexeme.id (yn.pred, ei.3sgm, y for 'r…). */
   lemma?: string
+  /** Surface form of the token ABSENT soft mutation, when it differs from
+   *  the citation form: inflected verbs (gwelodd for gweld), contractions
+   *  ('r for y), feminine adjective forms (gwen for gwyn), and authored
+   *  AM/NM spellings (nghath, cheffyl) — the SM predicate does not model
+   *  those grades, so their display forms are surface facts, not verdicts. */
+  form?: string
 }
 /** Extraction gap (wh-trace, relative gap). Occupies a string position but no
  *  surface form. Counts as a phrase for XP-edge purposes; blocks contact
@@ -242,6 +248,6 @@ export const phrase = (cat: PhraseCat, children: TreeNode[], role?: Role): Phras
   ({ kind: 'phrase', cat, children, ...(role ? { role } : {}) })
 export const clause = (cat: ClauseCat, children: TreeNode[], polarity?: 'aff' | 'neg'): Clause =>
   ({ kind: 'clause', cat, children, ...(polarity ? { polarity } : {}) })
-export const leaf = (lexeme: Lexeme, lemma?: string): Leaf =>
-  ({ kind: 'leaf', lexeme, ...(lemma ? { lemma } : {}) })
+export const leaf = (lexeme: Lexeme, lemma?: string, form?: string): Leaf =>
+  ({ kind: 'leaf', lexeme, ...(lemma ? { lemma } : {}), ...(form ? { form } : {}) })
 export const gap = (cat: PhraseCat = 'NP'): Gap => ({ kind: 'gap', cat })

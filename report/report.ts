@@ -10,6 +10,7 @@ import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { sm } from '../src/predicate.ts'
 import { environmentFor, resolveLeaf } from '../src/tree.ts'
+import { renderSurface } from '../src/surface.ts'
 import { prettyTree } from '../src/pretty.ts'
 import { SECTIONS, type Example } from './examples.ts'
 import triggersData from '../data/triggers.json' with { type: 'json' }
@@ -26,6 +27,18 @@ function assertAndRender(ex: Example): string {
         `report assertion failed [${ex.id} @ ${JSON.stringify(t.path)}]: expected ${expected}, program says ${actual}`,
       )
     }
+  }
+  // The Welsh line is the one part of an example prose could silently get
+  // wrong; verify its first variant (before any ' — ') against the rendered
+  // surface, ignoring punctuation and case.
+  const normalize = (t: string) =>
+    t.split(' \u2014 ')[0]!.replace(/[,!?]/g, '').toLowerCase().replace(/\s+/g, ' ').trim()
+  const rendered = normalize(renderSurface(ex.tree))
+  const authored = normalize(ex.welsh)
+  if (rendered !== authored) {
+    throw new Error(
+      `surface mismatch [${ex.id}]: authored "${authored}" but the analysis renders "${rendered}"`,
+    )
   }
   const lines = [
     `**${ex.welsh}**  `,

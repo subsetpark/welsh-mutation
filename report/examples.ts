@@ -52,7 +52,7 @@ export const CONTACT: Example[] = [
     id: 'poss-fy',
     welsh: 'fy nghath',
     gloss: "'my cat' — fy governs NM, so soft mutation is correctly withheld (King §110)",
-    tree: phrase('NP', [leaf(L.fy), leaf(L.cath)]),
+    tree: phrase('NP', [leaf(L.fy), leaf(L.cath, undefined, 'nghath')]),
     targets: [{ path: [1], expect: 'no-license' }],
   },
   {
@@ -88,14 +88,14 @@ export const CONTACT: Example[] = [
     id: 'chwe-am',
     welsh: 'chwe cheffyl',
     gloss: "'six horses' — chwe governs AM, never SM (King §162e)",
-    tree: phrase('NP', [leaf(L.chwe), leaf(L.ceffyl)]),
+    tree: phrase('NP', [leaf(L.chwe), leaf(L.ceffyl, undefined, 'cheffyl')]),
     targets: [{ path: [1], expect: 'no-license' }],
   },
   {
     id: 'chwe-nm',
     welsh: 'chwe mlynedd — dwy °flynedd',
     gloss: "'six years' (NM via the year-word frame) vs 'two years' (plain SM) — one lemma, two frames (King §176)",
-    tree: phrase('NP', [leaf(L.chwe), leaf(L.blynedd)]),
+    tree: phrase('NP', [leaf(L.chwe), leaf(L.blynedd, undefined, 'mlynedd')]),
     targets: [{ path: [1], expect: 'no-license' }],
     note: 'chwe governs two distinct conditions: AM generally, NM restricted to blwydd/blynedd/diwrnod. Neither yields SM. dwy °flynedd (example above) shows the same noun soft-mutating after a genuine SM trigger.',
   },
@@ -127,7 +127,7 @@ export const CONTACT: Example[] = [
     tree: phrase('NP', [
       phrase('NP', [leaf(L.y), leaf(L.cath)]),
       leaf(L.neu),
-      phrase('NP', [leaf(L.y, 'y'), leaf(L.ci)]),
+      phrase('NP', [leaf(L.y, 'y', "'r"), leaf(L.ci)]),
     ]),
     targets: [
       { path: [0, 1], expect: ['gend:art-fem-sg'] },
@@ -180,7 +180,7 @@ export const GENDER: Example[] = [
     id: 'adj-chain',
     welsh: 'y °ferch °fach °wen',
     gloss: "'the little white girl' — the second adjective is not adjacent to the noun, yet mutates: agreement is a feature borne by the target (Breit 2019), not a contact effect",
-    tree: phrase('NP', [leaf(L.y), leaf(L.merch), phrase('AP', [leaf(L.bach)]), phrase('AP', [leaf(L.gwyn)])]),
+    tree: phrase('NP', [leaf(L.y), leaf(L.merch), phrase('AP', [leaf(L.bach)]), phrase('AP', [leaf(L.gwyn, undefined, 'gwen')])]),
     targets: [
       { path: [1], expect: ['gend:art-fem-sg'] },
       { path: [2, 0], expect: ['gend:agr-mod'] },
@@ -229,7 +229,7 @@ export const SYNTACTIC: Example[] = [
     id: 'dom-basic',
     welsh: '°Welodd Mair °dŷ',
     gloss: "'Mair saw a house' — direct object mutation: the subject NP's right edge licenses the object, not the verb (Harlow 1989; Borsley 1997; Tallerman 2006)",
-    tree: clause('S', [leaf(L.gweld), phrase('NP', [leaf(L.Mair)]), phrase('NP', [leaf(L.ty)])]),
+    tree: clause('S', [leaf(L.gweld, undefined, 'gwelodd'), phrase('NP', [leaf(L.Mair)]), phrase('NP', [leaf(L.ty)])]),
     targets: [
       { path: [0], expect: ['synt:v1-aff'] },
       { path: [2, 0], expect: ['synt:xp-edge'] },
@@ -241,7 +241,7 @@ export const SYNTACTIC: Example[] = [
     welsh: 'Roedd dyn wedi prynu beic',
     gloss: "'A man had bought a bike' — the object of a NON-finite verb stays radical: no phrase edge precedes it",
     tree: clause('S', [
-      leaf(L.roedd),
+      leaf(L.roedd, undefined, 'roedd'),
       phrase('NP', [leaf(L.dyn)]),
       leaf(L.wedi),
       phrase('VNP', [leaf(L.prynu), phrase('NP', [leaf(L.beic)])]),
@@ -253,7 +253,7 @@ export const SYNTACTIC: Example[] = [
     welsh: 'Roedd dyn wedi prynu yn y °dre °feic',
     gloss: "'A man had bought, in town, a bike' — the decisive datum for the configurational account: an intervening PP restores mutation on the nonfinite object (Green 2003)",
     tree: clause('S', [
-      leaf(L.roedd),
+      leaf(L.roedd, undefined, 'roedd'),
       phrase('NP', [leaf(L.dyn)]),
       leaf(L.wedi),
       phrase('VNP', [
@@ -270,7 +270,7 @@ export const SYNTACTIC: Example[] = [
     gloss: "'It was a bike the woman bought' — the fronted object has nothing before it and stays radical; a Case-based account must stipulate this (Tallerman 2006 contra Roberts 1997)",
     tree: clause('S', [
       phrase('NP', [leaf(L.beic)]),
-      leaf(L.prynodd),
+      leaf(L.prynodd, undefined, 'prynodd'),
       phrase('NP', [leaf(L.y), leaf(L.dynes)]),
     ]),
     targets: [{ path: [0, 0], expect: 'no-license' }],
@@ -281,7 +281,7 @@ export const SYNTACTIC: Example[] = [
     gloss: "'Who saw a dragon?' — the extraction gap occupies the subject position and counts as a phrase edge; the verb's own SM (°welodd < gwelodd) comes from the fronted wh-phrase's edge",
     tree: clause('S', [
       phrase('NP', [leaf(L.pwy)]),
-      leaf(L.gweld),
+      leaf(L.gweld, undefined, 'gwelodd'),
       gap('NP'),
       phrase('NP', [leaf(L.draig)]),
     ]),
@@ -303,9 +303,9 @@ export const SYNTACTIC: Example[] = [
     welsh: "°Golles i'r tocyn",
     gloss: "'I lost the ticket' — DOM lands on the first WORD of the object; here that is the article (no SM reflex), so the noun stays radical",
     tree: clause('S', [
-      leaf(L.colli),
+      leaf(L.colli, undefined, 'colles'),
       phrase('NP', [leaf(L.i_pron)]),
-      phrase('NP', [leaf(L.y, 'y'), leaf(L.tocyn)]),
+      phrase('NP', [leaf(L.y, 'y', "'r"), leaf(L.tocyn)]),
     ]),
     targets: [
       { path: [0], expect: ['synt:v1-aff'] },
@@ -316,7 +316,7 @@ export const SYNTACTIC: Example[] = [
     id: 'post-subject-dim',
     welsh: '°Ddylset ti °ddim',
     gloss: "'You shouldn't' — two mutations, two subsystems: mixed particle-residue on the negative verb, subject-edge SM on dim (King §§10, 11a)",
-    tree: clause('S', [leaf(L.dylu), phrase('NP', [leaf(L.ti)]), leaf(L.dim)], 'neg'),
+    tree: clause('S', [leaf(L.dylu, undefined, 'dylset'), phrase('NP', [leaf(L.ti)]), leaf(L.dim)], 'neg'),
     targets: [
       { path: [0], expect: ['synt:v1-neg-mixed'] },
       { path: [2], expect: ['synt:xp-edge'] },
@@ -326,14 +326,14 @@ export const SYNTACTIC: Example[] = [
     id: 'v1-neg-am',
     welsh: 'Pharith hi °ddim',
     gloss: "'It won't last' — the negative v1 grade is MIXED: AM on p-, so no soft mutation; the grade tracks the dropped particle ni (King §10)",
-    tree: clause('S', [leaf(L.para), phrase('NP', [leaf(L.hi)]), leaf(L.dim)], 'neg'),
+    tree: clause('S', [leaf(L.para, undefined, 'pharith'), phrase('NP', [leaf(L.hi)]), leaf(L.dim)], 'neg'),
     targets: [{ path: [0], expect: 'no-license' }],
   },
   {
     id: 'v1-shielded',
     welsh: 'os daw e',
     gloss: "'if he comes' — the subordinator occupies clause-initial position, so the verb is not v1 and stays radical (King §502)",
-    tree: clause('S', [leaf(L.os), leaf(L.dod), phrase('NP', [leaf(L.e)])]),
+    tree: clause('S', [leaf(L.os), leaf(L.dod, undefined, 'daw'), phrase('NP', [leaf(L.e)])]),
     targets: [{ path: [1], expect: 'no-license' }],
   },
   {
@@ -342,7 +342,7 @@ export const SYNTACTIC: Example[] = [
     gloss: "'Two years ago she went home' — adverbial NPs mutate at their first word (King §11b); note the structurally identical fronted object (dom-fronted) does NOT — the difference is adjunct-vs-argument status, not configuration",
     tree: clause('S', [
       phrase('NP', [leaf(L.dwy), leaf(L.blynedd), leaf(L.yn_ol)], 'adverbial'),
-      leaf(L.aeth),
+      leaf(L.aeth, undefined, 'aeth'),
       phrase('NP', [leaf(L.hi)]),
       leaf(L.adre),
     ]),
@@ -355,7 +355,7 @@ export const SYNTACTIC: Example[] = [
     id: 'vocative',
     welsh: 'Dewch, °blant!',
     gloss: "'Come, children!' — vocative mutation (King §11c); the imperative verb itself stays radical: imperatives resist v1 mutation",
-    tree: clause('S', [leaf(L.dewch), phrase('NP', [leaf(L.plant)], 'vocative')]),
+    tree: clause('S', [leaf(L.dewch, undefined, 'dewch'), phrase('NP', [leaf(L.plant)], 'vocative')]),
     targets: [
       { path: [0], expect: 'no-license' },
       { path: [1, 0], expect: ['synt:vocative'] },

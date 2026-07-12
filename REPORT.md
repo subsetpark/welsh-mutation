@@ -107,7 +107,7 @@ NP
 ```text
 NP
 ├─0 fy ⟨Other⟩ → radical (no-license)
-└─1 cath ⟨N f sg⟩ → radical (no-license)
+└─1 nghath ⟨N f sg⟩ → radical (no-license)
 ```
 
 **mor °fach — mor llawn**  
@@ -154,7 +154,7 @@ NP
 ```text
 NP
 ├─0 chwe ⟨Num⟩ → radical (no-license)
-└─1 ceffyl ⟨N m sg⟩ → radical (no-license)
+└─1 cheffyl ⟨N m sg⟩ → radical (no-license)
 ```
 
 **chwe mlynedd — dwy °flynedd**  
@@ -163,7 +163,7 @@ NP
 ```text
 NP
 ├─0 chwe ⟨Num⟩ → radical (no-license)
-└─1 blynedd ⟨N f sg⟩ → radical (no-license)
+└─1 mlynedd ⟨N f sg⟩ → radical (no-license)
 ```
 
 > chwe governs two distinct conditions: AM generally, NM restricted to blwydd/blynedd/diwrnod. Neither yields SM. dwy °flynedd (example above) shows the same noun soft-mutating after a genuine SM trigger.
@@ -208,7 +208,7 @@ NP
 │  └─1 cath ⟨N f sg⟩ → SM (gend:art-fem-sg)
 ├─1 neu ⟨Other⟩ → radical (no-license)
 └─2 NP
-   ├─0 y ⟨Other⟩ → radical (veto:no-reflex blocks lex:neu)
+   ├─0 'r ⟨Other⟩ → radical (veto:no-reflex blocks lex:neu)
    └─1 ci ⟨N m sg⟩ → radical (no-license)
 ```
 
@@ -285,7 +285,7 @@ NP
 ├─2 AP
 │  └─0 bach ⟨Adj⟩ → SM (gend:agr-mod)
 └─3 AP
-   └─0 gwyn ⟨Adj⟩ → SM (gend:agr-mod)
+   └─0 gwen ⟨Adj⟩ → SM (gend:agr-mod)
 ```
 
 **ci mawr coch**  
@@ -373,7 +373,7 @@ a category of their own.
 
 ```text
 S
-├─0 gweld ⟨V⟩ → SM (synt:v1-aff)
+├─0 gwelodd ⟨V⟩ → SM (synt:v1-aff)
 ├─1 NP
 │  └─0 Mair ⟨N⟩ immutable → radical (no-license)
 └─2 NP
@@ -387,7 +387,7 @@ S
 
 ```text
 S
-├─0 bod ⟨V⟩ → radical (veto:no-reflex blocks synt:v1-aff)
+├─0 roedd ⟨V⟩ → radical (veto:no-reflex blocks synt:v1-aff)
 ├─1 NP
 │  └─0 dyn ⟨N m sg⟩ → radical (no-license)
 ├─2 wedi ⟨Prt⟩ → radical (veto:no-reflex blocks synt:xp-edge)
@@ -402,7 +402,7 @@ S
 
 ```text
 S
-├─0 bod ⟨V⟩ → radical (veto:no-reflex blocks synt:v1-aff)
+├─0 roedd ⟨V⟩ → radical (veto:no-reflex blocks synt:v1-aff)
 ├─1 NP
 │  └─0 dyn ⟨N m sg⟩ → radical (no-license)
 ├─2 wedi ⟨Prt⟩ → radical (veto:no-reflex blocks synt:xp-edge)
@@ -424,7 +424,7 @@ S
 S
 ├─0 NP
 │  └─0 beic ⟨N m sg⟩ → radical (no-license)
-├─1 prynu ⟨V⟩ → SM (synt:xp-edge)
+├─1 prynodd ⟨V⟩ → SM (synt:xp-edge)
 └─2 NP
    ├─0 y ⟨Other⟩ → radical (no-license)
    └─1 dynes ⟨N f sg⟩ → SM (gend:art-fem-sg)
@@ -437,7 +437,7 @@ S
 S
 ├─0 NP
 │  └─0 pwy ⟨Other⟩ → radical (no-license)
-├─1 gweld ⟨V⟩ → SM (synt:xp-edge)
+├─1 gwelodd ⟨V⟩ → SM (synt:xp-edge)
 ├─2 gap:NP
 └─3 NP
    └─0 draig ⟨N f sg⟩ → SM (synt:xp-edge)
@@ -462,11 +462,11 @@ S
 
 ```text
 S
-├─0 colli ⟨V⟩ → SM (synt:v1-aff)
+├─0 colles ⟨V⟩ → SM (synt:v1-aff)
 ├─1 NP
-│  └─0 i.pron ⟨Other⟩ → radical (no-license)
+│  └─0 i ⟨Other⟩ → radical (no-license)
 └─2 NP
-   ├─0 y ⟨Other⟩ → radical (veto:no-reflex blocks synt:xp-edge)
+   ├─0 'r ⟨Other⟩ → radical (veto:no-reflex blocks synt:xp-edge)
    └─1 tocyn ⟨N m sg⟩ → radical (no-license)
 ```
 
@@ -475,7 +475,7 @@ S
 
 ```text
 S (neg)
-├─0 dylu ⟨V⟩ → SM (synt:v1-neg-mixed)
+├─0 dylset ⟨V⟩ → SM (synt:v1-neg-mixed)
 ├─1 NP
 │  └─0 ti ⟨Other⟩ immutable → radical (no-license)
 └─2 dim ⟨Prt⟩ → SM (synt:xp-edge)
@@ -486,7 +486,7 @@ S (neg)
 
 ```text
 S (neg)
-├─0 para ⟨V⟩ → radical (no-license)
+├─0 pharith ⟨V⟩ → radical (no-license)
 ├─1 NP
 │  └─0 hi ⟨Other⟩ → radical (no-license)
 └─2 dim ⟨Prt⟩ → SM (synt:xp-edge)
@@ -498,7 +498,7 @@ S (neg)
 ```text
 S
 ├─0 os ⟨Other⟩ → radical (no-license)
-├─1 dod ⟨V⟩ → radical (no-license)
+├─1 daw ⟨V⟩ → radical (no-license)
 └─2 NP
    └─0 e ⟨Other⟩ → radical (no-license)
 ```
@@ -512,7 +512,7 @@ S
 │  ├─0 dwy ⟨Num⟩ → SM (synt:adv-np)
 │  ├─1 blynedd ⟨N f sg⟩ → SM (lex:dwy)
 │  └─2 yn ôl ⟨Adv⟩ → radical (no-license)
-├─1 mynd ⟨V⟩ → radical (veto:no-reflex blocks synt:xp-edge)
+├─1 aeth ⟨V⟩ → radical (veto:no-reflex blocks synt:xp-edge)
 ├─2 NP
 │  └─0 hi ⟨Other⟩ → radical (no-license)
 └─3 adre ⟨Adv⟩ → radical (veto:no-reflex blocks synt:xp-edge)
@@ -523,7 +523,7 @@ S
 
 ```text
 S
-├─0 dod ⟨Vimp⟩ → radical (no-license)
+├─0 dewch ⟨Vimp⟩ → radical (no-license)
 └─1 NP (vocative)
    └─0 plant ⟨N m pl⟩ → SM (synt:vocative)
 ```

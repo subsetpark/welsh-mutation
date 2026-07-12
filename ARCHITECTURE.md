@@ -189,3 +189,13 @@ variation (King §12b).
   example tree is rendered by prettyTree and every declared verdict asserted at build
   time; test/report.test.ts runs the build, so the document cannot drift from the
   program. Prose + examples in report/, bibliography from research.md sources.
+- 2026-07-12: surface layer (src/mutate.ts + src/surface.ts). SM's orthographic
+  content is un-opaqued for RENDERING only (the predicate never consults it):
+  softMutate maps radical forms by initClass (incl. g-deletion, digraphs, case).
+  Leaf gains `form` — the token's surface shape absent SM (inflected verbs,
+  'r-contraction, feminine adjective forms, and authored AM/NM spellings like
+  nghath/cheffyl, which stay surface facts since the predicate is SM-only by
+  charter). renderSurface derives each example's Welsh line from tree + verdicts,
+  and report.ts fails on mismatch with the authored line (first variant, ignoring
+  punctuation/case) — closing the one unverified channel, after two prose/analysis
+  drift bugs (Gwelodd-for-°Welodd; adre missing from the adv-np analysis).

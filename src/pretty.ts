@@ -26,7 +26,7 @@ export function prettyTree(root: TreeNode, opts: PrettyOptions = {}): string {
       case 'leaf': {
         const l = node.lexeme
         const feats = [l.cat, l.gender, l.number].filter(Boolean).join(' ')
-        let s = `${l.id} ⟨${feats}⟩`
+        let s = `${node.form ?? l.id} ⟨${feats}⟩`
         if (node.lemma && node.lemma !== l.id) s += ` lemma=${node.lemma}`
         if (l.immutable) s += ' immutable'
         if (opts.verdicts) {
