@@ -62,6 +62,43 @@ features — never a tree. All syntactic complexity lives in *producing* the rec
   Provenance is the falsifiability apparatus: it lets tests check the *theory*
   (right rule fired), not just the extension.
 
+## Tree layer (src/tree.ts)
+
+The author constructs a c-structure; `environmentFor(root, targetLeaf)` derives the
+whole Environment. The author supplies structure and FUNCTION labels only (role:
+subject/object/possessor/adverbial/vocative; clause polarity) — never mutation
+judgments. Node vocabulary: phrases (NP, PP, AP, AdvP, NumP, VNP), clauses (S, CP —
+never XPTH triggers), leaves (Lexeme + optional trigger-lemma override), and Gap
+nodes (extraction sites; count as phrases for XP-edge, block contact adjacency via a
+sentinel lemma).
+
+isXPRightEdge, geometrically: some phrasal node X whose rightmost terminal
+immediately precedes the target c-commands the target — with the **NP-internal
+exclusion**: a candidate whose join node with the target is an NP never licenses.
+Forcing datum: masculine adjective chains (ci mawr coch — coch is radical although
+AP(mawr) ends before it and c-commands it). This operationalizes Tallerman's
+'complement' condition and Breit's division of labor (NP-internal mutation belongs
+exclusively to the gender subsystem). Green's decisive VNP case (prynu [PP yn y dre]
+°feic) still fires because the join node is VNP.
+
+Authoring conventions:
+- Subordinators/conjunctions/preverbal particles are leaf children of the clause they
+  introduce (so `os daw e` does not present daw as clause-initial; root `Golles i…`
+  does → v1).
+- Lemma normalization: orthographic variants share a trigger lemma (y/yr/'r → y);
+  homographs disambiguate (yn.loc/yn.pred, ei.3sgm/ei.3sgf, a.conj/a.rel).
+- relationToTarget is derived: 'dependent' when prev is a head-word child of the
+  lowest node containing both (i °dŷ, y °gath); 'possessor' when the target's branch
+  under that node is role:possessor (cath merch); 'other' otherwise (subjects, gaps).
+- agreement is derived for Adj targets from the head noun of the containing NP,
+  regardless of adjacency (carries chains: y °ferch °fach °wen).
+- position is derived: vocative/adv-np from role labels where the target is the
+  phrase's first overt leaf; v1-finite-aff/neg from clause-initial V + polarity.
+
+A satisfying consequence of the geometry: in `Golles i'r tocyn` the subject's XP edge
+lands on 'r (no SM reflex), so the definite object noun correctly stays radical — DOM
+mutates the first WORD of the following constituent, not the constituent's head.
+
 ## Evaluation order
 
 1. Vetoes: `lexeme.immutable` (King §12), or initClass has no SM reflex → false.
