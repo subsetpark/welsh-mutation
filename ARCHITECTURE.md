@@ -173,3 +173,10 @@ variation (King §12b).
     rather than missing.
   - data/immutables.json added (King §12 lexemes + class-level rules: personal names,
     non-Welsh placenames, already-mutated forms). Feeds Lexeme.immutable in the pipeline.
+- 2026-07-12: Cat gains 'Vimp' — imperatives resist v1 mutation (Dewch!, not °Ddewch)
+  and neu° SM (King §512). Discovered composing the report: the vocative example's
+  verdict rendering exposed a wrong v1 judgment on the imperative.
+- 2026-07-12: literate report (report/report.ts → REPORT.md, `npm run report`). Every
+  example tree is rendered by prettyTree and every declared verdict asserted at build
+  time; test/report.test.ts runs the build, so the document cannot drift from the
+  program. Prose + examples in report/, bibliography from research.md sources.

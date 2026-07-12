@@ -18,7 +18,9 @@ export type InitClass =
   | 'll' | 'rh'              // SM only, spared by SM-ltd triggers
   | 'other'
 
-export type Cat = 'N' | 'Adj' | 'V' | 'Vnoun' | 'Num' | 'Adv' | 'Prt' | 'Other'
+/** V = finite inflected verb; Vimp = imperative (resists v1 mutation — Dewch!
+ *  not °Ddewch — and neu° SM, King §512); Vnoun = verbal noun. */
+export type Cat = 'N' | 'Adj' | 'V' | 'Vimp' | 'Vnoun' | 'Num' | 'Adv' | 'Prt' | 'Other'
 
 export interface Lexeme {
   /** Citation form (radical). Needed: exception lists are per-lexeme. */

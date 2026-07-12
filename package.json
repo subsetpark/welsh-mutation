@@ -6,7 +6,8 @@
   "description": "Predicate over (Lexeme, Environment): does this token exhibit Welsh soft mutation?",
   "scripts": {
     "test": "tsx --test test/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "report": "tsx report/report.ts"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
