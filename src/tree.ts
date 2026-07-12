@@ -18,7 +18,10 @@ import type { Environment, Lexeme, PositionTag, PrevRelation } from './types.ts'
 
 export type PhraseCat = 'NP' | 'PP' | 'AP' | 'AdvP' | 'NumP' | 'VNP'
 export type ClauseCat = 'S' | 'CP'
-export type Role = 'subject' | 'object' | 'possessor' | 'adverbial' | 'vocative'
+/** Only irreducibly non-geometric functions are author-supplied. Possessors
+ *  are derived from the genitive configuration; subject/object are never
+ *  needed (the XPTH consumes phrase edges, not grammatical functions). */
+export type Role = 'adverbial' | 'vocative'
 
 export interface Phrase {
   kind: 'phrase'
@@ -122,8 +125,8 @@ function xpRightEdge(prev: Terminal, target: Leaf, parents: Map<TreeNode, TreeNo
 
 /** Relation between the immediately preceding terminal and the target:
  *  'dependent' when prev is a head word of the lowest node containing both
- *  (i dŷ, y gath); 'possessor' when the target's branch under that node is a
- *  possessor phrase (cath merch); 'other' otherwise (subjects, gaps). */
+ *  (i dŷ, y gath); 'possessor' when the target sits in the genitive
+ *  configuration; 'other' otherwise (subjects, gaps). */
 function relationToTarget(prev: Terminal, target: Leaf, parents: Map<TreeNode, TreeNode>): PrevRelation {
   if (prev.kind === 'gap') return 'other'
   const prevChain = new Set<TreeNode>([prev, ...ancestors(prev, parents)])
@@ -133,7 +136,16 @@ function relationToTarget(prev: Terminal, target: Leaf, parents: Map<TreeNode, T
     // cur = lowest common ancestor (never a terminal — it has descendants on
     // two branches); prev must be its direct leaf child
     if (isTerminal(cur) || !cur.children.includes(prev)) return 'other'
-    return branch.kind === 'phrase' && branch.role === 'possessor' ? 'possessor' : 'dependent'
+    // Genitive configuration [NP N NP]: an NP following the head noun within
+    // an NP is the possessor (cath merch, canol y dre) — derived, not
+    // authored; Welsh has no other reading of this geometry. Known edge:
+    // common-noun apposition shares it, but appositive NPs are overwhelmingly
+    // personal names, which are immutable regardless.
+    const isGenitive =
+      cur.kind === 'phrase' && cur.cat === 'NP' &&
+      prev.lexeme.cat === 'N' &&
+      branch.kind === 'phrase' && branch.cat === 'NP'
+    return isGenitive ? 'possessor' : 'dependent'
   }
   return 'other'
 }

@@ -65,9 +65,19 @@ features — never a tree. All syntactic complexity lives in *producing* the rec
 ## Tree layer (src/tree.ts)
 
 The author constructs a c-structure; `environmentFor(root, targetLeaf)` derives the
-whole Environment. The author supplies structure and FUNCTION labels only (role:
-subject/object/possessor/adverbial/vocative; clause polarity) — never mutation
-judgments. Node vocabulary: phrases (NP, PP, AP, AdvP, NumP, VNP), clauses (S, CP —
+whole Environment. The author supplies structure and the two irreducibly
+non-geometric FUNCTION labels (role: adverbial/vocative; clause polarity) — never
+mutation judgments. Subject/object labels are unnecessary (the XPTH consumes phrase
+edges, not grammatical functions — the configurational theory's payoff made
+concrete). Possessors are derived from the genitive configuration [NP N NP]: an NP
+following the head noun within an NP is the possessor (cath merch, canol y dre);
+Welsh gives that geometry no other reading. Known edge: common-noun apposition
+shares the configuration, but appositive NPs are overwhelmingly personal names,
+which are immutable regardless. Adverbial/vocative stay author-supplied because
+geometry provably underdetermines them: sentence-initial adverbial NPs mutate
+(°Ddwy flynedd yn ôl…) while geometrically identical fronted objects do not (Beic
+prynodd y ddynes) — the difference is adjunct-vs-argument status, a lexical/valence
+fact the future pipeline must decide. Node vocabulary: phrases (NP, PP, AP, AdvP, NumP, VNP), clauses (S, CP —
 never XPTH triggers), leaves (Lexeme + optional trigger-lemma override), and Gap
 nodes (extraction sites; count as phrases for XP-edge, block contact adjacency via a
 sentinel lemma).

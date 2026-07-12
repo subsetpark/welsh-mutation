@@ -55,7 +55,7 @@ const check = (name: string, root: TreeNode, target: Leaf, expected: RuleId[] | 
 {
   const ty = leaf(LEX.ty)
   check('Gwelodd Mair DŶ — DOM from subject-NP edge',
-    clause('S', [leaf(LEX.gwelodd), phrase('NP', [leaf(LEX.Mair)], 'subject'), phrase('NP', [ty], 'object')]),
+    clause('S', [leaf(LEX.gwelodd), phrase('NP', [leaf(LEX.Mair)]), phrase('NP', [ty])]),
     ty, ['synt:xp-edge'])
 }
 {
@@ -63,9 +63,9 @@ const check = (name: string, root: TreeNode, target: Leaf, expected: RuleId[] | 
   check('Roedd dyn wedi prynu BEIC — nonfinite object stays radical',
     clause('S', [
       leaf(LEX.roedd),
-      phrase('NP', [leaf(LEX.dyn)], 'subject'),
+      phrase('NP', [leaf(LEX.dyn)]),
       leaf(LEX.wedi),
-      phrase('VNP', [leaf(LEX.prynu), phrase('NP', [beic], 'object')]),
+      phrase('VNP', [leaf(LEX.prynu), phrase('NP', [beic])]),
     ]),
     beic, 'radical')
 }
@@ -75,12 +75,12 @@ const check = (name: string, root: TreeNode, target: Leaf, expected: RuleId[] | 
   check('prynu [yn y dre] FEIC — intervening PP licenses via its right edge',
     clause('S', [
       leaf(LEX.roedd),
-      phrase('NP', [leaf(LEX.dyn)], 'subject'),
+      phrase('NP', [leaf(LEX.dyn)]),
       leaf(LEX.wedi),
       phrase('VNP', [
         leaf(LEX.prynu),
         phrase('PP', [leaf(LEX.yn_loc, 'yn.loc'), phrase('NP', [leaf(LEX.y), leaf(LEX.tre)])]),
-        phrase('NP', [beic], 'object'),
+        phrase('NP', [beic]),
       ]),
     ]),
     beic, ['synt:xp-edge'])
@@ -89,9 +89,9 @@ const check = (name: string, root: TreeNode, target: Leaf, expected: RuleId[] | 
   const beic = leaf(LEX.beic)
   check('BEIC prynodd y ddynes — fronted object, nothing precedes',
     clause('S', [
-      phrase('NP', [beic], 'object'),
+      phrase('NP', [beic]),
       leaf(LEX.prynodd),
-      phrase('NP', [leaf(LEX.y), leaf(LEX.dynes)], 'subject'),
+      phrase('NP', [leaf(LEX.y), leaf(LEX.dynes)]),
     ]),
     beic, 'radical')
 }
@@ -113,7 +113,7 @@ const check = (name: string, root: TreeNode, target: Leaf, expected: RuleId[] | 
       phrase('NP', [leaf(LEX.pwy)]),
       leaf(LEX.gwelodd),
       gap('NP'),
-      phrase('NP', [draig], 'object'),
+      phrase('NP', [draig]),
     ]),
     draig, ['synt:xp-edge'])
 }
@@ -134,7 +134,7 @@ const check = (name: string, root: TreeNode, target: Leaf, expected: RuleId[] | 
 {
   const merch = leaf(LEX.merch)
   check('cath MERCH — possessor branch immune',
-    phrase('NP', [leaf(LEX.cath), phrase('NP', [merch], 'possessor')]),
+    phrase('NP', [leaf(LEX.cath), phrase('NP', [merch])]),
     merch, 'radical')
 }
 {
@@ -157,7 +157,7 @@ const check = (name: string, root: TreeNode, target: Leaf, expected: RuleId[] | 
 {
   const golles = leaf(LEX.golles)
   check("GOLLES i'r tocyn — clause-initial finite verb (colloquial v1)",
-    clause('S', [golles, phrase('NP', [leaf(LEX.i_pron)], 'subject'), phrase('NP', [leaf(LEX.y), leaf(LEX.tocyn)], 'object')]),
+    clause('S', [golles, phrase('NP', [leaf(LEX.i_pron)]), phrase('NP', [leaf(LEX.y), leaf(LEX.tocyn)])]),
     golles, ['synt:v1-aff'])
 }
 {
@@ -165,24 +165,24 @@ const check = (name: string, root: TreeNode, target: Leaf, expected: RuleId[] | 
   // XP edge lands on 'r (immutable), not on tocyn.
   const tocyn = leaf(LEX.tocyn)
   check("Golles i'r TOCYN — DOM lands on the article, noun stays radical",
-    clause('S', [leaf(LEX.golles), phrase('NP', [leaf(LEX.i_pron)], 'subject'), phrase('NP', [leaf(LEX.y, 'y'), tocyn], 'object')]),
+    clause('S', [leaf(LEX.golles), phrase('NP', [leaf(LEX.i_pron)]), phrase('NP', [leaf(LEX.y, 'y'), tocyn])]),
     tocyn, 'radical')
 }
 {
   const dylset = leaf(LEX.dylset)
   check('DDylset ti ddim — negative clause-initial verb takes mixed',
-    clause('S', [dylset, phrase('NP', [leaf(LEX.ti)], 'subject'), leaf(LEX.dim)], 'neg'),
+    clause('S', [dylset, phrase('NP', [leaf(LEX.ti)]), leaf(LEX.dim)], 'neg'),
     dylset, ['synt:v1-neg-mixed'])
 }
 {
   const dim = leaf(LEX.dim)
   check('Ddylset ti DDIM — dim mutates off the subject XP edge (King §11a)',
-    clause('S', [leaf(LEX.dylset), phrase('NP', [leaf(LEX.ti)], 'subject'), dim], 'neg'),
+    clause('S', [leaf(LEX.dylset), phrase('NP', [leaf(LEX.ti)]), dim], 'neg'),
     dim, ['synt:xp-edge'])
 }
 {
   const daw = leaf(LEX.daw)
   check('os DAW e — subordinator inside the clause shields v1 (King §502)',
-    clause('S', [leaf(LEX.os), daw, phrase('NP', [leaf(LEX.e)], 'subject')]),
+    clause('S', [leaf(LEX.os), daw, phrase('NP', [leaf(LEX.e)])]),
     daw, 'radical')
 }
