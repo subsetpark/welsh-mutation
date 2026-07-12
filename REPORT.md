@@ -75,7 +75,7 @@ immediately following word, so an intervener simply *is* the preceding element.
 
 ```text
 PP
-├─0 i ⟨Other⟩ → radical (veto:no-reflex)
+├─0 i ⟨Other⟩ → radical (no-license)
 └─1 NP
    └─0 tŷ ⟨N m sg⟩ → SM (lex:i)
 ```
@@ -94,9 +94,9 @@ NP
 
 ```text
 NP
-├─0 ei ⟨Other⟩ lemma=ei.3sgm → radical (veto:no-reflex)
+├─0 ei ⟨Other⟩ lemma=ei.3sgm → radical (no-license)
 ├─1 cath ⟨N f sg⟩ → SM (lex:ei.3sgm)
-└─2 e ⟨Other⟩ → radical (veto:no-reflex)
+└─2 e ⟨Other⟩ → radical (no-license)
 ```
 
 > With lemma `ei.3sgf` the frame grade is AM: the same tree position yields `radical (no-license)` — 'her' never soft-mutates.
@@ -106,7 +106,7 @@ NP
 
 ```text
 NP
-├─0 fy ⟨Other⟩ → radical (veto:no-reflex)
+├─0 fy ⟨Other⟩ → radical (no-license)
 └─1 cath ⟨N f sg⟩ → radical (no-license)
 ```
 
@@ -153,7 +153,7 @@ NP
 
 ```text
 NP
-├─0 chwe ⟨Num⟩ → radical (veto:no-reflex)
+├─0 chwe ⟨Num⟩ → radical (no-license)
 └─1 ceffyl ⟨N m sg⟩ → radical (no-license)
 ```
 
@@ -162,7 +162,7 @@ NP
 
 ```text
 NP
-├─0 chwe ⟨Num⟩ → radical (veto:no-reflex)
+├─0 chwe ⟨Num⟩ → radical (no-license)
 └─1 blynedd ⟨N f sg⟩ → radical (no-license)
 ```
 
@@ -173,7 +173,7 @@ NP
 
 ```text
 NP
-├─0 hen ⟨Adj⟩ → radical (veto:no-reflex)
+├─0 hen ⟨Adj⟩ → radical (no-license)
 └─1 dyn ⟨N m sg⟩ → SM (lex:hen)
 ```
 
@@ -193,7 +193,7 @@ NP
 NP
 ├─0 NP
 │  └─0 cath ⟨N f sg⟩ → radical (no-license)
-├─1 neu ⟨Other⟩ → radical (veto:no-reflex)
+├─1 neu ⟨Other⟩ → radical (no-license)
 └─2 NP
    └─0 ci ⟨N m sg⟩ → SM (lex:neu)
 ```
@@ -204,11 +204,11 @@ NP
 ```text
 NP
 ├─0 NP
-│  ├─0 y ⟨Other⟩ → radical (veto:no-reflex)
+│  ├─0 y ⟨Other⟩ → radical (no-license)
 │  └─1 cath ⟨N f sg⟩ → SM (gend:art-fem-sg)
-├─1 neu ⟨Other⟩ → radical (veto:no-reflex)
+├─1 neu ⟨Other⟩ → radical (no-license)
 └─2 NP
-   ├─0 y ⟨Other⟩ → radical (veto:no-reflex)
+   ├─0 y ⟨Other⟩ → radical (veto:no-reflex blocks lex:neu)
    └─1 ci ⟨N m sg⟩ → radical (no-license)
 ```
 
@@ -233,7 +233,7 @@ genitive configuration, not a veto.
 
 ```text
 NP
-├─0 y ⟨Other⟩ → radical (veto:no-reflex)
+├─0 y ⟨Other⟩ → radical (no-license)
 └─1 cath ⟨N f sg⟩ → SM (gend:art-fem-sg)
 ```
 
@@ -242,7 +242,7 @@ NP
 
 ```text
 NP
-├─0 y ⟨Other⟩ → radical (veto:no-reflex)
+├─0 y ⟨Other⟩ → radical (no-license)
 └─1 llong ⟨N f sg⟩ → radical (no-license)
 ```
 
@@ -251,7 +251,7 @@ NP
 
 ```text
 NP
-├─0 y ⟨Other⟩ → radical (veto:no-reflex)
+├─0 y ⟨Other⟩ → radical (no-license)
 └─1 cathod ⟨N f pl⟩ → radical (no-license)
 ```
 
@@ -260,7 +260,7 @@ NP
 
 ```text
 NP
-├─0 y ⟨Other⟩ → radical (veto:no-reflex)
+├─0 y ⟨Other⟩ → radical (no-license)
 ├─1 dau ⟨Num⟩ → SM (lex:y)
 └─2 ci ⟨N m sg⟩ → SM (lex:dau)
 ```
@@ -280,7 +280,7 @@ NP
 
 ```text
 NP
-├─0 y ⟨Other⟩ → radical (veto:no-reflex)
+├─0 y ⟨Other⟩ → radical (no-license)
 ├─1 merch ⟨N f sg⟩ → SM (gend:art-fem-sg)
 ├─2 AP
 │  └─0 bach ⟨Adj⟩ → SM (gend:agr-mod)
@@ -305,7 +305,7 @@ NP
 
 ```text
 NP
-├─0 y ⟨Other⟩ → radical (veto:no-reflex)
+├─0 y ⟨Other⟩ → radical (no-license)
 ├─1 prif ⟨Adj⟩ → SM (gend:agr-mod)
 └─2 dinas ⟨N f sg⟩ → SM (lex:prif)
 ```
@@ -329,7 +329,7 @@ NP
 NP
 ├─0 canol ⟨N m sg⟩ → radical (no-license)
 └─1 NP
-   ├─0 y ⟨Other⟩ → radical (veto:no-reflex)
+   ├─0 y ⟨Other⟩ → radical (no-license)
    └─1 tre ⟨N f sg⟩ → SM (gend:art-fem-sg)
 ```
 
@@ -386,10 +386,10 @@ S
 
 ```text
 S
-├─0 bod ⟨V⟩ → radical (veto:no-reflex)
+├─0 bod ⟨V⟩ → radical (veto:no-reflex blocks synt:v1-aff)
 ├─1 NP
 │  └─0 dyn ⟨N m sg⟩ → radical (no-license)
-├─2 wedi ⟨Prt⟩ → radical (veto:no-reflex)
+├─2 wedi ⟨Prt⟩ → radical (veto:no-reflex blocks synt:xp-edge)
 └─3 VNP
    ├─0 prynu ⟨Vnoun⟩ → radical (no-license)
    └─1 NP
@@ -401,16 +401,16 @@ S
 
 ```text
 S
-├─0 bod ⟨V⟩ → radical (veto:no-reflex)
+├─0 bod ⟨V⟩ → radical (veto:no-reflex blocks synt:v1-aff)
 ├─1 NP
 │  └─0 dyn ⟨N m sg⟩ → radical (no-license)
-├─2 wedi ⟨Prt⟩ → radical (veto:no-reflex)
+├─2 wedi ⟨Prt⟩ → radical (veto:no-reflex blocks synt:xp-edge)
 └─3 VNP
    ├─0 prynu ⟨Vnoun⟩ → radical (no-license)
    ├─1 PP
-   │  ├─0 yn ⟨Other⟩ lemma=yn.loc → radical (veto:no-reflex)
+   │  ├─0 yn ⟨Other⟩ lemma=yn.loc → radical (no-license)
    │  └─1 NP
-   │     ├─0 y ⟨Other⟩ → radical (veto:no-reflex)
+   │     ├─0 y ⟨Other⟩ → radical (no-license)
    │     └─1 tre ⟨N f sg⟩ → SM (gend:art-fem-sg)
    └─2 NP
       └─0 beic ⟨N m sg⟩ → SM (synt:xp-edge)
@@ -425,7 +425,7 @@ S
 │  └─0 beic ⟨N m sg⟩ → radical (no-license)
 ├─1 prynu ⟨V⟩ → SM (synt:xp-edge)
 └─2 NP
-   ├─0 y ⟨Other⟩ → radical (veto:no-reflex)
+   ├─0 y ⟨Other⟩ → radical (no-license)
    └─1 dynes ⟨N f sg⟩ → SM (gend:art-fem-sg)
 ```
 
@@ -449,9 +449,9 @@ S
 S
 ├─0 rhaid ⟨N⟩ → radical (no-license)
 ├─1 PP
-│  ├─0 i ⟨Other⟩ → radical (veto:no-reflex)
+│  ├─0 i ⟨Other⟩ → radical (no-license)
 │  └─1 NP
-│     └─0 Emrys ⟨N⟩ immutable → radical (veto:no-reflex)
+│     └─0 Emrys ⟨N⟩ immutable → radical (veto:no-reflex blocks lex:i)
 └─2 VNP
    └─0 mynd ⟨Vnoun⟩ → SM (synt:xp-edge)
 ```
@@ -463,9 +463,9 @@ S
 S
 ├─0 colli ⟨V⟩ → SM (synt:v1-aff)
 ├─1 NP
-│  └─0 i.pron ⟨Other⟩ → radical (veto:no-reflex)
+│  └─0 i.pron ⟨Other⟩ → radical (no-license)
 └─2 NP
-   ├─0 y ⟨Other⟩ → radical (veto:no-reflex)
+   ├─0 y ⟨Other⟩ → radical (veto:no-reflex blocks synt:xp-edge)
    └─1 tocyn ⟨N m sg⟩ → radical (no-license)
 ```
 
@@ -487,7 +487,7 @@ S (neg)
 S (neg)
 ├─0 para ⟨V⟩ → radical (no-license)
 ├─1 NP
-│  └─0 hi ⟨Other⟩ → radical (veto:no-reflex)
+│  └─0 hi ⟨Other⟩ → radical (no-license)
 └─2 dim ⟨Prt⟩ → SM (synt:xp-edge)
 ```
 
@@ -496,10 +496,10 @@ S (neg)
 
 ```text
 S
-├─0 os ⟨Other⟩ → radical (veto:no-reflex)
+├─0 os ⟨Other⟩ → radical (no-license)
 ├─1 dod ⟨V⟩ → radical (no-license)
 └─2 NP
-   └─0 e ⟨Other⟩ → radical (veto:no-reflex)
+   └─0 e ⟨Other⟩ → radical (no-license)
 ```
 
 **°Ddwy °flynedd yn ôl aeth hi adre**  
@@ -510,10 +510,10 @@ S
 ├─0 NP (adverbial)
 │  ├─0 dwy ⟨Num⟩ → SM (synt:adv-np)
 │  ├─1 blynedd ⟨N f sg⟩ → SM (lex:dwy)
-│  └─2 yn ôl ⟨Adv⟩ → radical (veto:no-reflex)
-├─1 mynd ⟨V⟩ → radical (veto:no-reflex)
+│  └─2 yn ôl ⟨Adv⟩ → radical (no-license)
+├─1 mynd ⟨V⟩ → radical (veto:no-reflex blocks synt:xp-edge)
 └─2 NP
-   └─0 hi ⟨Other⟩ → radical (veto:no-reflex)
+   └─0 hi ⟨Other⟩ → radical (no-license)
 ```
 
 **Dewch, °blant!**  
@@ -549,7 +549,7 @@ NP
 
 ```text
 PP
-├─0 i ⟨Other⟩ → radical (veto:no-reflex)
+├─0 i ⟨Other⟩ → radical (no-license)
 └─1 NP
    └─0 Dafydd ⟨N⟩ immutable → radical (veto:immutable blocks lex:i)
 ```
@@ -559,9 +559,9 @@ PP
 
 ```text
 PP
-├─0 i ⟨Other⟩ → radical (veto:no-reflex)
+├─0 i ⟨Other⟩ → radical (no-license)
 └─1 NP
-   └─0 ysgol ⟨N f sg⟩ → radical (veto:no-reflex)
+   └─0 ysgol ⟨N f sg⟩ → radical (veto:no-reflex blocks lex:i)
 ```
 
 ## 7. Contested territory

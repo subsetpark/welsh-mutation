@@ -15,6 +15,9 @@ for (const f of triggersData.frames as TriggerFrame[]) {
 const SM_TARGETS = new Set<InitClass>(['c', 'p', 't', 'g', 'b', 'd', 'll', 'm', 'rh'])
 const SM_LTD_EXCLUDED = new Set<InitClass>(['ll', 'rh'])
 const MIXED_SM = new Set<InitClass>(['g', 'b', 'd', 'll', 'm', 'rh']) // AM claims c/p/t (King §10)
+/** Grades with an SM reflex for at least one initial — the counterfactual
+ *  test for a no-reflex word: would this rule fire on any mutable initial? */
+const SM_YIELDING = new Set<Grade>(['SM', 'SM-ltd', 'mixed'])
 
 /** Does `grade`, as governed by a trigger, surface as SM on this initial? */
 function gradeYieldsSM(grade: Grade, init: InitClass): boolean {
@@ -40,47 +43,53 @@ function frameApplies(frame: TriggerFrame, lexeme: Lexeme): boolean {
   return true
 }
 
+/** A rule whose ENVIRONMENTAL conditions hold, before any initial-class
+ *  filtering. `grade` is the mutation the rule would impose; whether that
+ *  surfaces as SM on this word is the caller's question. */
+interface Potential {
+  rule: RuleId
+  grade: Grade
+}
+
 /** P_lex — contact triggers (King §9). Blocking by an intervening word
  *  (King §5d) needs no rule: the intervener simply *is* `prev`. */
-function lexicalLicense(lexeme: Lexeme, env: Environment): RuleId | null {
+function lexicalPotentials(lexeme: Lexeme, env: Environment): Potential[] {
   const prev = env.prev
-  if (!prev || prev.relationToTarget !== 'dependent') return null
+  if (!prev || prev.relationToTarget !== 'dependent') return []
+  const out: Potential[] = []
   for (const frame of FRAMES.get(prev.lemma) ?? []) {
     if (!frameApplies(frame, lexeme)) continue
-    if (!gradeYieldsSM(frame.grade, lexeme.initClass)) continue
-    return frame.ruleId ?? (`lex:${frame.lemma}` as RuleId)
+    out.push({ rule: frame.ruleId ?? (`lex:${frame.lemma}` as RuleId), grade: frame.grade })
   }
-  return null
+  return out
 }
 
 /** P_gend — modifier agreeing with a fem sg controller. Deliberately not
- *  adjacency-based: handles adjective chains (y ferch fach wen). */
-function genderLicense(lexeme: Lexeme, env: Environment): RuleId | null {
+ *  adjacency-based: handles adjective chains (y ferch fach wen). Full SM —
+ *  no ll-/rh- sparing (King §100: profedigaeth °lem). */
+function genderPotentials(env: Environment): Potential[] {
   const agr = env.agreement
-  if (!agr) return null
-  if (agr.controllerGender !== 'f' || agr.controllerNumber !== 'sg') return null
-  if (!SM_TARGETS.has(lexeme.initClass)) return null
-  return 'gend:agr-mod'
+  if (!agr) return []
+  if (agr.controllerGender !== 'f' || agr.controllerNumber !== 'sg') return []
+  return [{ rule: 'gend:agr-mod', grade: 'SM' }]
 }
 
 /** P_synt — positional mutation (King §11, §10). Unblockable (King §5e). */
-function syntacticLicenses(lexeme: Lexeme, env: Environment): RuleId[] {
-  const out: RuleId[] = []
-  if (env.prev?.isXPRightEdge && SM_TARGETS.has(lexeme.initClass)) {
-    out.push('synt:xp-edge')
-  }
+function syntacticPotentials(env: Environment): Potential[] {
+  const out: Potential[] = []
+  if (env.prev?.isXPRightEdge) out.push({ rule: 'synt:xp-edge', grade: 'SM' })
   switch (env.position) {
     case 'adv-np':
-      if (SM_TARGETS.has(lexeme.initClass)) out.push('synt:adv-np')
+      out.push({ rule: 'synt:adv-np', grade: 'SM' })
       break
     case 'vocative':
-      if (SM_TARGETS.has(lexeme.initClass)) out.push('synt:vocative')
+      out.push({ rule: 'synt:vocative', grade: 'SM' })
       break
     case 'v1-finite-aff':
-      if (SM_TARGETS.has(lexeme.initClass)) out.push('synt:v1-aff')
+      out.push({ rule: 'synt:v1-aff', grade: 'SM' })
       break
     case 'v1-finite-neg':
-      if (gradeYieldsSM('mixed', lexeme.initClass)) out.push('synt:v1-neg-mixed')
+      out.push({ rule: 'synt:v1-neg-mixed', grade: 'mixed' })
       break
     case null:
       break
@@ -93,26 +102,32 @@ function syntacticLicenses(lexeme: Lexeme, env: Environment): RuleId[] {
 }
 
 export function sm(lexeme: Lexeme, env: Environment): SMResult {
-  // Licenses are computed BEFORE the immutability veto so a suppressed
-  // license is reportable ('i Dafydd' resists a live lex:i) and an idle veto
-  // is distinguishable from a working one ('dy' utterance-initial has nothing
-  // to veto; removing the flag would change nothing → plain no-license).
-  // The grade/initClass checks inside the licensers make licenses inherently
-  // empty for no-reflex initials, so that veto stays a plain fact.
-  const licensedBy: RuleId[] = []
-  const lex = lexicalLicense(lexeme, env)
-  if (lex) licensedBy.push(lex)
-  const gend = genderLicense(lexeme, env)
-  if (gend) licensedBy.push(gend)
-  licensedBy.push(...syntacticLicenses(lexeme, env))
+  // Potentials are environmental only; the initial-class filter is applied
+  // here, so BOTH vetoes report counterfactually: they name the rules that
+  // would otherwise fire, and an idle veto (nothing to block) reports plain
+  // no-license, because removing it would change nothing.
+  const potentials = [
+    ...lexicalPotentials(lexeme, env),
+    ...genderPotentials(env),
+    ...syntacticPotentials(env),
+  ]
 
-  if (licensedBy.length > 0) {
+  const fired = potentials
+    .filter(p => gradeYieldsSM(p.grade, lexeme.initClass))
+    .map(p => p.rule)
+  if (fired.length > 0) {
     return lexeme.immutable
-      ? { mutates: false, reason: 'veto:immutable', suppressed: licensedBy }
-      : { mutates: true, licensedBy }
+      ? { mutates: false, reason: 'veto:immutable', suppressed: fired }
+      : { mutates: true, licensedBy: fired }
   }
+
   if (!SM_TARGETS.has(lexeme.initClass)) {
-    return { mutates: false, reason: 'veto:no-reflex' }
+    // Would any present rule fire on SOME mutable initial? (AM/NM frames
+    // would not — a vowel word after ei 'her' is no-license, not no-reflex.)
+    const wouldFire = potentials.filter(p => SM_YIELDING.has(p.grade)).map(p => p.rule)
+    if (wouldFire.length > 0) {
+      return { mutates: false, reason: 'veto:no-reflex', suppressed: wouldFire }
+    }
   }
   return { mutates: false, reason: 'no-license' }
 }

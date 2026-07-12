@@ -125,12 +125,17 @@ mutates the first WORD of the following constituent, not the constituent's head.
    this initClass; target-feature conditions (gender/number/cat) satisfied.
 2. P_gend: agreement-based modifier rule.
 3. P_synt: `isXPRightEdge` or designated position.
-4. Vetoes, applied to the collected licenses: `lexeme.immutable` (King §12) suppresses
-   them and REPORTS them (`suppressed: [...]`) — an idle veto (no license in this
-   environment anyway) reports plain `no-license`, because removing the flag would
-   change nothing. `veto:no-reflex` needs no such treatment: the grade/initClass
-   checks inside the licensers make licenses inherently empty for no-reflex initials.
-All licensers are collected (a token can be multiply licensed); any (unvetoed) → true.
+4. Vetoes, applied to the collected potentials. Licensers return POTENTIALS —
+   (rule, grade) pairs whose environmental conditions hold — and sm() applies the
+   initial-class filter, so BOTH vetoes report counterfactually:
+   - `veto:immutable` (King §12) reports the rules that fired on this initial
+     (`suppressed: [...]`, e.g. i Dafydd blocks lex:i);
+   - `veto:no-reflex` (King §5a) reports the SM-yielding rules (grade ∈ SM/SM-ltd/
+     mixed) that would fire on some mutable initial (i ysgol blocks lex:i) — an AM/NM
+     frame would soft-mutate no initial, so ei ysgol 'her school' is plain no-license;
+   - an idle veto (nothing to block) reports plain `no-license`, because removing it
+     would change nothing.
+All fired rules are collected (a token can be multiply licensed); any (unvetoed) → true.
 
 ## Grade → SM-reflex logic
 

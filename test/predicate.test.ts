@@ -110,6 +110,20 @@ test('DY gath, utterance-initial — immutable flag idle, plain no-license', () 
   assert.deepEqual(r, { mutates: false, reason: 'no-license' })
 })
 
+// veto:no-reflex follows the same counterfactual logic
+test('i YSGOL — no-reflex veto suppressing a live lex:i', () => {
+  const r = sm(L.ysgol, E.after('i'))
+  assert.deepEqual(r, { mutates: false, reason: 'veto:no-reflex', suppressed: ['lex:i'] })
+})
+test('YSGOL, utterance-initial — no rule would fire, plain no-license', () => {
+  const r = sm(L.ysgol, E.none)
+  assert.deepEqual(r, { mutates: false, reason: 'no-license' })
+})
+test("ei YSGOL hi — AM frame would not soft-mutate ANY initial: no-license, not no-reflex", () => {
+  const r = sm(L.ysgol, E.after('ei.3sgf'))
+  assert.deepEqual(r, { mutates: false, reason: 'no-license' })
+})
+
 // multiple licensers are all reported
 expectSM('multiply licensed: trigger + XP edge', L.ty, {
   prev: { lemma: 'i', relationToTarget: 'dependent', isXPRightEdge: true },

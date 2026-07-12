@@ -101,7 +101,9 @@ export type NoMutationReason =
 
 export type SMResult =
   | { mutates: true; licensedBy: RuleId[] }
-  /** `suppressed` (veto:immutable only) lists the licenses the veto actually
-   *  blocked — an idle veto (no license in this environment anyway) reports
-   *  plain `no-license`, since removing the flag would change nothing. */
+  /** Both vetoes report counterfactually: `suppressed` lists the rules the
+   *  veto actually blocked (veto:immutable — rules that fired on this
+   *  initial; veto:no-reflex — SM-yielding rules that would fire on some
+   *  mutable initial). An idle veto reports plain `no-license`, since
+   *  removing it would change nothing. */
   | { mutates: false; reason: NoMutationReason; suppressed?: RuleId[] }
