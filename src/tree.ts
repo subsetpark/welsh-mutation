@@ -55,11 +55,19 @@ const GAP_LEMMA = '#gap'
 type Terminal = Leaf | Gap
 const isTerminal = (n: TreeNode): n is Terminal => n.kind === 'leaf' || n.kind === 'gap'
 
+/** Node identity is OBJECT identity: two tokens of the same word must be two
+ *  distinct Leaf objects, or neither is addressable as a target and the
+ *  parent map silently corrupts. Enforced here: an aliased node throws. */
 function buildParents(root: TreeNode): Map<TreeNode, TreeNode> {
   const parents = new Map<TreeNode, TreeNode>()
   const walk = (node: TreeNode) => {
     if (isTerminal(node)) return
     for (const child of node.children) {
+      if (child === root || parents.has(child)) {
+        throw new Error(
+          'node object appears twice in the tree — construct a fresh Leaf/Phrase per token position',
+        )
+      }
       parents.set(child, node)
       walk(child)
     }
@@ -192,8 +200,27 @@ function positionFor(target: Leaf, parents: Map<TreeNode, TreeNode>): PositionTa
   return null
 }
 
-export function environmentFor(root: TreeNode, target: Leaf): Environment {
+/** Address of a node: child indices from the root. Paths — not node
+ *  references — are the public addressing scheme, so trees are plain
+ *  serializable data and two tokens of the same word are distinguished
+ *  positionally, never by object identity. */
+export type TreePath = number[]
+
+export function resolveLeaf(root: TreeNode, path: TreePath): Leaf {
+  let node: TreeNode = root
+  for (const i of path) {
+    if (isTerminal(node)) throw new Error(`path descends through a terminal at index ${i}`)
+    const child: TreeNode | undefined = node.children[i]
+    if (!child) throw new Error(`no child at index ${i}`)
+    node = child
+  }
+  if (node.kind !== 'leaf') throw new Error(`path must address a Leaf, got ${node.kind}`)
+  return node
+}
+
+export function environmentFor(root: TreeNode, path: TreePath): Environment {
   const parents = buildParents(root)
+  const target = resolveLeaf(root, path)
   const terminals = terminalsInOrder(root)
   const idx = terminals.indexOf(target)
   if (idx < 0) throw new Error('target leaf is not in the tree')

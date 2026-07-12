@@ -91,6 +91,16 @@ AP(mawr) ends before it and c-commands it). This operationalizes Tallerman's
 exclusively to the gender subsystem). Green's decisive VNP case (prynu [PP yn y dre]
 °feic) still fires because the join node is VNP.
 
+Targets are addressed by TreePath (child indices from the root), not node
+references: trees are plain serializable data — the pipeline will hand us JSON — and
+two tokens of the same word are distinguished positionally, never by object
+identity. Aliasing one node object into two positions throws (geometry is only
+well-defined over a genuine tree). The full tree is required, not a prefix: the
+target's ancestor spine carries c-command/domination, and agreement looks rightward
+within the target's NP (prenominal adjectives agree with a FOLLOWING head noun:
+y °brif °ddinas). Nothing after the target's containing clause is ever consulted —
+near-prefix computability that bodes well for incremental pipeline tagging.
+
 Authoring conventions:
 - Subordinators/conjunctions/preverbal particles are leaf children of the clause they
   introduce (so `os daw e` does not present daw as clause-initial; root `Golles i…`
