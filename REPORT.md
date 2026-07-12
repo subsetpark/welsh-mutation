@@ -513,8 +513,9 @@ S
 │  ├─1 blynedd ⟨N f sg⟩ → SM (lex:dwy)
 │  └─2 yn ôl ⟨Adv⟩ → radical (no-license)
 ├─1 mynd ⟨V⟩ → radical (veto:no-reflex blocks synt:xp-edge)
-└─2 NP
-   └─0 hi ⟨Other⟩ → radical (no-license)
+├─2 NP
+│  └─0 hi ⟨Other⟩ → radical (no-license)
+└─3 adre ⟨Adv⟩ → radical (veto:no-reflex blocks synt:xp-edge)
 ```
 
 **Dewch, °blant!**  

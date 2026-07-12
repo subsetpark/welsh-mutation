@@ -344,6 +344,7 @@ export const SYNTACTIC: Example[] = [
       phrase('NP', [leaf(L.dwy), leaf(L.blynedd), leaf(L.yn_ol)], 'adverbial'),
       leaf(L.aeth),
       phrase('NP', [leaf(L.hi)]),
+      leaf(L.adre),
     ]),
     targets: [
       { path: [0, 0], expect: ['synt:adv-np'] },

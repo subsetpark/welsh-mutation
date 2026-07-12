@@ -100,4 +100,5 @@ export const LEXICON = {
   os: { id: 'os', cat: 'Other', initClass: 'other' },
   yn: { id: 'yn', cat: 'Other', initClass: 'other' },
   yn_ol: { id: 'yn ôl', cat: 'Adv', initClass: 'other' },
+  adre: { id: 'adre', cat: 'Adv', initClass: 'other' },
 } satisfies Record<string, Lexeme>
