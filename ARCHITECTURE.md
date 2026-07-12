@@ -121,12 +121,16 @@ mutates the first WORD of the following constituent, not the constituent's head.
 
 ## Evaluation order
 
-1. Vetoes: `lexeme.immutable` (King §12), or initClass has no SM reflex → false.
-2. P_lex: prev lemma has a frame; relation is `dependent`; frame's grade yields SM for
+1. P_lex: prev lemma has a frame; relation is `dependent`; frame's grade yields SM for
    this initClass; target-feature conditions (gender/number/cat) satisfied.
-3. P_gend: agreement-based modifier rule.
-4. P_synt: `isXPRightEdge` or designated position.
-All licensers are collected (a token can be multiply licensed); any → true.
+2. P_gend: agreement-based modifier rule.
+3. P_synt: `isXPRightEdge` or designated position.
+4. Vetoes, applied to the collected licenses: `lexeme.immutable` (King §12) suppresses
+   them and REPORTS them (`suppressed: [...]`) — an idle veto (no license in this
+   environment anyway) reports plain `no-license`, because removing the flag would
+   change nothing. `veto:no-reflex` needs no such treatment: the grade/initClass
+   checks inside the licensers make licenses inherently empty for no-reflex initials.
+All licensers are collected (a token can be multiply licensed); any (unvetoed) → true.
 
 ## Grade → SM-reflex logic
 

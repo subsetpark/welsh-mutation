@@ -93,11 +93,12 @@ function syntacticLicenses(lexeme: Lexeme, env: Environment): RuleId[] {
 }
 
 export function sm(lexeme: Lexeme, env: Environment): SMResult {
-  if (lexeme.immutable) return { mutates: false, reason: 'veto:immutable' }
-  if (!SM_TARGETS.has(lexeme.initClass)) {
-    return { mutates: false, reason: 'veto:no-reflex' }
-  }
-
+  // Licenses are computed BEFORE the immutability veto so a suppressed
+  // license is reportable ('i Dafydd' resists a live lex:i) and an idle veto
+  // is distinguishable from a working one ('dy' utterance-initial has nothing
+  // to veto; removing the flag would change nothing → plain no-license).
+  // The grade/initClass checks inside the licensers make licenses inherently
+  // empty for no-reflex initials, so that veto stays a plain fact.
   const licensedBy: RuleId[] = []
   const lex = lexicalLicense(lexeme, env)
   if (lex) licensedBy.push(lex)
@@ -105,7 +106,13 @@ export function sm(lexeme: Lexeme, env: Environment): SMResult {
   if (gend) licensedBy.push(gend)
   licensedBy.push(...syntacticLicenses(lexeme, env))
 
-  return licensedBy.length > 0
-    ? { mutates: true, licensedBy }
-    : { mutates: false, reason: 'no-license' }
+  if (licensedBy.length > 0) {
+    return lexeme.immutable
+      ? { mutates: false, reason: 'veto:immutable', suppressed: licensedBy }
+      : { mutates: true, licensedBy }
+  }
+  if (!SM_TARGETS.has(lexeme.initClass)) {
+    return { mutates: false, reason: 'veto:no-reflex' }
+  }
+  return { mutates: false, reason: 'no-license' }
 }

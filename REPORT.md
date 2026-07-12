@@ -85,7 +85,7 @@ PP
 
 ```text
 NP
-├─0 dy ⟨Other⟩ immutable → radical (veto:immutable)
+├─0 dy ⟨Other⟩ immutable → radical (no-license)
 └─1 cath ⟨N f sg⟩ → SM (lex:dy)
 ```
 
@@ -115,7 +115,7 @@ NP
 
 ```text
 AP
-├─0 mor ⟨Adv⟩ immutable → radical (veto:immutable)
+├─0 mor ⟨Adv⟩ immutable → radical (no-license)
 └─1 bach ⟨Adj⟩ → SM (lex:mor)
 ```
 
@@ -126,7 +126,7 @@ AP
 
 ```text
 AP
-├─0 mor ⟨Adv⟩ immutable → radical (veto:immutable)
+├─0 mor ⟨Adv⟩ immutable → radical (no-license)
 └─1 llawn ⟨Adj⟩ → radical (no-license)
 ```
 
@@ -374,7 +374,7 @@ toggle, not a theory change. Imperatives resist both v1 mutation and *neu°*
 S
 ├─0 gweld ⟨V⟩ → SM (synt:v1-aff)
 ├─1 NP
-│  └─0 Mair ⟨N⟩ immutable → radical (veto:immutable)
+│  └─0 Mair ⟨N⟩ immutable → radical (no-license)
 └─2 NP
    └─0 tŷ ⟨N m sg⟩ → SM (synt:xp-edge)
 ```
@@ -451,7 +451,7 @@ S
 ├─1 PP
 │  ├─0 i ⟨Other⟩ → radical (veto:no-reflex)
 │  └─1 NP
-│     └─0 Emrys ⟨N⟩ immutable → radical (veto:immutable)
+│     └─0 Emrys ⟨N⟩ immutable → radical (veto:no-reflex)
 └─2 VNP
    └─0 mynd ⟨Vnoun⟩ → SM (synt:xp-edge)
 ```
@@ -476,7 +476,7 @@ S
 S (neg)
 ├─0 dylu ⟨V⟩ → SM (synt:v1-neg-mixed)
 ├─1 NP
-│  └─0 ti ⟨Other⟩ immutable → radical (veto:immutable)
+│  └─0 ti ⟨Other⟩ immutable → radical (no-license)
 └─2 dim ⟨Prt⟩ → SM (synt:xp-edge)
 ```
 
@@ -540,8 +540,8 @@ claims: one is lexical listing, the other phonological vacuity.
 
 ```text
 NP
-├─0 dy ⟨Other⟩ immutable → radical (veto:immutable)
-└─1 gêm ⟨N f sg⟩ immutable → radical (veto:immutable)
+├─0 dy ⟨Other⟩ immutable → radical (no-license)
+└─1 gêm ⟨N f sg⟩ immutable → radical (veto:immutable blocks lex:dy)
 ```
 
 **i Dafydd**  
@@ -551,7 +551,7 @@ NP
 PP
 ├─0 i ⟨Other⟩ → radical (veto:no-reflex)
 └─1 NP
-   └─0 Dafydd ⟨N⟩ immutable → radical (veto:immutable)
+   └─0 Dafydd ⟨N⟩ immutable → radical (veto:immutable blocks lex:i)
 ```
 
 **i ysgol**  

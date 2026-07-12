@@ -37,7 +37,7 @@ test('verdict rendering: every leaf judged with provenance', () => {
     'S',
     '├─0 gweld ⟨V⟩ → SM (synt:v1-aff)',
     '├─1 NP',
-    '│  └─0 Mair ⟨N⟩ immutable → radical (veto:immutable)',
+    '│  └─0 Mair ⟨N⟩ immutable → radical (no-license)',
     '└─2 NP',
     '   └─0 tŷ ⟨N m sg⟩ → SM (synt:xp-edge)',
   ].join('\n'))
@@ -53,7 +53,7 @@ test('verdict rendering: polarity shown, mixed mutation provenance', () => {
     'S (neg)',
     '├─0 dylu ⟨V⟩ → SM (synt:v1-neg-mixed)',
     '├─1 NP',
-    '│  └─0 ti ⟨Other⟩ immutable → radical (veto:immutable)',
+    '│  └─0 ti ⟨Other⟩ immutable → radical (no-license)',
     '└─2 dim ⟨Prt⟩ → SM (synt:xp-edge)',
   ].join('\n'))
 })

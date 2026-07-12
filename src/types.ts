@@ -101,4 +101,7 @@ export type NoMutationReason =
 
 export type SMResult =
   | { mutates: true; licensedBy: RuleId[] }
-  | { mutates: false; reason: NoMutationReason }
+  /** `suppressed` (veto:immutable only) lists the licenses the veto actually
+   *  blocked — an idle veto (no license in this environment anyway) reports
+   *  plain `no-license`, since removing the flag would change nothing. */
+  | { mutates: false; reason: NoMutationReason; suppressed?: RuleId[] }

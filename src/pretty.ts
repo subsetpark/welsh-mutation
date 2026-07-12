@@ -33,7 +33,7 @@ export function prettyTree(root: TreeNode, opts: PrettyOptions = {}): string {
           const r = sm(l, environmentFor(root, path))
           s += r.mutates
             ? ` → SM (${r.licensedBy.join(', ')})`
-            : ` → radical (${r.reason})`
+            : ` → radical (${r.reason}${r.suppressed ? ` blocks ${r.suppressed.join(', ')}` : ''})`
         }
         return s
       }

@@ -100,6 +100,16 @@ expectNoSM('dy gêm — immutable loanword despite dy°', L.gem, E.after('dy'), 
 expectNoSM('i Dafydd — personal name immune despite i°', L.Dafydd, E.after('i'), 'veto:immutable')
 expectNoSM('i ysgol — vowel-initial: no SM reflex', L.ysgol, E.after('i'), 'veto:no-reflex')
 
+// a working veto reports what it suppressed; an idle one reports no-license
+test('i DY gath — veto:immutable suppressing a live lex:i', () => {
+  const r = sm(L.dy, E.after('i'))
+  assert.deepEqual(r, { mutates: false, reason: 'veto:immutable', suppressed: ['lex:i'] })
+})
+test('DY gath, utterance-initial — immutable flag idle, plain no-license', () => {
+  const r = sm(L.dy, E.none)
+  assert.deepEqual(r, { mutates: false, reason: 'no-license' })
+})
+
 // multiple licensers are all reported
 expectSM('multiply licensed: trigger + XP edge', L.ty, {
   prev: { lemma: 'i', relationToTarget: 'dependent', isXPRightEdge: true },
