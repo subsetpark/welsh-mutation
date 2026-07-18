@@ -122,6 +122,7 @@ const isProper = (t: Token | undefined) =>
 const ECHO_MASC = new Set(['e', 'fe', 'fo', 'ef'])
 const ECHO_FEM = new Set(['hi'])
 const ECHO_PL = new Set(['nhw', 'hwy'])
+const PRONOUNS = new Set(['fi', 'ti', 'di', 'e', 'fe', 'fo', 'ef', 'hi', 'ni', 'chi', 'nhw', 'hwy'])
 
 // ─── the rule sequence ───
 
@@ -139,6 +140,35 @@ const RULES: Rule[] = [
       if (t.surface.toLowerCase() !== 'i') return null
       const numeric = [ctx.left[0], ctx.right[0]].some(n => n && /\p{N}/u.test(n.surface))
       return numeric ? null : r => r.cat === 'Num'
+    },
+  },
+  {
+    // VSO: a clause-initial token with a verb reading followed by a nominal
+    // IS the verb — *bae rhaid is not a Welsh clause shape. This is the
+    // guard-legal way to kill de-mutation homographs like mae ⇐ NM-of-bae:
+    // the evidence is position and category, never the reading's grade.
+    id: 'vso-clause-initial-verb',
+    prune(t, ctx) {
+      if (ctx.left.length !== 0) return null
+      if (!t.readings.some(r => r.cat === 'V')) return null
+      const n = ctx.right[0]
+      const nominal =
+        hasCat(n, 'N', 'Num') || isArticle(n) ||
+        (n !== undefined && PRONOUNS.has(n.surface.toLowerCase()))
+      if (!nominal) return null
+      return r => r.cat === 'N'
+    },
+  },
+  {
+    // mi/fe as preverbal particles exist ONLY clause-initially before a
+    // verb; anywhere else the reading (usually fi ⇐ SM-of-mi) is junk.
+    id: 'preverbal-particle-position',
+    prune(t, ctx) {
+      if (!t.readings.some(r => (r.lemma === 'mi' || r.lemma === 'fe') && r.cat === 'Adv')) {
+        return null
+      }
+      if (ctx.left.length === 0 && hasCat(ctx.right[0], 'V')) return null
+      return r => (r.lemma === 'mi' || r.lemma === 'fe') && r.cat === 'Adv'
     },
   },
   {
@@ -218,9 +248,13 @@ const RULES: Rule[] = [
         left !== undefined && left.readings.some(r => r.entry.cat === 'V' && r.entry.person === '1')
       if (leftIsP1Verb) return r => r.lemma === 'i'
       if (right === undefined && hasCat(left, 'N')) return r => r.lemma === 'i'
-      // i'w is always prep + fused possessive; and i before a nominal is prep
+      // i'w is always prep + fused possessive; i before a nominal or a
+      // pronoun (rhaid i fi) is the preposition
       if (hasLemma(right, "'w.3sgm", "'w.3sgf", "'w.3pl")) return r => r.lemma === 'i.pron'
-      if (isArticle(right) || hasCat(right, 'N', 'Vnoun') || isProper(right)) {
+      if (
+        isArticle(right) || hasCat(right, 'N', 'Vnoun') || isProper(right) ||
+        (right !== undefined && PRONOUNS.has(right.surface.toLowerCase()))
+      ) {
         return r => r.lemma === 'i.pron'
       }
       return null
@@ -230,13 +264,17 @@ const RULES: Rule[] = [
     // dy: possessive needs a following nominal; SM-of-tŷ needs a preceding
     // possessor/preposition and no following nominal. Neighbor evidence
     // only — the target's own mutation is structurally unreadable here.
+    // Decisions are strict (same philosophy as keepOnly): once context
+    // picks a side, every other reading dies — including broad-lexicon
+    // junk like Apertium's placename Ty, whose circumflex-less radical
+    // would survive an exact 'tŷ' match and fake ambiguity downstream.
     id: 'dy-poss-vs-ty',
     prune(t, ctx) {
       if (t.surface.toLowerCase() !== 'dy') return null
       const possessorLeft = hasLemma(ctx.left[0], 'ei.3sgm', 'ei.3sgf', "'w.3sgm", 'i', 'fy')
       const nominalRight = hasCat(ctx.right[0], 'N', 'Vnoun')
-      if (possessorLeft && !nominalRight) return r => r.cat === 'Other'
-      if (nominalRight && !possessorLeft) return r => r.cat === 'N' && r.radical === 'tŷ'
+      if (possessorLeft && !nominalRight) return r => r.radical !== 'tŷ'
+      if (nominalRight && !possessorLeft) return r => r.cat !== 'Other'
       return null
     },
   },

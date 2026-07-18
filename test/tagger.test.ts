@@ -2,6 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { analyze } from '../pipeline/analyze.ts'
 import { tag, type TaggedToken, type TargetReadingView } from '../pipeline/tagger.ts'
+import { Lexicon } from '../pipeline/lexicon.ts'
 
 // STRUCTURAL GUARD (DoD-7), compile-time: the target view must not expose
 // the observed mutation. If someone adds `grade` to TargetReadingView, this
@@ -96,6 +97,38 @@ test('ambiguity flags: undecidable tokens flagged, decided ones not', () => {
   const fan = tagged('y fan')
   assert.equal(fan[1]!.ambiguous, true)
   assert.equal(fan[1]!.readings.length, 3) // fan/man/ban all retained
+})
+
+test('dy resolves strictly even against broad-lexicon junk (Apertium Ty)', () => {
+  // A circumflex-less proper-noun Ty makes surface dy reachable via d←t;
+  // context that decides "possessive" must kill it too, or the fake
+  // ambiguity fans out onto the following noun's verdicts.
+  const noisy = new Lexicon([
+    { form: 'Ty', lemma: 'Ty', cat: 'N', initClass: 't', proper: true, freq: 1 },
+  ])
+  const [dy, gath] = tag(analyze('dy gath', noisy), noisy)
+  assert.equal(dy!.ambiguous, undefined)
+  assert.equal(dy!.readings.length, 1)
+  assert.equal(dy!.readings[0]!.entry.lemma, 'dy')
+  assert.equal(gath!.ambiguous, undefined)
+})
+
+test('VSO and particle-position inference resolve demutation homographs', () => {
+  // bae makes mae ⇐ NM-of-bae available; Adv mi makes fi ⇐ SM-of-mi
+  // available. Position/category evidence must kill both — never the
+  // readings' grade hypotheses (the structural guard forbids that).
+  const noisy = new Lexicon([
+    { form: 'bae', lemma: 'bae', cat: 'N', gender: 'm', number: 'sg', initClass: 'b', freq: 2 },
+    { form: 'mi', lemma: 'mi', cat: 'Adv', initClass: 'm', freq: 3 },
+  ])
+  const [mae, rhaid, i, fi] = tag(analyze('Mae rhaid i fi fynd', noisy), noisy)
+  assert.equal(mae!.ambiguous, undefined)
+  assert.equal(mae!.readings[0]!.entry.lemma, 'mae') // VSO: clause-initial V before N
+  assert.equal(rhaid!.readings.length, 1)
+  assert.equal(i!.ambiguous, undefined)
+  assert.equal(i!.readings[0]!.entry.lemma, 'i') // prep before a pronoun
+  assert.equal(fi!.ambiguous, undefined)
+  assert.equal(fi!.readings[0]!.entry.lemma, 'fi') // particle-mi impossible mid-clause
 })
 
 test('rules never empty a token; impersonal person survives tagging', () => {

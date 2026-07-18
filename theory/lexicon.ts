@@ -111,6 +111,7 @@ export const LEXICON = {
   pob: { id: 'pob', cat: 'Other', initClass: 'p' },
   pwy: { id: 'pwy', cat: 'Other', initClass: 'p' },
   ti: { id: 'ti', cat: 'Other', initClass: 't', immutable: true },     // Jones corpus exception list
+  fi: { id: 'fi', cat: 'Other', initClass: 'other' },
   hi: { id: 'hi', cat: 'Other', initClass: 'other' },
   e: { id: 'e', cat: 'Other', initClass: 'v' },
   os: { id: 'os', cat: 'Other', initClass: 'v' },
