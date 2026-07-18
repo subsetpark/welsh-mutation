@@ -11,7 +11,7 @@
  * data/triggers.json — never a second hand-kept list (M2 DoD).
  */
 
-import triggersData from '../data/triggers.json' with { type: 'json' }
+import triggersData from '../theory/triggers.json' with { type: 'json' }
 
 export type RawKind = 'word' | 'clitic' | 'punct'
 

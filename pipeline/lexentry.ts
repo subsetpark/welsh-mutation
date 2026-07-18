@@ -5,7 +5,7 @@
  * impersonal (UD Person=0), which M4's pro-drop gap insertion must exclude.
  */
 
-import type { Cat, InitClass } from '../src/types.ts'
+import type { Cat, InitClass } from '../theory/types.ts'
 
 export interface LexEntry {
   /** Radical surface form (mutation stripped via the treebank's Mutation

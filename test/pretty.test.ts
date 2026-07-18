@@ -1,8 +1,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { prettyTree } from '../src/pretty.ts'
-import { clause, gap, leaf, phrase } from '../src/tree.ts'
-import { LEXICON } from '../src/lexicon.ts'
+import { prettyTree } from '../theory/pretty.ts'
+import { clause, gap, leaf, phrase } from '../theory/tree.ts'
+import { LEXICON } from '../theory/lexicon.ts'
 
 const { gweld, Mair, ty, dylu, ti, dim, yn, draig, pwy } = LEXICON
 

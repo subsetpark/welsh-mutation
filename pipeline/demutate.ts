@@ -1,24 +1,23 @@
 /**
  * De-mutation: enumerate the candidate radicals of an attested surface form
- * (WORKSTREAM M2). One-to-many by nature — surface fan ⇐ {fan, man, ban} —
- * so this module NEVER decides: it enumerates, and the caller filters
- * candidates through the lexicon (FST-morphology precedent: enumerated
- * candidate sets, not search).
+ * — IMPLEMENTATION of the inverse direction. One-to-many by nature —
+ * surface fan ⇐ {fan, man, ban} — so this module NEVER decides: it
+ * enumerates, and the caller filters candidates through the lexicon
+ * (FST-morphology precedent: enumerated candidate sets, not search).
  *
- * The inverse tables are derived programmatically from radical.ts GRADE_MAP
- * (which mirrors the theory layer's SM_ORTH), so forward and inverse cannot
- * drift. Two non-tabular cases: SM's g-deletion means ANY surface admits a
- * 'g'-prepended candidate (welodd ⇐ gwelodd, ardd ⇐ gardd), and h-prothesis
- * (filed under AM, matching M1's forward reading) strips h- before a vowel
- * (hiaith ⇐ iaith).
+ * Every orthographic fact here is DERIVED from theory/orthography.ts
+ * GRADE_ORTH — forward and inverse cannot drift. Two non-tabular cases
+ * follow from the same source: SM's g-deletion means ANY surface admits a
+ * 'g'-prepended candidate (welodd ⇐ gwelodd, ardd ⇐ gardd), and
+ * h-prothesis strips h- before a vowel (hiaith ⇐ iaith), under the same
+ * ≥2-letter-radical condition applyGrade imposes, so the round-trip
+ * property demutate(applyGrade(w, g)) ∋ w is exact.
  *
  * Bogus candidates (e.g. reading nghath's 'ng' as NM-of-g, yielding ghath)
- * are enumerated without prejudice — the lexicon filter kills them; the
- * round-trip property only requires the TRUE radical to be present.
+ * are enumerated without prejudice — the lexicon filter kills them.
  */
 
-import { GRADE_MAP, VOWEL, type MutationGrade } from './radical.ts'
-import { initialSegment } from './initclass.ts'
+import { GRADE_ORTH, VOWEL, initialSegment, type MutationGrade } from '../theory/orthography.ts'
 
 export interface Candidate {
   radical: string
@@ -28,12 +27,12 @@ export interface Candidate {
 
 const GRADES: MutationGrade[] = ['SM', 'AM', 'NM']
 
-/** mutated segment → possible radical segments, per grade (inverted GRADE_MAP,
- *  longest mutated segments first so 'ngh' is tried before 'ng'). */
+/** mutated segment → possible radical segments, per grade (inverted
+ *  GRADE_ORTH, longest mutated segments first so 'ngh' precedes 'ng'). */
 const INVERSE: Record<MutationGrade, [string, string[]][]> = { SM: [], AM: [], NM: [] }
 for (const grade of GRADES) {
   const inv = new Map<string, string[]>()
-  for (const [rad, mut] of Object.entries(GRADE_MAP[grade])) {
+  for (const [rad, mut] of Object.entries(GRADE_ORTH[grade])) {
     const list = inv.get(mut) ?? []
     list.push(rad)
     inv.set(mut, list)
@@ -45,21 +44,6 @@ function matchCase(model: string, out: string): string {
   const wasUpper = model[0] !== undefined && model[0] !== model[0].toLowerCase()
   if (!wasUpper || out.length === 0) return out
   return out[0]!.toUpperCase() + out.slice(1)
-}
-
-/** Forward application of a grade to a radical form; identity when the
- *  initial has no reflex under that grade. SM agrees with the theory layer's
- *  softMutate (asserted by test); AM on a vowel is h-prothesis. */
-export function applyGrade(form: string, grade: MutationGrade): string {
-  const lower = form.toLowerCase()
-  const seg = initialSegment(form)
-  // Prothesis needs a radical of ≥2 letters: single-vowel words (i, o, y)
-  // are function words that are never possessed, and *"ei hi" is not Welsh.
-  // Mirrored in demutate() so the round-trip property stays exact.
-  if (grade === 'AM' && VOWEL.test(seg) && lower.length >= 2) return matchCase(form, 'h' + lower)
-  const repl = GRADE_MAP[grade][seg]
-  if (repl === undefined) return form
-  return matchCase(form, repl + lower.slice(seg.length))
 }
 
 /** All candidate (radical, grade) readings of a surface form, unfiltered.
@@ -87,7 +71,8 @@ export function demutate(surface: string): Candidate[] {
     }
   }
   if (lower.startsWith('h') && VOWEL.test(lower.slice(1)) && lower.length >= 3) {
-    push(lower.slice(1), 'AM') // h-prothesis (radical ≥2 letters, see applyGrade)
+    push(lower.slice(1), 'AM') // h-prothesis (radical ≥2 letters, see theory)
   }
   return out
 }
+

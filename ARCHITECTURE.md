@@ -12,12 +12,34 @@ A predicate over `(Lexeme, Environment)` answering: does this token exhibit Soft
   (`SM | SM-ltd | AM | NM | mixed | none`) because mixed mutation (King §10) licenses SM
   for some initial classes and AM for others — collapsing grades would misclassify every
   *ni/na*-context.
-- **Mutation content is opaque.** We never compute mutated forms; we only need the
-  equivalence class of a lexeme's initial segment (`InitClass`) to know whether a given
-  grade has an SM reflex for it.
+- **The predicate never consults mutation orthography.** It needs only the equivalence
+  class of a lexeme's initial segment (`InitClass`) to know whether a grade has an SM
+  reflex. What mutations *look like* is stated once, in `theory/orthography.ts` — the
+  surface renderer reads it forward, and the pipeline derives its de-mutation candidate
+  maps from it (never restating inverses of its own).
 - The program consumes already-populated `Environment` records. No parsing, no generation.
   A future pipeline (POS tagger → Environment) automates what tests hand-author; the
   `Environment` type is that pipeline's output contract.
+
+## Layout: theory vs implementation
+
+Two domains with a one-way dependency arrow, enforced mechanically by
+`test/architecture.test.ts`:
+
+- **`theory/`** — the account itself, colocated and self-contained (no import leaves
+  the directory): core types, the predicate with its agreement contract, mutation
+  orthography, the tree layer, the surface renderer and pretty-printer, the
+  hand-curated exception lexicon, the theory's DATA (`triggers.json`,
+  `immutables.json`, `contested.json`), and `theory/report/` — the literate report
+  built from all of it. Reading `theory/` top to bottom IS reading the theory.
+- **`pipeline/`, `bin/`** — implementation: everything that manufactures the
+  `(Lexeme, Environment)` pairs the predicate consumes (corpus extraction, layered
+  lexicon, tokenizer, de-mutation, tagger, chunker, judge, CLI). Implementation
+  derives from theory (inverse maps from `GRADE_ORTH`, immutability classes from
+  `immutables.json`) and never restates theoretical facts; where a theory class is
+  not yet implementable it is declared so explicitly, not silently skipped.
+- **`data/`** — implementation artifacts only: the extracted broad lexicon and the
+  gitignored corpus/dictionary downloads.
 
 ## The theory being implemented
 
@@ -46,7 +68,7 @@ preceding string element or by a feature borne by the target itself. Therefore
 `Environment` is a fixed-size record about ONE preceding position plus target-side
 features — never a tree. All syntactic complexity lives in *producing* the record.
 
-## Data types (see src/types.ts)
+## Data types (see theory/types.ts)
 
 - `Lexeme`: id, cat, gender/number (nouns), `initClass`, `immutable?`.
   Identity is required because exception lists are per-lexeme.
@@ -62,7 +84,7 @@ features — never a tree. All syntactic complexity lives in *producing* the rec
   Provenance is the falsifiability apparatus: it lets tests check the *theory*
   (right rule fired), not just the extension.
 
-## Tree layer (src/tree.ts)
+## Tree layer (theory/tree.ts)
 
 The author constructs a c-structure; `environmentFor(root, targetLeaf)` derives the
 whole Environment. The author supplies structure and the two irreducibly
@@ -146,7 +168,7 @@ All fired rules are collected (a token can be multiply licensed); any (unvetoed)
 
 ## Contested registry
 
-Genuinely disputed/variable contexts are listed in `data/contested.json` and flagged in
+Genuinely disputed/variable contexts are listed in `theory/contested.json` and flagged in
 tests as CONTESTED, not wrong. Seed entries: euphonic non-mutation after -s (*nos da*,
 King §12e note); colloquial SM-for-AM after *â/gyda/tri*; *lle/byth* immutability
 variation (King §12b).
@@ -199,3 +221,15 @@ variation (King §12b).
   and report.ts fails on mismatch with the authored line (first variant, ignoring
   punctuation/case) — closing the one unverified channel, after two prose/analysis
   drift bugs (Gwelodd-for-°Welodd; adre missing from the adv-np analysis).
+- 2026-07-18: theory/implementation split made structural. `src/` → `theory/`, which
+  now colocates ALL theory: code, the three theory data files (triggers, immutables,
+  contested — moved out of `data/`), and the literate report (`theory/report/`).
+  Orthography consolidated into `theory/orthography.ts` as the single statement of
+  grade content (the pipeline's radical-recovery and de-mutation now DERIVE from
+  GRADE_ORTH; the SM/AM/NM tables previously duplicated in pipeline/radical.ts are
+  gone, as is src/mutate.ts). Agreement semantics (`agreesWithObserved`) moved into
+  the predicate — what counts as confirmation of an SM-only verdict is the theory's
+  claim, not the judge's. The loader's personal-name immutability rule became
+  data-driven from immutables.json classes, with unimplementable classes declared
+  explicitly. test/architecture.test.ts enforces the split: theory imports may not
+  leave theory/, and GRADE_ORTH may be defined exactly once.

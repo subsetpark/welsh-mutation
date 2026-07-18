@@ -1,12 +1,13 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { applyGrade, demutate } from '../pipeline/demutate.ts'
-import { softMutate } from '../src/mutate.ts'
-import { LEXICON } from '../src/lexicon.ts'
-import type { MutationGrade } from '../pipeline/radical.ts'
+import { demutate } from '../pipeline/demutate.ts'
+import { applyGrade } from '../theory/orthography.ts'
+import { softMutate } from '../theory/orthography.ts'
+import { LEXICON } from '../theory/lexicon.ts'
+import type { MutationGrade } from '../theory/orthography.ts'
 import type { LexiconFile } from '../pipeline/lexentry.ts'
-import type { InitClass } from '../src/types.ts'
+import type { InitClass } from '../theory/types.ts'
 
 const radicals = (surface: string, grade: MutationGrade | null) =>
   demutate(surface).filter(c => c.grade === grade).map(c => c.radical)

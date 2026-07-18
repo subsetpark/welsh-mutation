@@ -3,11 +3,8 @@
  * per-token verdicts with observed-vs-predicted agreement. Pure module; the
  * CLI formats what this returns.
  *
- * Agreement is SM-scoped, matching the predicate's contract: a mutating
- * verdict agrees iff the observed grade is SM; a non-mutating verdict
- * agrees iff the observed grade is NOT SM (radical, AM and NM are all
- * consistent with "soft mutation did not apply" — AM/NM correctness is the
- * trigger lexicon's business, not this predicate's).
+ * Agreement semantics are the theory's own — see agreesWithObserved in
+ * theory/predicate.ts; this module only applies them per reading.
  *
  * Ambiguity propagates two ways (ratified policy):
  * - a token's own retained readings are each judged (fan → fan/man/ban);
@@ -17,15 +14,15 @@
  *   tree itself is never mutated.
  */
 
-import type { Cat, Register, SMResult } from '../src/types.ts'
-import { environmentFor, type Clause, type Leaf, type TreeNode, type TreePath } from '../src/tree.ts'
-import { sm } from '../src/predicate.ts'
-import { softMutate } from '../src/mutate.ts'
+import type { Cat, Register, SMResult } from '../theory/types.ts'
+import { environmentFor, type Clause, type Leaf, type TreeNode, type TreePath } from '../theory/tree.ts'
+import { agreesWithObserved, sm } from '../theory/predicate.ts'
+import { softMutate } from '../theory/orthography.ts'
 import { analyze } from './analyze.ts'
 import { tag, type TaggedToken } from './tagger.ts'
 import { chunk } from './chunk.ts'
 import { toLexeme, type Lexicon } from './lexicon.ts'
-import type { MutationGrade } from './radical.ts'
+import type { MutationGrade } from '../theory/orthography.ts'
 import type { RawKind } from './tokenize.ts'
 
 export interface ReadingVerdict {
@@ -134,7 +131,7 @@ function judgeSentence(text: string, lexicon: Lexicon, register: Register): Judg
           verdict.mutates && t.kind !== 'clitic'
             ? softMutate(radical, lexeme.initClass)
             : radical
-        const agrees = verdict.mutates ? r.grade === 'SM' : r.grade !== 'SM'
+        const agrees = agreesWithObserved(verdict, r.grade)
         const key = [
           r.radical.toLowerCase(), r.entry.lemma, r.entry.cat, r.grade ?? '',
           r.entry.person ?? '', pl ?? '', JSON.stringify(verdict),

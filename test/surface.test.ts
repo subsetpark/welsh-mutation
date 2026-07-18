@@ -1,9 +1,9 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { softMutate } from '../src/mutate.ts'
-import { renderSurface } from '../src/surface.ts'
-import { clause, gap, leaf, phrase } from '../src/tree.ts'
-import { LEXICON as L } from '../src/lexicon.ts'
+import { softMutate } from '../theory/orthography.ts'
+import { renderSurface } from '../theory/surface.ts'
+import { clause, gap, leaf, phrase } from '../theory/tree.ts'
+import { LEXICON as L } from '../theory/lexicon.ts'
 
 test('softMutate: all nine mappings, digraphs, case, g-deletion', () => {
   assert.equal(softMutate('cath', 'c'), 'gath')

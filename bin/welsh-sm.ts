@@ -14,7 +14,7 @@
 import { readFileSync } from 'node:fs'
 import { loadLexicon } from '../pipeline/lexicon.ts'
 import { judgeText, segment, type JudgedSentence, type JudgedToken } from '../pipeline/judge.ts'
-import type { Register } from '../src/types.ts'
+import type { Register } from '../theory/types.ts'
 
 // ─── args ───
 

@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { buildReport } from '../report/report.ts'
+import { buildReport } from '../theory/report/report.ts'
 
 test('report builds with every example verdict asserted', () => {
   const md = buildReport()

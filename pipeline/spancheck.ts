@@ -17,7 +17,7 @@ import { analyze } from './analyze.ts'
 import { tag } from './tagger.ts'
 import { chunk } from './chunk.ts'
 import { loadLexicon } from './lexicon.ts'
-import type { TreeNode } from '../src/tree.ts'
+import type { TreeNode } from '../theory/tree.ts'
 
 const MAX_SENTENCES = 200
 const MAX_TOKENS = 25

@@ -1,6 +1,13 @@
 /**
- * Literate report generator. Every example tree is rendered by prettyTree and
- * every declared verdict is asserted against sm() — generation FAILS if the
+ * §11 — THE LITERATE REPORT: the exposition, rendered and asserted
+ * ================================================================
+ *
+ * The final chapter assembles everything before it into REPORT.md: prose,
+ * worked examples with their trees (§9's view), surface lines (§8's), the
+ * full trigger inventory (§3) and the contested registry (§10), plus
+ * bibliography. It is not documentation ABOUT the theory but the theory's
+ * own output: every example tree is rendered by prettyTree and every
+ * declared verdict is asserted against sm() — generation FAILS if the
  * document disagrees with the program, so REPORT.md cannot drift.
  *
  * Build: npm run report
@@ -8,13 +15,13 @@
 
 import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { sm } from '../src/predicate.ts'
-import { environmentFor, resolveLeaf } from '../src/tree.ts'
-import { renderSurface } from '../src/surface.ts'
-import { prettyTree } from '../src/pretty.ts'
+import { sm } from '../predicate.ts'
+import { environmentFor, resolveLeaf } from '../tree.ts'
+import { renderSurface } from '../surface.ts'
+import { prettyTree } from '../pretty.ts'
 import { SECTIONS, type Example } from './examples.ts'
-import triggersData from '../data/triggers.json' with { type: 'json' }
-import contestedData from '../data/contested.json' with { type: 'json' }
+import triggersData from '../triggers.json' with { type: 'json' }
+import contestedData from '../contested.json' with { type: 'json' }
 
 function assertAndRender(ex: Example): string {
   for (const t of ex.targets) {
@@ -292,7 +299,7 @@ ${S(10, 'Bibliography')}
 const isMain = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href
 if (isMain || process.argv[1]?.endsWith('report/report.ts')) {
   const md = buildReport()
-  const out = new URL('../REPORT.md', import.meta.url)
+  const out = new URL('../../REPORT.md', import.meta.url) // repo root
   writeFileSync(fileURLToPath(out), md)
   console.log(`REPORT.md written (${md.length} chars)`)
 }

@@ -13,9 +13,9 @@
  * are owned by data/triggers.json.
  */
 
-import type { Cat } from '../src/types.ts'
+import type { Cat } from '../theory/types.ts'
 import type { LexEntry } from './lexentry.ts'
-import { initClassOf } from './initclass.ts'
+import { initClassOf } from '../theory/orthography.ts'
 
 // ─── minimal XML ───
 

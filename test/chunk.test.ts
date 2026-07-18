@@ -4,10 +4,10 @@ import { analyze } from '../pipeline/analyze.ts'
 import { tag } from '../pipeline/tagger.ts'
 import { chunk } from '../pipeline/chunk.ts'
 import { LEX } from './fixture-lexicon.ts'
-import { environmentFor, type Leaf, type TreeNode, type TreePath } from '../src/tree.ts'
-import { sm } from '../src/predicate.ts'
-import { renderSurface } from '../src/surface.ts'
-import type { SMResult } from '../src/types.ts'
+import { environmentFor, type Leaf, type TreeNode, type TreePath } from '../theory/tree.ts'
+import { sm } from '../theory/predicate.ts'
+import { renderSurface } from '../theory/surface.ts'
+import type { SMResult } from '../theory/types.ts'
 
 const parse = (text: string) => chunk(tag(analyze(text, LEX), LEX))
 

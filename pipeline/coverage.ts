@@ -12,7 +12,8 @@
 import { readFileSync } from 'node:fs'
 import { parseConllu } from './conllu.ts'
 import { loadLexicon } from './lexicon.ts'
-import { recoverRadical, type MutationGrade } from './radical.ts'
+import { recoverRadical } from './radical.ts'
+import type { MutationGrade } from '../theory/orthography.ts'
 
 const OPEN_CLASS = new Set(['NOUN', 'PROPN', 'VERB', 'AUX', 'ADJ', 'NUM', 'ADV'])
 const GRADES = new Set<string>(['SM', 'AM', 'NM'])

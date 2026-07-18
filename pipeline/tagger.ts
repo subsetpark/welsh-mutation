@@ -14,10 +14,10 @@
  * we never tag a word by the mutation we are trying to predict on it.
  */
 
-import type { Cat } from '../src/types.ts'
+import type { Cat } from '../theory/types.ts'
 import type { Reading, Token } from './analyze.ts'
 import type { LexEntry } from './lexentry.ts'
-import { initClassOf } from './initclass.ts'
+import { initClassOf } from '../theory/orthography.ts'
 import type { Lexicon } from './lexicon.ts'
 
 export interface TaggedToken extends Token {

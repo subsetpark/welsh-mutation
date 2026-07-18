@@ -4,8 +4,8 @@
  * analysis it presents. (Build machinery is invisible in the document itself.)
  */
 
-import { clause, gap, leaf, phrase, type TreeNode, type TreePath } from '../src/tree.ts'
-import type { NoMutationReason, RuleId } from '../src/types.ts'
+import { clause, gap, leaf, phrase, type TreeNode, type TreePath } from '../tree.ts'
+import type { NoMutationReason, RuleId } from '../types.ts'
 
 export interface ExampleTarget {
   path: TreePath
@@ -23,7 +23,7 @@ export interface Example {
   note?: string
 }
 
-import { LEXICON as L } from '../src/lexicon.ts'
+import { LEXICON as L } from '../lexicon.ts'
 
 export const CONTACT: Example[] = [
   {

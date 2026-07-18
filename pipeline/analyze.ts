@@ -11,11 +11,11 @@
  * `unknown` flag, never a throw (DoD-10).
  */
 
-import triggersData from '../data/triggers.json' with { type: 'json' }
+import triggersData from '../theory/triggers.json' with { type: 'json' }
 import type { LexEntry } from './lexentry.ts'
-import type { MutationGrade } from './radical.ts'
+import type { MutationGrade } from '../theory/orthography.ts'
 import { demutate } from './demutate.ts'
-import { initClassOf } from './initclass.ts'
+import { initClassOf } from '../theory/orthography.ts'
 import { Lexicon, loadLexicon } from './lexicon.ts'
 import { tokenize, type RawKind } from './tokenize.ts'
 

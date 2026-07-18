@@ -1,29 +1,18 @@
 /**
- * Radical-form recovery for treebank tokens carrying a Mutation feature.
+ * Radical-form recovery for treebank tokens carrying a Mutation feature —
+ * IMPLEMENTATION, not theory: the orthographic facts live in
+ * theory/orthography.ts; this module only exploits a treebank invariant.
  *
- * This is NOT a general inverse map (that is M2's one-to-many problem): here
- * the treebank hands us the answer's initial — the LEMMA is citation-level
- * and Welsh inflection is suffixal, so the radical form shares the lemma's
- * initial segment. We rewrite that segment forward under the annotated grade
- * and require the mutated FORM to start with the result; the radical form is
- * then lemma-initial + remainder. Tokens failing the consistency check
- * (suppletive initials, annotation noise) return null and are skipped.
+ * This is NOT a general inverse map (that is demutate.ts's one-to-many
+ * problem): the treebank hands us the answer's initial — the LEMMA is
+ * citation-level and Welsh inflection is suffixal, so the radical form
+ * shares the lemma's initial segment. We rewrite that segment forward
+ * under the annotated grade and require the mutated FORM to start with the
+ * result. Tokens failing the consistency check (suppletive initials,
+ * annotation noise) return null and are skipped, never guessed.
  */
 
-import { initialSegment } from './initclass.ts'
-
-export type MutationGrade = 'SM' | 'AM' | 'NM'
-
-/** Forward per-grade rewrites of a radical initial segment (King §4, §8, §7).
- *  SM mirrors src/mutate.ts SM_ORTH; AM/NM cover only their target initials.
- *  Single source of truth: demutate.ts derives its inverse maps from this. */
-export const GRADE_MAP: Record<MutationGrade, Record<string, string>> = {
-  SM: { c: 'g', p: 'b', t: 'd', g: '', b: 'f', d: 'dd', ll: 'l', m: 'f', rh: 'r' },
-  AM: { c: 'ch', p: 'ph', t: 'th' },
-  NM: { c: 'ngh', p: 'mh', t: 'nh', g: 'ng', b: 'm', d: 'n' },
-}
-
-export const VOWEL = /^[aeiouwyâêîôûŵŷáéíóúàèìòù]/
+import { GRADE_ORTH, VOWEL, initialSegment, type MutationGrade } from '../theory/orthography.ts'
 
 /** Recover the radical surface form of a mutated token, or null if the form
  *  is inconsistent with (lemma initial, grade). Capitalization follows the
@@ -32,7 +21,7 @@ export const VOWEL = /^[aeiouwyâêîôûŵŷáéíóúàèìòù]/
  *  reading we take. */
 export function recoverRadical(form: string, lemma: string, grade: MutationGrade): string | null {
   const seg = initialSegment(lemma)
-  const mutated = grade === 'AM' && VOWEL.test(seg) ? 'h' + seg : GRADE_MAP[grade][seg]
+  const mutated = grade === 'AM' && VOWEL.test(seg) ? 'h' + seg : GRADE_ORTH[grade][seg]
   if (mutated === undefined) return null
   const lower = form.toLowerCase()
   if (!lower.startsWith(mutated)) return null

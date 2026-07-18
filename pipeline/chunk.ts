@@ -23,10 +23,10 @@
  * the M6 renderer.
  */
 
-import triggersData from '../data/triggers.json' with { type: 'json' }
-import type { Cat } from '../src/types.ts'
-import { clause, gap, leaf, phrase } from '../src/tree.ts'
-import type { Clause, Leaf, Phrase, TreeNode } from '../src/tree.ts'
+import triggersData from '../theory/triggers.json' with { type: 'json' }
+import type { Cat } from '../theory/types.ts'
+import { clause, gap, leaf, phrase } from '../theory/tree.ts'
+import type { Clause, Leaf, Phrase, TreeNode } from '../theory/tree.ts'
 import type { Reading } from './analyze.ts'
 import type { TaggedToken } from './tagger.ts'
 import { toLexeme } from './lexicon.ts'

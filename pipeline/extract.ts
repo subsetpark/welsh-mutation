@@ -10,11 +10,12 @@
  * guessed.
  */
 
-import type { Cat } from '../src/types.ts'
+import type { Cat } from '../theory/types.ts'
 import type { ConlluSentence, ConlluWord } from './conllu.ts'
 import type { LexEntry } from './lexentry.ts'
-import { initClassOf } from './initclass.ts'
-import { recoverRadical, type MutationGrade } from './radical.ts'
+import { initClassOf } from '../theory/orthography.ts'
+import { recoverRadical } from './radical.ts'
+import type { MutationGrade } from '../theory/orthography.ts'
 
 const OPEN_CLASS = new Set(['NOUN', 'PROPN', 'VERB', 'AUX', 'ADJ', 'NUM', 'ADV'])
 const GRADES = new Set<string>(['SM', 'AM', 'NM'])

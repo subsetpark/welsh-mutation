@@ -1,11 +1,11 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { initClassOf } from '../pipeline/initclass.ts'
+import { initClassOf } from '../theory/orthography.ts'
 import { recoverRadical } from '../pipeline/radical.ts'
 import { extractEntries } from '../pipeline/extract.ts'
 import { parseConllu } from '../pipeline/conllu.ts'
-import { softMutate } from '../src/mutate.ts'
-import type { InitClass } from '../src/types.ts'
+import { softMutate } from '../theory/orthography.ts'
+import type { InitClass } from '../theory/types.ts'
 
 test('initClassOf: digraph-aware', () => {
   assert.equal(initClassOf('llong'), 'll')

@@ -1,15 +1,31 @@
 /**
- * Shared lexicon of target/incidental lexemes used by tests and the report.
- * Trigger FRAMES stay in data/triggers.json — this module is the other half:
- * the words mutation happens (or fails) TO.
+ * §7 — THE WORKED LEXEMES: the words mutation happens (or fails) to
+ * =================================================================
+ *
+ * Trigger frames (§3) describe the words that CAUSE mutation; this module
+ * is the other half — the curated set of target and incidental lexemes
+ * that the report's examples and the theory tests are built from. It
+ * doubles as the theory's per-word exception record: immutability flags
+ * carry their source (King §12 lists, or the spoken-Welsh exception list
+ * from the Jones corpus where noted), and several entries exist precisely
+ * BECAUSE they are informative edge cases —
+ *
+ *   roedd  initClass 'other': r- is not rh-, so the commonest verb in the
+ *          language sits outside the mutation system entirely;
+ *   gêm    a g-initial loanword that resists SM (King §12e) while native
+ *          g-words soften — exceptionhood is per-lexeme, not per-shape;
+ *   dewch  category Vimp: imperatives resist v1 and neu° (King §512);
+ *   ti     immutable per the corpus exception list, though its softened
+ *          form di is what actually surfaces as an echo pronoun — the
+ *          kind of tension contested.json (§10) exists to record.
  *
  * Keys are mnemonic handles, usually the citation form; where one citation
- * form serves two categories (mynd/aeth, prynu/prynodd) or a surface form is
- * the natural handle (dewch), the key is the surface form. The Lexeme itself
- * is citation-level: id is the radical dictionary form.
+ * form serves two categories (mynd/aeth, prynu/prynodd) or a surface form
+ * is the natural handle (dewch), the key is the surface form. The Lexeme
+ * itself is citation-level: id is the radical dictionary form.
  *
- * Immutability flags carry their source: King §12 lists, or the spoken-Welsh
- * exception list (Jones corpus) where noted.
+ * (The processing pipeline outside this directory layers a corpus-derived
+ * broad lexicon UNDER these entries; hand-curated facts always win.)
  */
 
 import type { Lexeme } from './types.ts'

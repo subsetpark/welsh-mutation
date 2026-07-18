@@ -2,24 +2,31 @@
  * Layered lexicon loader (WORKSTREAM M1).
  *
  * Layer order, later wins:
- *   1. data/lexicon-full.json  — broad, extracted (UD_Welsh-CCG)
- *   2. src/lexicon.ts          — hand-curated; wins on (form=id, cat)
- * then data/immutables.json is applied to the merged result:
+ *   1. data/lexicon-full.json   — broad, extracted (UD_Welsh-CCG)
+ *   2. theory/lexicon.ts        — hand-curated; wins on (form=id, cat)
+ * then theory/immutables.json is applied to the merged result:
  *   - lexeme list: immutable on matching form or lemma
- *   - class 'personal-name': PROPN-derived entries become immutable (the
- *     ratified M1 DoD rule; placename mutation variability is catalogued in
- *     data/contested.json — 'non-welsh-placename' and 'already-mutated' are
- *     not actionable until the pipeline has NER-ish tagging / M2 demutation)
+ *   - class rules, DATA-driven: 'personal-name' maps to PROPN-derived
+ *     entries (the ratified M1 DoD reading; placename mutation variability
+ *     is catalogued in theory/contested.json). 'non-welsh-placename' and
+ *     'already-mutated' have no implementable signal yet and are skipped —
+ *     visibly, in UNIMPLEMENTED_CLASSES.
  */
 
 import { existsSync, readFileSync } from 'node:fs'
-import type { Lexeme } from '../src/types.ts'
-import { LEXICON } from '../src/lexicon.ts'
+import type { Lexeme } from '../theory/types.ts'
+import { LEXICON } from '../theory/lexicon.ts'
 import type { LexEntry, LexiconFile } from './lexentry.ts'
-import immutablesData from '../data/immutables.json' with { type: 'json' }
+import immutablesData from '../theory/immutables.json' with { type: 'json' }
 
 const dedupeKey = (e: LexEntry): string =>
   [e.form.toLowerCase(), e.lemma, e.cat, e.gender ?? '', e.number ?? '', e.person ?? '', e.proper ? 'P' : ''].join('|')
+
+/** Theory classes the loader cannot yet act on: no NER distinguishes
+ *  non-Welsh placenames, and 'already-mutated' needs the de-mutation
+ *  context. A NEW class in immutables.json that is neither implemented nor
+ *  listed here fails loudly instead of being silently ignored. */
+const UNIMPLEMENTED_CLASSES = new Set(['non-welsh-placename', 'already-mutated'])
 
 export class Lexicon {
   private byForm = new Map<string, LexEntry[]>()
@@ -56,12 +63,19 @@ export class Lexicon {
     }
 
     const immutableIds = new Set(immutablesData.lexemes.map(l => l.id.toLowerCase()))
+    const classRules = new Set(immutablesData.classes.map(c => c.class))
+    const personalNames = classRules.has('personal-name')
     for (const entries of this.byForm.values()) {
       for (const e of entries) {
         if (immutableIds.has(e.form.toLowerCase()) || immutableIds.has(e.lemma.toLowerCase())) {
           e.immutable = true
         }
-        if (e.proper) e.immutable = true // class: personal-name (King §12d)
+        if (personalNames && e.proper) e.immutable = true // King §12d, via theory data
+      }
+    }
+    for (const c of classRules) {
+      if (c !== 'personal-name' && !UNIMPLEMENTED_CLASSES.has(c)) {
+        throw new Error(`immutability class '${c}' is neither implemented nor declared unimplemented`)
       }
     }
   }

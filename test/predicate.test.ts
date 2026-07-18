@@ -1,8 +1,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { sm } from '../src/predicate.ts'
-import { LEXICON as L } from '../src/lexicon.ts'
-import type { Environment, Lexeme, RuleId } from '../src/types.ts'
+import { sm } from '../theory/predicate.ts'
+import { LEXICON as L } from '../theory/lexicon.ts'
+import type { Environment, Lexeme, RuleId } from '../theory/types.ts'
 
 
 const E = {

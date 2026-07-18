@@ -1,12 +1,12 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { sm } from '../src/predicate.ts'
+import { sm } from '../theory/predicate.ts'
 import {
   clause, environmentFor, gap, leaf, phrase, resolveLeaf,
   type TreeNode, type TreePath,
-} from '../src/tree.ts'
-import { LEXICON as LEX } from '../src/lexicon.ts'
-import type { RuleId } from '../src/types.ts'
+} from '../theory/tree.ts'
+import { LEXICON as LEX } from '../theory/lexicon.ts'
+import type { RuleId } from '../theory/types.ts'
 
 const check = (name: string, root: TreeNode, path: TreePath, expected: RuleId[] | 'radical') =>
   test(name, () => {

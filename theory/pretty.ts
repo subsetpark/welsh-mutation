@@ -1,8 +1,21 @@
 /**
- * Pretty printer for authored trees. Child indices appear on the connectors,
- * so a leaf's TreePath can be read straight off the rendering. With
- * { verdicts: true } every leaf is annotated with its sm() judgment and
- * provenance — the debugging view of the whole system.
+ * §9 — THE INSPECTION VIEW: trees with verdicts and provenance
+ * ============================================================
+ *
+ * Where §8 renders the sentence as Welsh, this chapter renders the
+ * ANALYSIS: the tree itself, with child indices on the connectors so a
+ * leaf's TreePath can be read straight off the drawing, and — with
+ * { verdicts: true } — every leaf annotated with its sm() judgment and
+ * full provenance, counterfactual vetoes included. This is the form the
+ * report's worked examples take, and the debugging view of the whole
+ * system: a claim like
+ *
+ *     └─2 NP
+ *        └─0 draig ⟨N f sg⟩ → SM (synt:xp-edge)
+ *
+ * shows at one glance the structure, the target's features, the verdict,
+ * and WHICH rule carried it. `register` selects the §2 register for the
+ * judgments (default colloquial).
  */
 
 import { sm } from './predicate.ts'
