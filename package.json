@@ -4,7 +4,11 @@
   "private": true,
   "type": "module",
   "description": "Predicate over (Lexeme, Environment): does this token exhibit Welsh soft mutation?",
+  "bin": {
+    "welsh-sm": "bin/welsh-sm.ts"
+  },
   "scripts": {
+    "cli": "tsx bin/welsh-sm.ts",
     "test": "tsx --test test/*.test.ts",
     "typecheck": "tsc --noEmit",
     "ud:fetch": "curl -sL --create-dirs -o data/ud/cy_ccg-ud-train.conllu https://raw.githubusercontent.com/UniversalDependencies/UD_Welsh-CCG/r2.18/cy_ccg-ud-train.conllu -o data/ud/cy_ccg-ud-dev.conllu https://raw.githubusercontent.com/UniversalDependencies/UD_Welsh-CCG/r2.18/cy_ccg-ud-dev.conllu -o data/ud/cy_ccg-ud-test.conllu https://raw.githubusercontent.com/UniversalDependencies/UD_Welsh-CCG/r2.18/cy_ccg-ud-test.conllu",

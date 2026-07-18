@@ -1,0 +1,159 @@
+import { test } from 'node:test'
+import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
+import { judgeText, segment } from '../pipeline/judge.ts'
+import { LEX } from './fixture-lexicon.ts'
+
+/** Acceptance suite (WORKSTREAM DoD-1..12). Deterministic assertions run on
+ *  the fixture lexicon via judgeText; end-to-end cmd assertions spawn the
+ *  real binary with the real layered lexicon (words chosen to resolve from
+ *  the COMMITTED layers, so absence of the gitignored Apertium file cannot
+ *  fail them). DoD-13 is the suite you are reading plus the report build. */
+
+const cli = (args: string[], input: string): { out: string; code: number } => {
+  try {
+    const out = execFileSync(process.execPath, ['bin/welsh-sm.ts', ...args], {
+      input, encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'],
+    })
+    return { out, code: 0 }
+  } catch (e) {
+    const err = e as { status?: number; stdout?: string }
+    return { out: err.stdout ?? '', code: err.status ?? -1 }
+  }
+}
+
+test('segment: lines and sentence-final punctuation', () => {
+  assert.deepEqual(segment('Un. Dau?\nTri'), ['Un.', 'Dau?', 'Tri'])
+})
+
+test('DoD-8: ei gath — ambiguity fans out onto the target verdicts', () => {
+  const [s] = judgeText('ei gath', LEX)
+  const gath = s!.tokens[1]!
+  assert.equal(gath.ambiguous, true)
+  assert.equal(gath.readings.length, 2)
+  const byPrev = new Map(gath.readings.map(r => [r.prevLemma, r]))
+  assert.deepEqual(new Set(byPrev.keys()), new Set(['ei.3sgm', 'ei.3sgf']))
+  const masc = byPrev.get('ei.3sgm')!
+  const fem = byPrev.get('ei.3sgf')!
+  assert.equal(masc.verdict.mutates, true) // SM predicted, observed SM
+  assert.equal(masc.agrees, true)
+  assert.equal(fem.verdict.mutates, false) // AM frame: no SM predicted
+  assert.equal(fem.agrees, false) // observed SM anomalous under 3sgf
+})
+
+test('SM-scoped agreement: observed AM/NM consistent with non-mutating verdicts', () => {
+  const [s] = judgeText('Gwelodd hi ei chath hi', LEX)
+  const chath = s!.tokens[3]!
+  assert.equal(chath.readings[0]!.observed, 'AM')
+  assert.equal(chath.readings[0]!.verdict.mutates, false)
+  assert.equal(chath.readings[0]!.agrees, true)
+  const [f] = judgeText('fy nghath i', LEX)
+  assert.equal(f!.tokens[1]!.readings[0]!.agrees, true) // NM after fy
+})
+
+test('DoD-7 shape: yn resolved by context, never by target mutation', () => {
+  const [loc] = judgeText('mae hi yn yr ardd', LEX)
+  assert.equal(loc!.tokens[2]!.readings[0]!.lemma, 'yn.loc')
+  const [pred] = judgeText('mae hi yn dal', LEX)
+  assert.equal(pred!.tokens[2]!.readings[0]!.lemma, 'yn.pred')
+  // the structural guard is grep-able and type-enforced (tagger.test.ts)
+  const src = readFileSync('pipeline/tagger.ts', 'utf8')
+  assert.ok(src.includes('STRUCTURAL GUARD'))
+  assert.ok(!/interface TargetReadingView \{[^}]*grade/s.test(src))
+})
+
+test('DoD-11/12 (fixture): literary pro-drop licenses; impersonal does not', () => {
+  const [pro] = judgeText('Gwelais ddraig.', LEX, 'literary')
+  const [verb, draig] = pro!.tokens
+  assert.equal(verb!.readings[0]!.agrees, true) // radical predicted, radical observed
+  assert.deepEqual(draig!.readings[0]!.verdict, { mutates: true, licensedBy: ['synt:xp-edge'] })
+  assert.equal(draig!.readings[0]!.agrees, true)
+
+  const [imp] = judgeText('Gwelwyd dyn.', LEX, 'literary')
+  assert.equal(imp!.tokens[0]!.readings[0]!.person, '0')
+  assert.deepEqual(imp!.tokens[1]!.readings[0]!.verdict, { mutates: false, reason: 'no-license' })
+})
+
+test('cmd: DoD-1/3/4/6/10 in one colloquial --json run', () => {
+  const input = "i'r dre\nWelodd Mair ddraig.\nPwy welodd ddraig?\ny llong\ny gath\nGwelodd hi zeb."
+  const { out, code } = cli(['--json'], input)
+  assert.equal(code, 0)
+  const doc = JSON.parse(out)
+  const [dre, dom, wh, llong, gath, zeb] = doc.sentences
+
+  // DoD-1: clitic tokenization + de-mutation round trip
+  assert.deepEqual(dre.tokens.map((t: { surface: string }) => t.surface), ['i', "'r", 'dre'])
+  const dreR = dre.tokens[2].readings.find((r: { radical: string }) => r.radical === 'tre')
+  assert.equal(dreR.observed, 'SM')
+  assert.deepEqual(dreR.verdict, { mutates: true, licensedBy: ['gend:art-fem-sg'] })
+
+  // DoD-3: DOM end to end
+  const welodd = dom.tokens[0].readings.find((r: { radical: string }) => r.radical === 'Gwelodd')
+  assert.deepEqual(welodd.verdict.licensedBy, ['synt:v1-aff'])
+  const ddraig = dom.tokens[2].readings.find((r: { radical: string }) => r.radical === 'draig')
+  assert.deepEqual(ddraig.verdict.licensedBy, ['synt:xp-edge'])
+
+  // DoD-4: gap inserted between verb and object
+  assert.equal(wh.tree.children[2].kind, 'gap')
+  assert.equal(wh.tree.children[2].reason, 'extraction')
+  const whDraig = wh.tokens[2].readings.find((r: { radical: string }) => r.radical === 'draig')
+  assert.deepEqual(whDraig.verdict.licensedBy, ['synt:xp-edge'])
+
+  // DoD-6: gender system gated by lexicon features
+  const llongR = llong.tokens[1].readings.find((r: { radical: string }) => r.radical === 'llong')
+  assert.equal(llongR.verdict.mutates, false) // ll- spared by SM-ltd article frame
+  const gathR = gath.tokens[1].readings.find((r: { radical: string }) => r.radical === 'cath')
+  assert.deepEqual(gathR.verdict, { mutates: true, licensedBy: ['gend:art-fem-sg'] })
+
+  // DoD-10: OOV flagged, never crashes, exit 0
+  const zebT = zeb.tokens.find((t: { surface: string }) => t.surface === 'zeb')
+  assert.equal(zebT.unknown, true)
+  assert.equal(zebT.readings[0].verdict.mutates, false)
+})
+
+test('cmd: DoD-9/11/12 — the register toggle changes exactly the v1 verdicts', () => {
+  const input = 'Gwelodd Mair ddraig.\nGwelais ddraig.\nGwelwyd dyn.'
+  const coll = JSON.parse(cli(['--json'], input).out)
+  const lit = JSON.parse(cli(['--json', '--register', 'literary'], input).out)
+
+  // DoD-9: colloquial flags the radical verb; literary agrees; object identical
+  const collVerb = coll.sentences[0].tokens[0].readings[0]
+  const litVerb = lit.sentences[0].tokens[0].readings[0]
+  assert.equal(collVerb.verdict.mutates, true) // predicted °Welodd
+  assert.equal(collVerb.agrees, false) // observed radical Gwelodd
+  assert.equal(litVerb.verdict.mutates, false)
+  assert.equal(litVerb.agrees, true)
+  assert.deepEqual(
+    coll.sentences[0].tokens[2].readings[0].verdict,
+    lit.sentences[0].tokens[2].readings[0].verdict,
+  )
+
+  // DoD-11: pro-drop through the real pipeline, literary
+  const pro = lit.sentences[1]
+  assert.equal(pro.tree.children[1].kind, 'gap')
+  assert.equal(pro.tree.children[1].reason, 'pro')
+  const proDraig = pro.tokens[1].readings.find((r: { radical: string }) => r.radical === 'draig')
+  assert.deepEqual(proDraig.verdict, { mutates: true, licensedBy: ['synt:xp-edge'] })
+
+  // DoD-12: impersonal takes no gap; object radical, no license
+  const imp = lit.sentences[2]
+  assert.equal(imp.tree.children.some((c: { kind: string }) => c.kind === 'gap'), false)
+  assert.deepEqual(imp.tokens[1].readings[0].verdict, { mutates: false, reason: 'no-license' })
+})
+
+test('cmd: DoD-2/5 — explain shows prev lemma and negative invariants', () => {
+  const { out, code } = cli(['--explain'], 'ar ôl cinio\ncath merch')
+  assert.equal(code, 0)
+  assert.ok(out.includes('(prev: ar ôl)'))
+  assert.ok(out.includes('radical (no-license)'))
+  const merchBlock = out.split('\n\n')[1]!
+  assert.ok(merchBlock.includes('merch'))
+  assert.ok(!merchBlock.includes('DISAGREES'))
+})
+
+test('cmd: usage errors exit 1; arbitrary UTF-8 exits 0', () => {
+  assert.equal(cli(['--register', 'bogus'], 'x').code, 1)
+  assert.equal(cli(['--frobnicate'], 'x').code, 1)
+  assert.equal(cli([], '🐉 §± ""  zeb—cath\n\n???').code, 0)
+})

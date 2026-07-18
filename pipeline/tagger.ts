@@ -125,8 +125,11 @@ const ECHO_PL = new Set(['nhw', 'hwy'])
 
 // ─── the rule sequence ───
 
-const keepOnly = (prefix: string, keep: string) => (r: TargetReadingView) =>
-  r.lemma.startsWith(prefix) && r.lemma !== keep && r.cat === 'Other'
+/** Once context decides a homograph key, the token IS that function word:
+ *  every other reading dies — sibling homographs and stray lexical readings
+ *  alike (the broad lexicon contributes junk like a verbal yn). */
+const keepOnly = (_prefix: string, keep: string) => (r: TargetReadingView) =>
+  r.lemma !== keep
 
 const RULES: Rule[] = [
   {

@@ -14,7 +14,19 @@ workstream; this one ends at a trustworthy, explainable annotator.
 
 ## Current State
 
-Verified in the checkout (all committed, 86 tests green):
+**WORKSTREAM COMPLETE** (M1–M6 shipped, 130 tests green). The `welsh-sm`
+binary (`bin/welsh-sm.ts`, npm bin + `npm run cli`) composes tokenize →
+demutate → tag → chunk → judge with `--json`, `--explain`, and
+`--register colloquial|literary`; the DoD acceptance suite below is
+automated in `test/cli.test.ts`. Pipeline: `pipeline/{conllu,initclass,
+radical,extract,extract-lexicon,dix,extract-apertium,lexicon,demutate,
+tokenize,analyze,tagger,chunk,judge,spancheck}.ts`. Data: committed
+`lexicon-full.json` (UD r2.18, CC BY-SA) + gitignored regenerable
+`lexicon-apertium.json` (GPL, pinned caf86f27); held-out coverage 93.8%.
+Successor workstream (CorCenCC evaluation) unblocked.
+
+The snapshot below describes the checkout at ratification time (86 tests),
+kept for the record:
 
 - `src/predicate.ts` — `sm(Lexeme, Environment)` with potentials, counterfactual
   vetoes, and rule provenance. `src/tree.ts` — the c-structure contract
