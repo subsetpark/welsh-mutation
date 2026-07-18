@@ -242,8 +242,8 @@ exactly this binary plus a scorer.
 
 | Question | Notes | Resolve By |
 |----------|-------|------------|
-| Lexicon coverage threshold & Apertium GPL import | Operator decision after M1's coverage report (criteria in M1's operator actions). | After M1 |
-| FEATS encoding of impersonal verb forms in UD_Welsh-CCG | M4's gap-insertion exclusion needs person vs impersonal; confirm the exact FEATS keys during M1 extraction. | M1 |
+| ~~Lexicon coverage threshold & Apertium GPL import~~ | RESOLVED 2026-07-18: UD-only coverage 86.2% < 90%; operator approved the GPL import (see Decisions). Combined coverage 93.8%. | ~~After M1~~ |
+| ~~FEATS encoding of impersonal verb forms in UD_Welsh-CCG~~ | RESOLVED during M1: `Person=0` marks impersonals (Gwelwyd, Dylid); apertium-cym tags them `impers`. Both map to LexEntry `person: '0'`. | ~~M1~~ |
 | Grade of literary interrogative a° | King §§ to consult during M5's audit; prescriptive tradition says SM on the following verb. | M5 |
 | CLI ambiguity display format | UX detail; settle in the M6 gameplan, constrained by "all readings visible + flagged". | M6 |
 | CorCenCC access mechanics and scoring design | Deliberately out of scope; first question of the successor evaluation workstream. | Post-workstream |
@@ -260,6 +260,7 @@ exactly this binary plus a scorer.
 | Literary pro-drop = Gap insertion, not a new empty category | Finding (ratified 2026-07-18): under the XPTH the dropped subject must still contribute an XP edge (*Gwelais °ddraig* — object mutates), while impersonals must not (*Gwelwyd dyn* — object radical). `Gap` already has exactly the required behavior (silent XP edge, blocks contact adjacency), so M4 inserts one after person-inflected subjectless verbs and never after impersonal forms, marking it `reason: 'pro'` vs `'extraction'` so `--explain` and REPORT.md's empty-category claim stay honest. Requires verb inflection features from M1/M2. |
 | Register question resolved as: toggle in scope, evaluation not | Reconciles the user's "literary first" corpus answer with CLI-only scope: UD text serves as gold/acceptance data; the toggle (M5) makes the CLI honest on written input. |
 | Lexicon primary source = UD_Welsh-CCG FEATS | CC BY-SA 4.0 (license-compatible with our CC-referenced data), register-adjacent, already needed for M4 gold. Apertium is a conditional backfill pending the operator's licensing call. |
+| Apertium GPL import approved (operator, 2026-07-18) | UD-only held-out coverage was 86.2% (<90% gate). apertium-cym (pinned caf86f27) is expanded to RADICAL forms only (initial-* paradigms via identity alternatives — mutated variants stay M2's inverse-map problem). The GPL-derived data/lexicon-apertium.json is kept separate from the CC BY-SA lexicon-full.json and gitignored (17MB, regenerable: apertium:fetch + apertium:extract); the loader warns loudly when it is absent. Combined coverage: 93.8% (PROPN 72.6% is the residual tail — unbounded names fall to M2's OOV policy). |
 
 ## Definition of Done (Acceptance Suite)
 

@@ -1,2 +1,6 @@
 node_modules/
 /*.pdf
+data/ud/
+data/apertium/
+# GPL-derived, 17MB, regenerable from pinned upstream: npm run apertium:fetch && npm run apertium:extract
+data/lexicon-apertium.json
