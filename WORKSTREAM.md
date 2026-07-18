@@ -46,7 +46,11 @@ Verified in the checkout (all committed, 86 tests green):
   Our tagger must not condition on the mutation state of the token being judged.
 - **Shallow structure is enough, but gaps and roles are not free**: the Trigger
   Constraint means only local structure matters, yet relative/wh clauses need Gap
-  insertion and the adverbial/vocative roles are irreducibly lexical/punctuational.
+  insertion, literary pro-drop needs a subject gap after person-inflected verbs
+  lacking an overt subject (*Gwelais °ddraig*) — but never after impersonal forms
+  (*Gwelwyd dyn* is radical) — and the adverbial/vocative roles are irreducibly
+  lexical/punctuational. The person/impersonal distinction means verb inflection
+  features must survive M1 extraction and M2 tokenization.
 - **Register**: the abundant clean text (Wikipedia, UD treebank) is written Welsh;
   the account is colloquial. The literary mode must exist for the CLI to be honest
   on such input.
@@ -84,7 +88,9 @@ Verified in the checkout (all committed, 86 tests green):
 - A CoNLL-U parser (comments, MWT ranges, FEATS) and an extraction script that
   builds `data/lexicon-full.json` from UD_Welsh-CCG: nouns with gender/number,
   verbs/adjectives/numerals with cat, lemma, and orthography-derived `initClass`
-  (digraph-aware: ll-, rh-, ch-, ff-, th- are not l-, r-, c-, f-, t-).
+  (digraph-aware: ll-, rh-, ch-, ff-, th- are not l-, r-, c-, f-, t-). Inflected
+  verbs additionally carry person/number and impersonal marking as encoded in
+  FEATS — consumed by M4's pro-drop gap insertion.
 - A lexicon loader that layers `data/lexicon-full.json` under the hand-curated
   `src/lexicon.ts` (hand entries win) and applies `data/immutables.json` — including
   the class rules (PROPN ⇒ personal-name immutability) which today no code consumes.
@@ -96,7 +102,7 @@ Verified in the checkout (all committed, 86 tests green):
 downstream consumes them yet, and the theory layer is untouched.
 
 **Unlocks**: candidate pruning for de-mutation (M2); gender/number features for
-tagging (M3).
+tagging (M3); verb inflection features for pro-drop gap insertion (M4).
 
 **Operator Actions Before Next Milestone**:
 - Read the coverage report. If token coverage on the UD sample is ≥ 90%, proceed
@@ -123,7 +129,8 @@ tagging (M3).
 - OOV policy implemented: unresolvable tokens get orthography-derived initClass,
   cat 'Other', an `unknown` flag, and never throw.
 - Output type: `Token[]` where each token carries surface form, candidate readings
-  (radical + lexeme), and observed-mutation hypotheses.
+  (radical + lexeme), and observed-mutation hypotheses; verb readings preserve the
+  M1 inflection features (person vs impersonal).
 
 **Why this is a safe pause point**: pure modules with property tests; no consumer
 wired yet.
@@ -157,12 +164,18 @@ suite; trees and CLI still absent.
 - A rule chunker building the existing `TreeNode` contract from tagged tokens:
   clause segmentation with the subordinator-inside-clause convention; NP (Det, Num,
   prenominal Adj, N head, AP chain, genitive NP nesting), PP, VNP brackets; Gap
-  insertion after relativizers/wh (a°, sy, na, pwy/beth questions); role assignment
+  insertion after relativizers/wh (a°, sy, na, pwy/beth questions) AND in subject
+  position after person-inflected verbs with no overt subject NP (literary
+  pro-drop) — never after impersonal forms (*Gwelwyd dyn* stays radical); Gaps
+  record `reason: 'extraction' | 'pro'` (optional field, the one backward-compatible
+  addition M4 makes to the tree contract, keeping `--explain` and the report
+  honest); role assignment
   (adverbial via a time-noun list + clause-peripheral position; vocative via
   comma-delimited address); polarity from ddim/ni/na cues.
 - Trees for every sentence in the tagger's gold suite match hand-authored trees
   (path-exact), including the classic set: DOM, periphrastic, intervening-PP,
-  fronted object, gap questions, possessor immunity, adjective chains.
+  fronted object, gap questions, pro-drop (*Gwelais ddraig*), impersonal
+  (*Gwelwyd dyn*), possessor immunity, adjective chains.
 - A spot-check script comparing chunker NP/PP spans against a converted
   UD_Welsh-CCG sample (dependency yields → brackets), reporting agreement — a
   dashboard, not a gate.
@@ -184,8 +197,10 @@ yet.
   `a.rel` already present, verified); any further literary-only frames from King's
   §6 register notes added with references.
 - Tests: dom-basic tree judged both ways (°Welodd colloquial / Gwelodd literary,
-  object mutation identical); existing 86 tests and the report (colloquial default)
-  unchanged.
+  object mutation identical); a hand-authored pro-drop tree (subject gap) judged
+  literary — radical verb, SM object (M5 is parallel to M4, so the tree is
+  hand-authored here; chunker-built coverage arrives with M4's gold suite);
+  existing 86 tests and the report (colloquial default) unchanged.
 
 **Why this is a safe pause point**: the theory layer gains a parameter with a
 backward-compatible default; nothing else changes.
@@ -228,6 +243,7 @@ exactly this binary plus a scorer.
 | Question | Notes | Resolve By |
 |----------|-------|------------|
 | Lexicon coverage threshold & Apertium GPL import | Operator decision after M1's coverage report (criteria in M1's operator actions). | After M1 |
+| FEATS encoding of impersonal verb forms in UD_Welsh-CCG | M4's gap-insertion exclusion needs person vs impersonal; confirm the exact FEATS keys during M1 extraction. | M1 |
 | Grade of literary interrogative a° | King §§ to consult during M5's audit; prescriptive tradition says SM on the following verb. | M5 |
 | CLI ambiguity display format | UX detail; settle in the M6 gameplan, constrained by "all readings visible + flagged". | M6 |
 | CorCenCC access mechanics and scoring design | Deliberately out of scope; first question of the successor evaluation workstream. | Post-workstream |
@@ -240,7 +256,8 @@ exactly this binary plus a scorer.
 | Own shallow chunker; Stanza and CyTag rejected as runtime components | The Trigger Constraint means only local/shallow structure is consumed; Welsh VSO + rigid NP order suits rules; keeps the stack TS-only (no Python, no CG-3 binary). The TreeNode contract leaves room for a Stanza/UD adapter later without touching anything downstream. CyTag is mined for rules/lists as reference only. |
 | Propagate ambiguous readings (no forced best guess) | User ruling. Disjunctive verdicts are honest; the flagged-readings shape is fixed in M3 and rendered in M6. |
 | No-mutation-evidence tagging rule retained despite CLI-only scope | Costs little now; preserves the integrity of the future evaluation workstream, which would otherwise inherit contaminated tags (the CyTag circularity). |
-| Theory layer frozen as contract | The pipeline authors trees; `sm`, `environmentFor`, the report, and the 86 tests are not modified by M1–M4 (M5 adds one backward-compatible parameter). Any pipeline pressure to change the theory layer is a finding, not a patch. |
+| Theory layer frozen as contract | The pipeline authors trees; `sm`, `environmentFor`, the report, and the 86 tests are not modified by M1–M4 — sole exception: M4's optional Gap `reason` field, ratified below (M5 adds one backward-compatible parameter). Any pipeline pressure to change the theory layer is a finding, not a patch. |
+| Literary pro-drop = Gap insertion, not a new empty category | Finding (ratified 2026-07-18): under the XPTH the dropped subject must still contribute an XP edge (*Gwelais °ddraig* — object mutates), while impersonals must not (*Gwelwyd dyn* — object radical). `Gap` already has exactly the required behavior (silent XP edge, blocks contact adjacency), so M4 inserts one after person-inflected subjectless verbs and never after impersonal forms, marking it `reason: 'pro'` vs `'extraction'` so `--explain` and REPORT.md's empty-category claim stay honest. Requires verb inflection features from M1/M2. |
 | Register question resolved as: toggle in scope, evaluation not | Reconciles the user's "literary first" corpus answer with CLI-only scope: UD text serves as gold/acceptance data; the toggle (M5) makes the CLI honest on written input. |
 | Lexicon primary source = UD_Welsh-CCG FEATS | CC BY-SA 4.0 (license-compatible with our CC-referenced data), register-adjacent, already needed for M4 gold. Apertium is a conditional backfill pending the operator's licensing call. |
 
@@ -338,7 +355,27 @@ M6's binary.
     orthography-derived initClass.
   - **Traces to**: Milestone 2 — OOV policy.
 
-- **DoD-11 — Theory layer unbroken**
+- **DoD-11 — Literary pro-drop licenses the object**
+  - **Assert**: `Gwelais ddraig.` under `--register literary` predicts SM on
+    *ddraig* via a subject gap's XP edge, and radical *Gwelais* (v1 suppressed),
+    both agreeing with the input.
+  - **Verify by** `cmd`: `echo "Gwelais ddraig." | welsh-sm --json --register literary`.
+  - **Expected**: tree contains a subject `gap:NP` (reason `pro`) between verb and
+    object; *ddraig*: `radical: "draig"`, `licensedBy: ["synt:xp-edge"]`;
+    *Gwelais* radical, agrees.
+  - **Traces to**: Milestone 4 — pro-drop gap insertion (register suppression:
+    Milestone 5; inflection features: Milestones 1–2).
+
+- **DoD-12 — Impersonal takes no subject gap (negative invariant)**
+  - **Assert**: `Gwelwyd dyn.` predicts radical *dyn* with reason `no-license`;
+    no gap is inserted after the impersonal verb.
+  - **Verify by** `cmd`: `echo "Gwelwyd dyn." | welsh-sm --explain --register literary`.
+  - **Expected**: no `gap:NP` in the tree; *dyn* → `radical (no-license)`;
+    observed form agrees.
+  - **Traces to**: Milestone 4 — impersonal exclusion in gap insertion, gated on
+    the M1/M2 inflection features.
+
+- **DoD-13 — Theory layer unbroken**
   - **Assert**: The full pre-existing suite (predicate, tree, pretty, surface,
     report build with verdict and surface assertions) passes at workstream end.
   - **Verify by** `cmd`: `npm test && npm run report`; exit 0 both.
