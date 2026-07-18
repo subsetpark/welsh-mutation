@@ -15,7 +15,7 @@
 
 import type { Cat } from '../theory/types.ts'
 import type { LexEntry } from './lexentry.ts'
-import { initClassOf } from '../theory/orthography.ts'
+import { VOWEL, initClassOf } from '../theory/orthography.ts'
 
 // ─── minimal XML ───
 
@@ -196,6 +196,14 @@ export function dixToEntries(expander: DixExpander): LexEntry[] {
   const acc = new Map<string, LexEntry>()
   for (const { surface, lemma, tags: tagList } of expander.entries()) {
     if (surface === '' || surface.includes(' ') || !/^\p{L}/u.test(surface)) continue
+    // h-prothesis variants are encoded as separate <l>hysgol</l><r>ysgol</r>
+    // lines rather than initial-* paradigms: a surface in h- whose lemma
+    // begins with the following vowel is a MUTATED shape, not a radical
+    const s = surface.toLowerCase()
+    const l = lemma.toLowerCase()
+    if (s.startsWith('h') && !l.startsWith('h') && VOWEL.test(s.slice(1)) && l.startsWith(s[1]!)) {
+      continue
+    }
     const tags = new Set(tagList)
     const cat = catFromTags(tags)
     if (cat === null) continue

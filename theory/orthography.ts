@@ -100,6 +100,7 @@ export function initClassOf(form: string): InitClass {
   if (f.startsWith('ll')) return 'll'
   if (f.startsWith('rh')) return 'rh'
   if (RADICAL_DIGRAPHS.some(d => f.startsWith(d))) return 'other'
+  if (VOWEL.test(f)) return 'v' // prothesis target under AM contexts
   const c = f[0]
   return c !== undefined && MUTABLE_SINGLES.has(c) ? (c as InitClass) : 'other'
 }
@@ -131,7 +132,7 @@ export function applyGrade(form: string, grade: MutationGrade): string {
  *  applyGrade(form, 'SM') whenever the class matches the orthography; kept
  *  class-keyed because a Lexeme carries its class, not its letters. */
 export function softMutate(form: string, initClass: InitClass): string {
-  if (initClass === 'other') return form
-  const repl = GRADE_ORTH.SM[initClass]!
+  const repl = GRADE_ORTH.SM[initClass]
+  if (repl === undefined) return form // 'v' and 'other': no soft reflex
   return matchCase(form, repl + form.slice(initClass.length))
 }

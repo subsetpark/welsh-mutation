@@ -36,20 +36,24 @@ test('DoD-8: ei gath — ambiguity fans out onto the target verdicts', () => {
   assert.deepEqual(new Set(byPrev.keys()), new Set(['ei.3sgm', 'ei.3sgf']))
   const masc = byPrev.get('ei.3sgm')!
   const fem = byPrev.get('ei.3sgf')!
-  assert.equal(masc.verdict.mutates, true) // SM predicted, observed SM
+  assert.equal(masc.verdict.grade, 'SM') // SM predicted, observed SM
   assert.equal(masc.agrees, true)
-  assert.equal(fem.verdict.mutates, false) // AM frame: no SM predicted
+  assert.equal(fem.verdict.grade, 'AM') // full grade: AM predicted here
   assert.equal(fem.agrees, false) // observed SM anomalous under 3sgf
 })
 
-test('SM-scoped agreement: observed AM/NM consistent with non-mutating verdicts', () => {
+test('full-grade agreement: observed AM/NM confirmed by matching predictions', () => {
   const [s] = judgeText('Gwelodd hi ei chath hi', LEX)
   const chath = s!.tokens[3]!
   assert.equal(chath.readings[0]!.observed, 'AM')
-  assert.equal(chath.readings[0]!.verdict.mutates, false)
+  assert.equal(chath.readings[0]!.verdict.grade, 'AM')
+  assert.equal(chath.readings[0]!.predicted, 'chath')
   assert.equal(chath.readings[0]!.agrees, true)
   const [f] = judgeText('fy nghath i', LEX)
-  assert.equal(f!.tokens[1]!.readings[0]!.agrees, true) // NM after fy
+  const nghath = f!.tokens[1]!.readings[0]!
+  assert.equal(nghath.verdict.grade, 'NM')
+  assert.equal(nghath.predicted, 'nghath') // regenerable Welsh, not *fy cath
+  assert.equal(nghath.agrees, true)
 })
 
 test('DoD-7 shape: yn resolved by context, never by target mutation', () => {
@@ -67,12 +71,12 @@ test('DoD-11/12 (fixture): literary pro-drop licenses; impersonal does not', () 
   const [pro] = judgeText('Gwelais ddraig.', LEX, 'literary')
   const [verb, draig] = pro!.tokens
   assert.equal(verb!.readings[0]!.agrees, true) // radical predicted, radical observed
-  assert.deepEqual(draig!.readings[0]!.verdict, { mutates: true, licensedBy: ['synt:xp-edge'] })
+  assert.deepEqual(draig!.readings[0]!.verdict, { grade: 'SM', licensedBy: ['synt:xp-edge'] })
   assert.equal(draig!.readings[0]!.agrees, true)
 
   const [imp] = judgeText('Gwelwyd dyn.', LEX, 'literary')
   assert.equal(imp!.tokens[0]!.readings[0]!.person, '0')
-  assert.deepEqual(imp!.tokens[1]!.readings[0]!.verdict, { mutates: false, reason: 'no-license' })
+  assert.deepEqual(imp!.tokens[1]!.readings[0]!.verdict, { grade: 'none', reason: 'no-license' })
 })
 
 test('cmd: DoD-1/3/4/6/10 in one colloquial --json run', () => {
@@ -86,7 +90,7 @@ test('cmd: DoD-1/3/4/6/10 in one colloquial --json run', () => {
   assert.deepEqual(dre.tokens.map((t: { surface: string }) => t.surface), ['i', "'r", 'dre'])
   const dreR = dre.tokens[2].readings.find((r: { radical: string }) => r.radical === 'tre')
   assert.equal(dreR.observed, 'SM')
-  assert.deepEqual(dreR.verdict, { mutates: true, licensedBy: ['gend:art-fem-sg'] })
+  assert.deepEqual(dreR.verdict, { grade: 'SM', licensedBy: ['gend:art-fem-sg'] })
 
   // DoD-3: DOM end to end
   const welodd = dom.tokens[0].readings.find((r: { radical: string }) => r.radical === 'Gwelodd')
@@ -102,14 +106,16 @@ test('cmd: DoD-1/3/4/6/10 in one colloquial --json run', () => {
 
   // DoD-6: gender system gated by lexicon features
   const llongR = llong.tokens[1].readings.find((r: { radical: string }) => r.radical === 'llong')
-  assert.equal(llongR.verdict.mutates, false) // ll- spared by SM-ltd article frame
+  // ll- spared by the SM-ltd article frame: full-grade reports the sparing
+  // counterfactually (the rule fired; this initial has no shape under it)
+  assert.deepEqual(llongR.verdict, { grade: 'none', reason: 'veto:no-reflex', suppressed: ['gend:art-fem-sg'] })
   const gathR = gath.tokens[1].readings.find((r: { radical: string }) => r.radical === 'cath')
-  assert.deepEqual(gathR.verdict, { mutates: true, licensedBy: ['gend:art-fem-sg'] })
+  assert.deepEqual(gathR.verdict, { grade: 'SM', licensedBy: ['gend:art-fem-sg'] })
 
   // DoD-10: OOV flagged, never crashes, exit 0
   const zebT = zeb.tokens.find((t: { surface: string }) => t.surface === 'zeb')
   assert.equal(zebT.unknown, true)
-  assert.equal(zebT.readings[0].verdict.mutates, false)
+  assert.equal(zebT.readings[0].verdict.grade, 'none')
 })
 
 test('cmd: DoD-9/11/12 — the register toggle changes exactly the v1 verdicts', () => {
@@ -120,9 +126,9 @@ test('cmd: DoD-9/11/12 — the register toggle changes exactly the v1 verdicts',
   // DoD-9: colloquial flags the radical verb; literary agrees; object identical
   const collVerb = coll.sentences[0].tokens[0].readings[0]
   const litVerb = lit.sentences[0].tokens[0].readings[0]
-  assert.equal(collVerb.verdict.mutates, true) // predicted °Welodd
+  assert.equal(collVerb.verdict.grade, 'SM') // predicted °Welodd
   assert.equal(collVerb.agrees, false) // observed radical Gwelodd
-  assert.equal(litVerb.verdict.mutates, false)
+  assert.equal(litVerb.verdict.grade, 'none')
   assert.equal(litVerb.agrees, true)
   assert.deepEqual(
     coll.sentences[0].tokens[2].readings[0].verdict,
@@ -134,12 +140,12 @@ test('cmd: DoD-9/11/12 — the register toggle changes exactly the v1 verdicts',
   assert.equal(pro.tree.children[1].kind, 'gap')
   assert.equal(pro.tree.children[1].reason, 'pro')
   const proDraig = pro.tokens[1].readings.find((r: { radical: string }) => r.radical === 'draig')
-  assert.deepEqual(proDraig.verdict, { mutates: true, licensedBy: ['synt:xp-edge'] })
+  assert.deepEqual(proDraig.verdict, { grade: 'SM', licensedBy: ['synt:xp-edge'] })
 
   // DoD-12: impersonal takes no gap; object radical, no license
   const imp = lit.sentences[2]
   assert.equal(imp.tree.children.some((c: { kind: string }) => c.kind === 'gap'), false)
-  assert.deepEqual(imp.tokens[1].readings[0].verdict, { mutates: false, reason: 'no-license' })
+  assert.deepEqual(imp.tokens[1].readings[0].verdict, { grade: 'none', reason: 'no-license' })
 })
 
 test('cmd: DoD-2/5 — explain shows prev lemma and negative invariants', () => {
@@ -150,6 +156,19 @@ test('cmd: DoD-2/5 — explain shows prev lemma and negative invariants', () => 
   const merchBlock = out.split('\n\n')[1]!
   assert.ok(merchBlock.includes('merch'))
   assert.ok(!merchBlock.includes('DISAGREES'))
+})
+
+test('cmd: --predict and --explain compose; --json combines with neither', () => {
+  const { out, code } = cli(['--predict', '--explain'], 'fy nghath i')
+  assert.equal(code, 0)
+  const [head, ...detail] = out.trimEnd().split('\n')
+  assert.equal(head, 'fy °nghath i') // predicted line view…
+  assert.ok(detail.some(l => l.includes('NM (lex:fy)'))) // …with provenance under it
+  // prediction view discards the surface: no observed grades, no agreement
+  assert.ok(!out.includes('observed'))
+  assert.ok(!out.includes('DISAGREES') && !out.includes('✓'))
+  assert.equal(cli(['--json', '--predict'], 'x').code, 1)
+  assert.equal(cli(['--json', '--explain'], 'x').code, 1)
 })
 
 test('cmd: usage errors exit 1; arbitrary UTF-8 exits 0', () => {

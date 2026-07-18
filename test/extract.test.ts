@@ -15,7 +15,7 @@ test('initClassOf: digraph-aware', () => {
   assert.equal(initClassOf('thema'), 'other') // th- is not t-
   assert.equal(initClassOf('tŷ'), 't')
   assert.equal(initClassOf('Gaerdydd'), 'g')
-  assert.equal(initClassOf('ysgol'), 'other')
+  assert.equal(initClassOf('ysgol'), 'v')
   assert.equal(initClassOf('mam'), 'm')
 })
 

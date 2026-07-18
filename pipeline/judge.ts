@@ -14,10 +14,10 @@
  *   tree itself is never mutated.
  */
 
-import type { Cat, Register, SMResult } from '../theory/types.ts'
+import type { Cat, MutationResult, Register } from '../theory/types.ts'
 import { environmentFor, type Clause, type Leaf, type TreeNode, type TreePath } from '../theory/tree.ts'
-import { agreesWithObserved, sm } from '../theory/predicate.ts'
-import { softMutate } from '../theory/orthography.ts'
+import { agreesWithObservedGrade, mutation } from '../theory/predicate.ts'
+import { applyGrade } from '../theory/orthography.ts'
 import { analyze } from './analyze.ts'
 import { tag, type TaggedToken } from './tagger.ts'
 import { chunk } from './chunk.ts'
@@ -34,8 +34,11 @@ export interface ReadingVerdict {
   person?: '0' | '1' | '2' | '3'
   /** Set when the verdict assumes one reading of an ambiguous predecessor. */
   prevLemma?: string
-  verdict: SMResult
-  /** Surface form the SM system predicts under this verdict. */
+  /** Full-grade verdict (theory/predicate.ts mutation()); the report's
+   *  sm() is its SM projection and stays untouched. */
+  verdict: MutationResult
+  /** Surface form predicted under this verdict — correct Welsh across all
+   *  grades (fy nghath, ei chath, ei hiaith), not just SM. */
   predicted: string
   agrees: boolean
 }
@@ -125,13 +128,13 @@ function judgeSentence(text: string, lexicon: Lexicon, register: Register): Judg
         const envV = pl === undefined || env.prev === null
           ? env
           : { ...env, prev: { ...env.prev, lemma: pl } }
-        const verdict = sm(lexeme, envV)
+        const verdict = mutation(lexeme, envV)
         const radical = t.kind === 'clitic' ? t.surface : r.radical
         const predicted =
-          verdict.mutates && t.kind !== 'clitic'
-            ? softMutate(radical, lexeme.initClass)
+          verdict.grade !== 'none' && t.kind !== 'clitic'
+            ? applyGrade(radical, verdict.grade)
             : radical
-        const agrees = agreesWithObserved(verdict, r.grade)
+        const agrees = agreesWithObservedGrade(verdict, r.grade)
         const key = [
           r.radical.toLowerCase(), r.entry.lemma, r.entry.cat, r.grade ?? '',
           r.entry.person ?? '', pl ?? '', JSON.stringify(verdict),

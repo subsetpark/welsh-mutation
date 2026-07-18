@@ -3,12 +3,19 @@
  * welsh-sm (WORKSTREAM M6): read natural (attested, mutated) Welsh, annotate
  * every token with the account's soft-mutation verdict.
  *
- *   welsh-sm [file] [--json | --explain] [--register colloquial|literary]
+ *   welsh-sm [file] [--json | [--predict] [--explain]] [--register colloquial|literary]
  *
  * stdin is read when no file is given. Exit 0 on success (OOV input
  * included), 1 on usage error; arbitrary UTF-8 never crashes — a sentence
  * that fails internally is reported as an error record and processing
  * continues.
+ *
+ * --predict swaps the sentence line from the comparison view to the pure
+ * predicted line — full-grade (SM/AM/NM/prothesis), well-formed Welsh
+ * regenerated from the recovered radicals. --explain appends per-token
+ * provenance beneath whichever line view is active; the two compose.
+ * --json is the machine format and already contains everything, so it
+ * combines with neither.
  */
 
 import { readFileSync } from 'node:fs'
@@ -20,19 +27,22 @@ import type { Register } from '../theory/types.ts'
 
 function usage(msg?: string): never {
   if (msg) process.stderr.write(`welsh-sm: ${msg}\n`)
-  process.stderr.write('usage: welsh-sm [file] [--json | --explain] [--register colloquial|literary]\n')
+  process.stderr.write('usage: welsh-sm [file] [--json | --explain | --predict] [--register colloquial|literary]\n')
   process.exit(1)
 }
 
-let mode: 'default' | 'json' | 'explain' = 'default'
+let json = false
+let explain = false
+let predict = false
 let register: Register = 'colloquial'
 let file: string | undefined
 
 const argv = process.argv.slice(2)
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i]!
-  if (a === '--json') mode = 'json'
-  else if (a === '--explain') mode = 'explain'
+  if (a === '--json') json = true
+  else if (a === '--explain') explain = true
+  else if (a === '--predict') predict = true
   else if (a === '--register') {
     const v = argv[++i]
     if (v !== 'colloquial' && v !== 'literary') usage(`--register expects colloquial|literary, got ${v ?? 'nothing'}`)
@@ -41,6 +51,7 @@ for (let i = 0; i < argv.length; i++) {
   else if (file === undefined) file = a
   else usage(`unexpected argument ${a}`)
 }
+if (json && (explain || predict)) usage('--json already carries everything; it does not combine')
 
 const input = file !== undefined ? readFileSync(file, 'utf8') : readFileSync(0, 'utf8')
 
@@ -64,16 +75,29 @@ const records: SentenceRecord[] = segment(input).map(text => {
 // ─── formatting ───
 
 const verdictStr = (r: JudgedToken['readings'][number]): string =>
-  r.verdict.mutates
-    ? `SM (${r.verdict.licensedBy.join(', ')})`
+  r.verdict.grade !== 'none'
+    ? `${r.verdict.grade} (${r.verdict.licensedBy.join(', ')})`
     : `radical (${r.verdict.reason}${r.verdict.suppressed ? ` blocks ${r.verdict.suppressed.join(', ')}` : ''})`
 
 function defaultToken(t: JudgedToken): string {
   if (t.kind === 'punct' || t.readings.length === 0) return t.surface
   const r = t.readings[0]!
-  const marked = r.verdict.mutates ? `°${t.surface}` : t.surface
-  const out = r.agrees ? marked : `${t.surface}⟨pred ${r.verdict.mutates ? '°' : ''}${r.predicted}⟩`
+  const mutated = r.verdict.grade !== 'none'
+  const marked = mutated ? `°${t.surface}` : t.surface
+  const out = r.agrees ? marked : `${t.surface}⟨pred ${mutated ? '°' : ''}${r.predicted}⟩`
   return t.ambiguous ? `${out}‽` : out
+}
+
+/** --predict: the pure generated line — full-grade Welsh from radicals. */
+function predictToken(t: JudgedToken): string {
+  if (t.kind === 'punct' || t.readings.length === 0) return t.surface
+  const r = t.readings[0]!
+  return r.verdict.grade !== 'none' ? `°${r.predicted}` : r.predicted
+}
+
+function renderPredict(rec: SentenceRecord): string {
+  if (!rec.sentence) return `!! ${rec.text} (${rec.error})`
+  return joinTokens(rec.sentence.tokens.map(t => ({ text: predictToken(t), kind: t.kind, surface: t.surface })))
 }
 
 function joinTokens(parts: { text: string; kind: string; surface: string }[]): string {
@@ -88,9 +112,12 @@ function renderDefault(rec: SentenceRecord): string {
   return joinTokens(rec.sentence.tokens.map(t => ({ text: defaultToken(t), kind: t.kind, surface: t.surface })))
 }
 
-function renderExplain(rec: SentenceRecord): string {
-  if (!rec.sentence) return `!! ${rec.text} (${rec.error})`
-  const lines: string[] = [rec.sentence.text]
+/** Per-token provenance detail, appended by --explain under the line view.
+ *  In the prediction view the surface is discarded by design, so the
+ *  observed grade and the agreement marks are omitted with it. */
+function tokenDetails(rec: SentenceRecord, compare: boolean): string {
+  if (!rec.sentence) return ''
+  const lines: string[] = []
   for (const t of rec.sentence.tokens) {
     if (t.kind === 'punct') continue
     const head = `  ${t.surface}${t.lemma ? ` [${t.lemma}]` : ''}${t.unknown ? ' UNKNOWN' : ''}${t.ambiguous ? ' AMBIGUOUS' : ''}${t.prev ? `  (prev: ${t.prev})` : ''}`
@@ -100,9 +127,9 @@ function renderExplain(rec: SentenceRecord): string {
         `${r.radical} ⟨${r.cat}${r.person !== undefined ? ` p${r.person}` : ''}⟩`,
         r.lemma !== r.radical.toLowerCase() ? `lemma=${r.lemma}` : null,
         r.prevLemma !== undefined ? `if prev=${r.prevLemma}` : null,
-        r.observed !== null ? `observed ${r.observed}` : null,
+        compare && r.observed !== null ? `observed ${r.observed}` : null,
         `→ ${verdictStr(r)}`,
-        r.agrees ? '✓' : '✗ DISAGREES',
+        compare ? (r.agrees ? '✓' : '✗ DISAGREES') : null,
       ].filter(b => b !== null)
       lines.push(`    ${bits.join('  ')}`)
     }
@@ -110,24 +137,22 @@ function renderExplain(rec: SentenceRecord): string {
   return lines.join('\n')
 }
 
-switch (mode) {
-  case 'json':
-    process.stdout.write(
-      JSON.stringify(
-        {
-          register,
-          sentences: records.map(r =>
-            r.sentence ?? { text: r.text, error: r.error, tokens: [], tree: null },
-          ),
-        },
-        null,
-        2,
-      ) + '\n',
-    )
-    break
-  case 'explain':
-    process.stdout.write(records.map(renderExplain).join('\n\n') + '\n')
-    break
-  default:
-    process.stdout.write(records.map(renderDefault).join('\n') + '\n')
+if (json) {
+  process.stdout.write(
+    JSON.stringify(
+      {
+        register,
+        sentences: records.map(r =>
+          r.sentence ?? { text: r.text, error: r.error, tokens: [], tree: null },
+        ),
+      },
+      null,
+      2,
+    ) + '\n',
+  )
+} else {
+  const line = predict ? renderPredict : renderDefault
+  const renderSentence = (rec: SentenceRecord): string =>
+    explain && rec.sentence ? `${line(rec)}\n${tokenDetails(rec, !predict)}` : line(rec)
+  process.stdout.write(records.map(renderSentence).join(explain ? '\n\n' : '\n') + '\n')
 }

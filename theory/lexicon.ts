@@ -39,7 +39,7 @@ export const LEXICON = {
   prynodd: { id: 'prynu', cat: 'V', initClass: 'p' },
   dod: { id: 'dod', cat: 'V', initClass: 'd' },
   roedd: { id: 'bod', cat: 'V', initClass: 'other' }, // r- is not rh-
-  aeth: { id: 'mynd', cat: 'V', initClass: 'other' },
+  aeth: { id: 'mynd', cat: 'V', initClass: 'v' },
   mae: { id: 'mae', cat: 'V', initClass: 'other', immutable: true }, // King §12b
 
   // ─── imperatives (resist v1 and neu°, King §512) ───
@@ -74,12 +74,12 @@ export const LEXICON = {
   gorsaf: { id: 'gorsaf', cat: 'N', gender: 'f', number: 'sg', initClass: 'g' },
   blynedd: { id: 'blynedd', cat: 'N', gender: 'f', number: 'sg', initClass: 'b' },
   gem: { id: 'gêm', cat: 'N', gender: 'f', number: 'sg', initClass: 'g', immutable: true }, // King §12e
-  ysgol: { id: 'ysgol', cat: 'N', gender: 'f', number: 'sg', initClass: 'other' },
+  ysgol: { id: 'ysgol', cat: 'N', gender: 'f', number: 'sg', initClass: 'v' },
 
   // ─── other nominals ───
   rhaid: { id: 'rhaid', cat: 'N', initClass: 'rh' },
   Mair: { id: 'Mair', cat: 'N', initClass: 'm', immutable: true },     // personal name, King §12d
-  Emrys: { id: 'Emrys', cat: 'N', initClass: 'other', immutable: true },
+  Emrys: { id: 'Emrys', cat: 'N', initClass: 'v', immutable: true },
   Dafydd: { id: 'Dafydd', cat: 'N', initClass: 'd', immutable: true },
 
   // ─── adjectives ───
@@ -98,13 +98,13 @@ export const LEXICON = {
   chwe: { id: 'chwe', cat: 'Num', initClass: 'other' },
 
   // ─── particles & function words ───
-  wedi: { id: 'wedi', cat: 'Prt', initClass: 'other' },
+  wedi: { id: 'wedi', cat: 'Prt', initClass: 'v' },
   dim: { id: 'dim', cat: 'Prt', initClass: 'd' },
   y: { id: 'y', cat: 'Other', initClass: 'other' },
-  i: { id: 'i', cat: 'Other', initClass: 'other' },
-  i_pron: { id: 'i', cat: 'Other', initClass: 'other' },
+  i: { id: 'i', cat: 'Other', initClass: 'v' },
+  i_pron: { id: 'i', cat: 'Other', initClass: 'v' },
   dy: { id: 'dy', cat: 'Other', initClass: 'd', immutable: true },     // King §12b
-  ei: { id: 'ei', cat: 'Other', initClass: 'other' },
+  ei: { id: 'ei', cat: 'Other', initClass: 'v' },
   fy: { id: 'fy', cat: 'Other', initClass: 'other' },
   mor: { id: 'mor', cat: 'Adv', initClass: 'm', immutable: true },     // King §12b
   neu: { id: 'neu', cat: 'Other', initClass: 'other' },
@@ -112,9 +112,9 @@ export const LEXICON = {
   pwy: { id: 'pwy', cat: 'Other', initClass: 'p' },
   ti: { id: 'ti', cat: 'Other', initClass: 't', immutable: true },     // Jones corpus exception list
   hi: { id: 'hi', cat: 'Other', initClass: 'other' },
-  e: { id: 'e', cat: 'Other', initClass: 'other' },
-  os: { id: 'os', cat: 'Other', initClass: 'other' },
-  yn: { id: 'yn', cat: 'Other', initClass: 'other' },
-  yn_ol: { id: 'yn ôl', cat: 'Adv', initClass: 'other' },
-  adre: { id: 'adre', cat: 'Adv', initClass: 'other' },
+  e: { id: 'e', cat: 'Other', initClass: 'v' },
+  os: { id: 'os', cat: 'Other', initClass: 'v' },
+  yn: { id: 'yn', cat: 'Other', initClass: 'v' },
+  yn_ol: { id: 'yn ôl', cat: 'Adv', initClass: 'v' },
+  adre: { id: 'adre', cat: 'Adv', initClass: 'v' },
 } satisfies Record<string, Lexeme>

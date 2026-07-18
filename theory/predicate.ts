@@ -34,7 +34,7 @@
  */
 
 import type {
-  Environment, Grade, InitClass, Lexeme, RuleId, SMResult, TriggerFrame,
+  Environment, Grade, InitClass, Lexeme, MutationResult, RuleId, SMResult, TriggerFrame,
 } from './types.ts'
 import type { MutationGrade } from './orthography.ts'
 import triggersData from './triggers.json' with { type: 'json' }
@@ -54,6 +54,34 @@ const MIXED_SM = new Set<InitClass>(['g', 'b', 'd', 'll', 'm', 'rh']) // AM clai
 /** Grades with an SM reflex for at least one initial — the counterfactual
  *  test for a no-reflex word: would this rule fire on any mutable initial? */
 const SM_YIELDING = new Set<Grade>(['SM', 'SM-ltd', 'mixed'])
+
+// Full-grade reflex classes (mutation() below; §1 for the orthography):
+// AM touches the voiceless stops and — as h-prothesis — the vowels; NM the
+// six stops. m/ll/rh mutate only softly.
+const AM_TARGETS = new Set<InitClass>(['c', 'p', 't', 'v'])
+const NM_TARGETS = new Set<InitClass>(['c', 'p', 't', 'g', 'b', 'd'])
+const MIXED_AM = new Set<InitClass>(['c', 'p', 't'])
+/** Conflict policy: the more specific contact grade beats configurational
+ *  soft mutation. See mutation() for the argument. */
+const GRADE_PRECEDENCE: MutationGrade[] = ['NM', 'AM', 'SM']
+
+/** The surface grade a GOVERNED grade realizes on a given initial, or null
+ *  when that initial has no reflex under it — the full-grade analogue of
+ *  gradeYieldsSM below. */
+function gradeReflex(grade: Grade, init: InitClass): MutationGrade | null {
+  switch (grade) {
+    case 'SM': return SM_TARGETS.has(init) ? 'SM' : null
+    case 'SM-ltd': return SM_TARGETS.has(init) && !SM_LTD_EXCLUDED.has(init) ? 'SM' : null
+    case 'mixed': return MIXED_AM.has(init) ? 'AM' : MIXED_SM.has(init) ? 'SM' : null
+    case 'AM': return AM_TARGETS.has(init) ? 'AM' : null
+    case 'NM': return NM_TARGETS.has(init) ? 'NM' : null
+    case 'none': return null
+    default: {
+      const _exhaustive: never = grade
+      return _exhaustive
+    }
+  }
+}
 
 /** The grade → SM-reflex logic (§2 motivated the six-way vocabulary):
  *  does `grade`, as governed by a trigger, surface as SM on this initial? */
@@ -191,4 +219,67 @@ export function sm(lexeme: Lexeme, env: Environment): SMResult {
  *  "predicted radical" would count every ei chath as a failure. */
 export function agreesWithObserved(result: SMResult, observed: MutationGrade | null): boolean {
   return result.mutates ? observed === 'SM' : observed !== 'SM'
+}
+
+/**
+ * THE FULL-GRADE GENERALIZATION. sm() answers the theory's charter
+ * question; mutation() answers the application's: which grade, if any,
+ * does the environment impose here? Same collectors, same two-phase
+ * shape — the difference is that each fired rule's governed grade is
+ * RESOLVED against the target's initial into a surface grade (fy + cath
+ * ⇒ NM; ei(f) + cath ⇒ AM; ei(f) + iaith ⇒ AM realized as h-prothesis on
+ * the vowel class; ni + collith ⇒ mixed's AM half) instead of being
+ * filtered down to a soft-or-not boolean.
+ *
+ * Where rules resolve to DIFFERENT grades on the same token, the more
+ * specific wins: NM > AM > SM. The non-soft grades only ever come from
+ * contact triggers and mixed — the positional subsystem is SM-only — so
+ * precedence encodes "a specific lexical requirement beats the general
+ * configurational one". Conflicts are rare; the policy makes them
+ * deterministic and reportable.
+ *
+ * The vetoes parallel sm()'s, with one semantic difference worth noting:
+ * an AM frame over a g-initial word reports veto:no-reflex here (the rule
+ *  fired; this initial has no aspirate shape) where sm() reports plain
+ * no-license (no SOFT-mutation rule was ever in play). Each is the honest
+ * counterfactual for its own question.
+ */
+export function mutation(lexeme: Lexeme, env: Environment): MutationResult {
+  const potentials = [
+    ...lexicalPotentials(lexeme, env),
+    ...genderPotentials(env),
+    ...syntacticPotentials(env),
+  ]
+
+  const resolved: { rule: RuleId; surface: MutationGrade }[] = []
+  for (const p of potentials) {
+    const surface = gradeReflex(p.grade, lexeme.initClass)
+    if (surface !== null) resolved.push({ rule: p.rule, surface })
+  }
+
+  if (resolved.length > 0) {
+    if (lexeme.immutable) {
+      return { grade: 'none', reason: 'veto:immutable', suppressed: resolved.map(r => r.rule) }
+    }
+    const winner = GRADE_PRECEDENCE.find(g => resolved.some(r => r.surface === g))!
+    return { grade: winner, licensedBy: resolved.filter(r => r.surface === winner).map(r => r.rule) }
+  }
+
+  const wouldFire = potentials.filter(p => p.grade !== 'none').map(p => p.rule)
+  if (wouldFire.length > 0) {
+    return { grade: 'none', reason: 'veto:no-reflex', suppressed: wouldFire }
+  }
+  return { grade: 'none', reason: 'no-license' }
+}
+
+/** Full-grade agreement: the verdict names a surface grade (or 'none'),
+ *  and confirmation is grade equality — ei cath 'her cat' left unmutated
+ *  is now a detectable miss, where the SM projection had to wave it
+ *  through. Colloquial AM-erosion contexts will disagree often; that is
+ *  what theory/contested.json exists to absorb. */
+export function agreesWithObservedGrade(
+  result: MutationResult,
+  observed: MutationGrade | null,
+): boolean {
+  return result.grade === (observed ?? 'none')
 }

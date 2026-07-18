@@ -233,3 +233,14 @@ variation (King §12b).
   data-driven from immutables.json classes, with unimplementable classes declared
   explicitly. test/architecture.test.ts enforces the split: theory imports may not
   leave theory/, and GRADE_ORTH may be defined exactly once.
+- 2026-07-18: full-grade generalization (application-facing). theory/predicate.ts
+  gains mutation(): the same collect-then-filter calculus resolving each fired
+  rule's governed grade against the target's initial into a surface-grade verdict
+  (NM/AM/SM/none), with conflict precedence NM > AM > SM (contact-specific beats
+  configurational) and per-grade counterfactual vetoes. InitClass gains 'v'
+  (vowels) so h-prothesis is predictable as AM's vowel reflex; extracted lexicons
+  regenerated. The judge and CLI now emit full-grade predictions (correct Welsh —
+  fy nghath, ei chath, ei hysgol) and grade-equality agreement; a --predict mode
+  prints the pure regenerated line. The REPORT and sm() stay SM-only by charter:
+  the application backs the report, the report does not chase the application
+  (user ruling). sm() is untouched and REPORT.md byte-identical.

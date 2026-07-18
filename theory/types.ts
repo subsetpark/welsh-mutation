@@ -57,12 +57,16 @@ export type Grade = 'SM' | 'SM-ltd' | 'AM' | 'NM' | 'mixed' | 'none'
 
 /** Equivalence class of a lexeme's initial segment — everything the
  *  predicate ever knows about a word's shape (the letters live in §1).
- *  `other` = no soft-mutation reflex at all: vowels, s-, n-, h-, and the
+ *  Vowels are their own class: they have no soft-mutation reflex, but
+ *  aspirate-mutation contexts prefix h- to them (prothesis, §1), so the
+ *  full-grade predicate must tell them apart from the truly inert
+ *  initials. `other` = no reflex under ANY grade: s-, n-, h-, f-, and the
  *  radical digraphs ch-/ff-/th- (King §5a). */
 export type InitClass =
   | 'c' | 'p' | 't'          // SM + AM targets
   | 'g' | 'b' | 'd' | 'm'    // SM (b, d, m also NM targets)
   | 'll' | 'rh'              // SM only, spared by SM-ltd triggers
+  | 'v'                      // vowels: AM contexts realize as h-prothesis
   | 'other'
 
 /** Category matters to mutation in specific, attested ways: trigger frames
@@ -204,3 +208,17 @@ export type SMResult =
    *  mutable initial). An idle veto reports plain `no-license`, since
    *  removing it would change nothing. */
   | { mutates: false; reason: NoMutationReason; suppressed?: RuleId[] }
+
+/** The FULL-GRADE verdict — the generalization of which SMResult is the
+ *  soft-mutation projection. The same licensing calculus (§5) resolves
+ *  each fired rule's governed grade against the target's initial and
+ *  reports the surface grade that results: fy + cath is grade NM, ei(f) +
+ *  cath grade AM, ei(f) + iaith grade AM realized as h-prothesis. The
+ *  report and the sm() contract are deliberately SM-only (the theory's
+ *  charter); this type exists so the application can EMIT correct Welsh —
+ *  a predicted line that wrote *fy cath would be ungrammatical — and so
+ *  agreement with attested text can be checked per grade instead of
+ *  treating every non-SM observation as vacuously consistent. */
+export type MutationResult =
+  | { grade: 'SM' | 'AM' | 'NM'; licensedBy: RuleId[] }
+  | { grade: 'none'; reason: NoMutationReason; suppressed?: RuleId[] }

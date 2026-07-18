@@ -60,6 +60,10 @@ export function extractEntries(sentences: ConlluSentence[]): ExtractResult {
           continue
         }
         radical = r
+      } else if (w.form.toLowerCase() === 'h' + w.lemma.toLowerCase()) {
+        // unmarked h-prothesis (the treebank misses some): a form that is
+        // exactly h + its own lemma is prothesized, not radical
+        radical = w.lemma
       } else {
         radical = w.form
       }
