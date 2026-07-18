@@ -42,6 +42,19 @@ test('DoD-8: ei gath — ambiguity fans out onto the target verdicts', () => {
   assert.equal(fem.agrees, false) // observed SM anomalous under 3sgf
 })
 
+test('prev fan-out only fires on DISTINCT predecessor lemmas', () => {
+  // prynu is ambiguous (V vs Vnoun) but both readings share one lemma —
+  // the following token must get one unconditional verdict, not a vacuous
+  // `if prev=prynu` variant.
+  const [s] = judgeText('Rhaid i fi prynu dy gath', LEX)
+  const dy = s!.tokens.find(t => t.surface === 'dy')!
+  assert.equal(dy.readings.length, 1)
+  assert.equal(dy.readings[0]!.prevLemma, undefined)
+  // …while genuinely distinct prev lemmas still fan out (DoD-8 unchanged)
+  const [ei] = judgeText('ei gath', LEX)
+  assert.equal(ei!.tokens[1]!.readings.length, 2)
+})
+
 test('full-grade agreement: observed AM/NM confirmed by matching predictions', () => {
   const [s] = judgeText('Gwelodd hi ei chath hi', LEX)
   const chath = s!.tokens[3]!

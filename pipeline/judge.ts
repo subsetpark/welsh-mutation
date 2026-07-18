@@ -112,12 +112,17 @@ function judgeSentence(text: string, lexicon: Lexicon, register: Register): Judg
     if (env.prev) base.prev = env.prev.lemma
 
     // fan out over an ambiguous predecessor's distinct lemma keys (never
-    // across a gap: its sentinel lemma is not a token's)
+    // across a gap: its sentinel lemma is not a token's). A predecessor
+    // whose readings share ONE lemma (prynu V vs Vnoun) contributes no
+    // variation — a condition with a single branch is not a condition, so
+    // no `if prev=` label is attached.
     const prevToken = prevTokenOfLeaf.get(leaf)
-    const prevLemmas: (string | undefined)[] =
+    const distinctPrev =
       env.prev !== null && env.prev.lemma !== '#gap' && prevToken?.ambiguous
         ? [...new Set(prevToken.readings.map(r => r.entry.lemma))]
-        : [undefined]
+        : []
+    const prevLemmas: (string | undefined)[] =
+      distinctPrev.length > 1 ? distinctPrev : [undefined]
 
     // near-duplicate lexicon entries (UD + Apertium differing only in
     // features the verdict never consults) must not fake ambiguity
