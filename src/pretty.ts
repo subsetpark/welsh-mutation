@@ -7,9 +7,11 @@
 
 import { sm } from './predicate.ts'
 import { environmentFor, type TreeNode, type TreePath } from './tree.ts'
+import type { Register } from './types.ts'
 
 export interface PrettyOptions {
   verdicts?: boolean
+  register?: Register
 }
 
 export function prettyTree(root: TreeNode, opts: PrettyOptions = {}): string {
@@ -30,7 +32,7 @@ export function prettyTree(root: TreeNode, opts: PrettyOptions = {}): string {
         if (node.lemma && node.lemma !== l.id) s += ` lemma=${node.lemma}`
         if (l.immutable) s += ' immutable'
         if (opts.verdicts) {
-          const r = sm(l, environmentFor(root, path))
+          const r = sm(l, environmentFor(root, path, opts.register))
           s += r.mutates
             ? ` → SM (${r.licensedBy.join(', ')})`
             : ` → radical (${r.reason}${r.suppressed ? ` blocks ${r.suppressed.join(', ')}` : ''})`

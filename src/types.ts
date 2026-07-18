@@ -38,6 +38,12 @@ export interface Lexeme {
  *  of a license rather than a veto. */
 export type PrevRelation = 'dependent' | 'possessor' | 'other'
 
+/** Register parameter (M5): the difference between registers is the
+ *  presence or absence of the v1 designated positions, not a different
+ *  theory — formal literary Welsh is particle-less and radical clause-
+ *  initially (King §11d), so literary mode simply does not emit v1 tags. */
+export type Register = 'colloquial' | 'literary'
+
 /** Dowle-style designated positions (King §§10, 11b, 11c, 11d). */
 export type PositionTag =
   | 'adv-np'         // NP as time/manner adverbial (King 11b)

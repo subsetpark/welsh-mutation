@@ -8,6 +8,7 @@
 import { sm } from './predicate.ts'
 import { environmentFor, type Leaf, type TreeNode, type TreePath } from './tree.ts'
 import { softMutate } from './mutate.ts'
+import type { Register } from './types.ts'
 
 function leavesWithPaths(root: TreeNode): { leaf: Leaf; path: TreePath }[] {
   const out: { leaf: Leaf; path: TreePath }[] = []
@@ -20,10 +21,10 @@ function leavesWithPaths(root: TreeNode): { leaf: Leaf; path: TreePath }[] {
   return out
 }
 
-export function renderSurface(root: TreeNode): string {
+export function renderSurface(root: TreeNode, register: Register = 'colloquial'): string {
   const tokens = leavesWithPaths(root).map(({ leaf, path }) => {
     const form = leaf.form ?? leaf.lexeme.id
-    const r = sm(leaf.lexeme, environmentFor(root, path))
+    const r = sm(leaf.lexeme, environmentFor(root, path, register))
     return r.mutates ? `°${softMutate(form, leaf.lexeme.initClass)}` : form
   })
   return tokens.reduce((acc, t) => (t.startsWith("'") ? acc + t : acc === '' ? t : `${acc} ${t}`), '')

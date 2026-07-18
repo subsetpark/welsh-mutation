@@ -626,6 +626,7 @@ single word may govern several distinct conditions (*y*, *chwe*); grade
 | `tua` | AM | — | App A |
 | `yn.loc` | NM | — | App A, §472 |
 | `a.rel` | SM | — | §481 |
+| `a.int` | SM | cat ∈ {V} | §481 note — interrogative particle, dropped colloquially with its SM left behind; retained in the literary register (M5 audit; prescriptive tradition: SM on the following verb) |
 | `dacw` | SM | — | App A |
 | `dyma` | SM | — | App A |
 | `dyna` | SM | — | App A |

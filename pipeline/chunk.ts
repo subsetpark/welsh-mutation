@@ -337,6 +337,11 @@ class Chunker {
         children.push(this.take([], PARTICLES[s]))
         continue
       }
+      // literary interrogative particle (M5 audit): a° + finite verb
+      if (this.lemma(this.cur()) === 'a.int' && this.hasCat(this.cur(1), 'V')) {
+        children.push(this.take())
+        continue
+      }
       break
     }
 

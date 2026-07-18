@@ -14,7 +14,7 @@
  * - Lemma normalization: orthographic variants share a lemma (y/yr/'r → 'y').
  */
 
-import type { Environment, Lexeme, PositionTag, PrevRelation } from './types.ts'
+import type { Environment, Lexeme, PositionTag, PrevRelation, Register } from './types.ts'
 
 export type PhraseCat = 'NP' | 'PP' | 'AP' | 'AdvP' | 'NumP' | 'VNP'
 export type ClauseCat = 'S' | 'CP'
@@ -197,14 +197,23 @@ function firstOvertLeaf(node: TreeNode): Leaf | null {
   return terminalsInOrder(node).find((t): t is Leaf => t.kind === 'leaf') ?? null
 }
 
-function positionFor(target: Leaf, parents: Map<TreeNode, TreeNode>): PositionTag | null {
+function positionFor(
+  target: Leaf,
+  parents: Map<TreeNode, TreeNode>,
+  register: Register,
+): PositionTag | null {
   for (const anc of ancestors(target, parents)) {
     if (firstOvertLeaf(anc) !== target) break
     if (anc.kind === 'phrase' && anc.role === 'vocative') return 'vocative'
     if (anc.kind === 'phrase' && anc.role === 'adverbial' && (anc.cat === 'NP' || anc.cat === 'NumP')) {
       return 'adv-np'
     }
-    if (anc.kind === 'clause' && anc.cat === 'S' && target.lexeme.cat === 'V') {
+    // v1 positions are particle-drop residue and exist only in the
+    // colloquial register (King §11d); literary mode does not emit them.
+    if (
+      register === 'colloquial' &&
+      anc.kind === 'clause' && anc.cat === 'S' && target.lexeme.cat === 'V'
+    ) {
       return anc.polarity === 'neg' ? 'v1-finite-neg' : 'v1-finite-aff'
     }
   }
@@ -229,7 +238,11 @@ export function resolveLeaf(root: TreeNode, path: TreePath): Leaf {
   return node
 }
 
-export function environmentFor(root: TreeNode, path: TreePath): Environment {
+export function environmentFor(
+  root: TreeNode,
+  path: TreePath,
+  register: Register = 'colloquial',
+): Environment {
   const parents = buildParents(root)
   const target = resolveLeaf(root, path)
   const terminals = terminalsInOrder(root)
@@ -244,7 +257,7 @@ export function environmentFor(root: TreeNode, path: TreePath): Environment {
       isXPRightEdge: xpRightEdge(prev, target, parents),
     },
     agreement: agreementFor(target, parents),
-    position: positionFor(target, parents),
+    position: positionFor(target, parents, register),
   }
 }
 

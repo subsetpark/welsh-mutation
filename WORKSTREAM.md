@@ -244,7 +244,7 @@ exactly this binary plus a scorer.
 |----------|-------|------------|
 | ~~Lexicon coverage threshold & Apertium GPL import~~ | RESOLVED 2026-07-18: UD-only coverage 86.2% < 90%; operator approved the GPL import (see Decisions). Combined coverage 93.8%. | ~~After M1~~ |
 | ~~FEATS encoding of impersonal verb forms in UD_Welsh-CCG~~ | RESOLVED during M1: `Person=0` marks impersonals (Gwelwyd, Dylid); apertium-cym tags them `impers`. Both map to LexEntry `person: '0'`. | ~~M1~~ |
-| Grade of literary interrogative a° | King §§ to consult during M5's audit; prescriptive tradition says SM on the following verb. | M5 |
+| ~~Grade of literary interrogative a°~~ | RESOLVED M5: SM (prescriptive tradition; King §481 note), added as `a.int` targeting V, with tagger 3-way resolution (int/rel/conj) and chunker particle handling. Audit bonus: `oni` (mixed, §10) was already present, contrary to this document's earlier claim. | ~~M5~~ |
 | CLI ambiguity display format | UX detail; settle in the M6 gameplan, constrained by "all readings visible + flagged". | M6 |
 | CorCenCC access mechanics and scoring design | Deliberately out of scope; first question of the successor evaluation workstream. | Post-workstream |
 

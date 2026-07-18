@@ -67,7 +67,7 @@ interface Rule {
 const HOMOGRAPHS: Record<string, string[]> = {
   yn: ['yn.loc', 'yn.pred', 'yn.prog'],
   ei: ['ei.3sgm', 'ei.3sgf'],
-  a: ['a.rel', 'a.conj'],
+  a: ['a.rel', 'a.conj', 'a.int'],
   i: ['i', 'i.pron'],
   "'w": ["'w.3sgm", "'w.3sgf", "'w.3pl"],
   yr: ['y'],
@@ -188,13 +188,16 @@ const RULES: Rule[] = [
     },
   },
   {
-    // a + finite verb → relative particle; a + nominal-only → conjunction.
-    id: 'a-rel-vs-conj',
+    // a + finite verb → clause-initial interrogative, otherwise relative;
+    // a + nominal-only → conjunction.
+    id: 'a-int-vs-rel-vs-conj',
     prune(t, ctx) {
       if (!t.readings.some(r => r.lemma.startsWith('a.'))) return null
       const n = ctx.right[0]
       if (n === undefined) return null
-      if (hasCat(n, 'V')) return keepOnly('a.', 'a.rel')
+      if (hasCat(n, 'V')) {
+        return keepOnly('a.', ctx.left.length === 0 ? 'a.int' : 'a.rel')
+      }
       if (hasCat(n, 'N', 'Adj', 'Num', 'Vnoun')) return keepOnly('a.', 'a.conj')
       return null
     },

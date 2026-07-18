@@ -30,6 +30,7 @@
     { "lemma": "yn.loc", "grade": "NM", "_ref": "App A, §472" },
 
     { "lemma": "a.rel", "grade": "SM", "_ref": "§481" },
+    { "lemma": "a.int", "grade": "SM", "targetCat": ["V"], "_ref": "§481 note — interrogative particle, dropped colloquially with its SM left behind; retained in the literary register (M5 audit; prescriptive tradition: SM on the following verb)" },
     { "lemma": "dacw", "grade": "SM", "_ref": "App A" },
     { "lemma": "dyma", "grade": "SM", "_ref": "App A" },
     { "lemma": "dyna", "grade": "SM", "_ref": "App A" },
