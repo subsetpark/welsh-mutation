@@ -47,12 +47,17 @@ export interface Leaf {
    *  those grades, so their display forms are surface facts, not verdicts. */
   form?: string
 }
-/** Extraction gap (wh-trace, relative gap). Occupies a string position but no
- *  surface form. Counts as a phrase for XP-edge purposes; blocks contact
- *  adjacency (its sentinel lemma matches no trigger frame). */
+/** Silent XP-edge terminal. Occupies a string position but no surface form.
+ *  Counts as a phrase for XP-edge purposes; blocks contact adjacency (its
+ *  sentinel lemma matches no trigger frame). `reason` records why it exists —
+ *  'extraction' (wh-trace, relative gap) or 'pro' (literary null subject,
+ *  inserted by the M4 chunker after person-inflected subjectless verbs,
+ *  never impersonals). Optional: the ratified M4 amendment; geometry is
+ *  identical either way. */
 export interface Gap {
   kind: 'gap'
   cat: PhraseCat
+  reason?: 'extraction' | 'pro'
 }
 export type TreeNode = Phrase | Clause | Leaf | Gap
 
@@ -250,4 +255,5 @@ export const clause = (cat: ClauseCat, children: TreeNode[], polarity?: 'aff' | 
   ({ kind: 'clause', cat, children, ...(polarity ? { polarity } : {}) })
 export const leaf = (lexeme: Lexeme, lemma?: string, form?: string): Leaf =>
   ({ kind: 'leaf', lexeme, ...(lemma ? { lemma } : {}), ...(form ? { form } : {}) })
-export const gap = (cat: PhraseCat = 'NP'): Gap => ({ kind: 'gap', cat })
+export const gap = (cat: PhraseCat = 'NP', reason?: Gap['reason']): Gap =>
+  ({ kind: 'gap', cat, ...(reason ? { reason } : {}) })

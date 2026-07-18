@@ -22,7 +22,7 @@ export function prettyTree(root: TreeNode, opts: PrettyOptions = {}): string {
       case 'phrase':
         return node.cat + (node.role ? ` (${node.role})` : '')
       case 'gap':
-        return `gap:${node.cat}`
+        return `gap:${node.cat}` + (node.reason ? ` (${node.reason})` : '')
       case 'leaf': {
         const l = node.lexeme
         const feats = [l.cat, l.gender, l.number].filter(Boolean).join(' ')

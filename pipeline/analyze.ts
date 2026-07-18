@@ -47,7 +47,11 @@ const TRIGGER_BASES = new Set(
 const functionReading = (form: string): Reading => ({
   radical: form,
   grade: null,
-  entry: { form, lemma: form.toLowerCase(), cat: 'Other', initClass: initClassOf(form), freq: 0 },
+  // form normalized: function words never keep sentence-initial caps
+  entry: {
+    form: form.toLowerCase(), lemma: form.toLowerCase(),
+    cat: 'Other', initClass: initClassOf(form), freq: 0,
+  },
 })
 
 export function analyze(text: string, lexicon: Lexicon = loadLexicon()): Token[] {

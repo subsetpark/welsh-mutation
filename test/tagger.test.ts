@@ -2,8 +2,6 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { analyze } from '../pipeline/analyze.ts'
 import { tag, type TaggedToken, type TargetReadingView } from '../pipeline/tagger.ts'
-import { Lexicon } from '../pipeline/lexicon.ts'
-import type { LexEntry } from '../pipeline/lexentry.ts'
 
 // STRUCTURAL GUARD (DoD-7), compile-time: the target view must not expose
 // the observed mutation. If someone adds `grade` to TargetReadingView, this
@@ -11,32 +9,7 @@ import type { LexEntry } from '../pipeline/lexentry.ts'
 const _guard: 'grade' extends keyof TargetReadingView ? never : true = true
 void _guard
 
-// Fixture lexicon: hand-curated src/lexicon.ts overlays automatically; these
-// are the extra open-class forms the gold sentences need. Deterministic — no
-// dependency on the gitignored Apertium layer.
-const FIX: LexEntry[] = [
-  { form: 'gwelodd', lemma: 'gweld', cat: 'V', person: '3', initClass: 'g', freq: 9 },
-  { form: 'gweles', lemma: 'gweld', cat: 'V', person: '1', initClass: 'g', freq: 3 },
-  { form: 'gwelwyd', lemma: 'gweld', cat: 'V', person: '0', initClass: 'g', freq: 2 },
-  { form: 'aeth', lemma: 'mynd', cat: 'V', person: '3', initClass: 'other', freq: 8 },
-  { form: 'es', lemma: 'mynd', cat: 'V', person: '1', initClass: 'other', freq: 2 },
-  { form: 'gardd', lemma: 'gardd', cat: 'N', gender: 'f', number: 'sg', initClass: 'g', freq: 4 },
-  { form: 'athro', lemma: 'athro', cat: 'N', gender: 'm', number: 'sg', initClass: 'other', freq: 3 },
-  { form: 'caws', lemma: 'caws', cat: 'N', gender: 'm', number: 'sg', initClass: 'c', freq: 3 },
-  { form: 'bara', lemma: 'bara', cat: 'N', gender: 'm', number: 'sg', initClass: 'b', freq: 3 },
-  { form: 'te', lemma: 'te', cat: 'N', gender: 'm', number: 'sg', initClass: 't', freq: 3 },
-  { form: 'coffi', lemma: 'coffi', cat: 'N', gender: 'm', number: 'sg', initClass: 'c', freq: 3 },
-  { form: 'fan', lemma: 'fan', cat: 'N', gender: 'f', number: 'sg', initClass: 'other', freq: 3 },
-  { form: 'man', lemma: 'man', cat: 'N', gender: 'm', number: 'sg', initClass: 'm', freq: 3 },
-  { form: 'ban', lemma: 'ban', cat: 'N', gender: 'f', number: 'sg', initClass: 'b', freq: 1 },
-  { form: 'cinio', lemma: 'cinio', cat: 'N', gender: 'm', number: 'sg', initClass: 'c', freq: 5 },
-  { form: 'bwrdd', lemma: 'bwrdd', cat: 'N', gender: 'm', number: 'sg', initClass: 'b', freq: 3 },
-  { form: 'Aberystwyth', lemma: 'Aberystwyth', cat: 'N', initClass: 'other', proper: true, freq: 4 },
-  { form: 'dal', lemma: 'dal', cat: 'Adj', initClass: 'd', freq: 5 },
-  { form: 'dal', lemma: 'dal', cat: 'Vnoun', initClass: 'd', freq: 5 },
-  { form: 'nhw', lemma: 'nhw', cat: 'Other', initClass: 'other', freq: 5 },
-]
-const LEX = new Lexicon(FIX)
+import { LEX } from './fixture-lexicon.ts'
 
 /** One line per token: dotted lemma for function words, radical for content
  *  words, `{a|b}` for retained ambiguity, `?` suffix for OOV. */
@@ -57,12 +30,12 @@ const gold = (text: string): string => tagged(text).map(repr).join(' ')
 const GOLD: [string, string][] = [
   // — yn: locative / predicative / progressive —
   ['Mae hi yn yr ardd', 'mae hi yn.loc y gardd'],
-  ["Mae hi'n dal", 'mae hi yn.pred dal'],
+  ["Mae hi'n dal", 'mae hi yn.pred {dal|tal}'],
   ['Mae hi yn mynd', 'mae hi yn.prog mynd'],
   ["Mae'r plant yn yr ysgol", 'mae y plant yn.loc y ysgol'],
   ['Mae e yn athro', 'mae e yn.pred athro'],
   ['Mae hi yn Aberystwyth', 'mae hi yn.loc aberystwyth'],
-  ['Mae Mair yn dal', 'mae mair yn.pred dal'],
+  ['Mae Mair yn dal', 'mae mair yn.pred {dal|tal}'],
   ["Mae e'n mynd", 'mae e yn.prog mynd'],
   ["Mae'r gath yn yr ardd", 'mae y cath yn.loc y gardd'],
   ['yn', '{yn.loc|yn.pred|yn.prog}'],

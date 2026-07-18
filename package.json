@@ -12,6 +12,7 @@
     "apertium:fetch": "curl -sL --create-dirs -o data/apertium/apertium-cym.cym.dix https://raw.githubusercontent.com/apertium/apertium-cym/caf86f271d47e8f7368d67758e270de26ee25a05/apertium-cym.cym.dix",
     "apertium:extract": "tsx pipeline/extract-apertium.ts",
     "coverage": "tsx pipeline/coverage.ts",
+    "chunker:spans": "tsx pipeline/spancheck.ts",
     "report": "tsx report/report.ts",
     "report:pdf": "npm run report && pandoc REPORT.md -o REPORT.pdf --pdf-engine=/Library/TeX/texbin/lualatex --shift-heading-level-by=-1 --toc --toc-depth=1 -V mainfont='STIX Two Text' -V mainfontfallback='STIX Two Math:' -V monofont=Menlo -V monofontoptions=Scale=0.85 -V geometry:margin=2.5cm -V fontsize=11pt -V colorlinks=true -M date='July 2026'"
   },

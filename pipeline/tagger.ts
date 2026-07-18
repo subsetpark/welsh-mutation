@@ -76,7 +76,10 @@ const HOMOGRAPHS: Record<string, string[]> = {
 const functionReading = (surface: string, lemma: string): Reading => ({
   radical: surface,
   grade: null,
-  entry: { form: surface, lemma, cat: 'Other', initClass: initClassOf(surface), freq: 0 },
+  entry: {
+    form: surface.toLowerCase(), lemma,
+    cat: 'Other', initClass: initClassOf(surface), freq: 0,
+  },
 })
 
 /** Replace a token's function-word/OOV readings with its homograph set;
