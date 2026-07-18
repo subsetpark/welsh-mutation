@@ -20,6 +20,7 @@ const expander = new DixExpander(parseXml(readFileSync(DIX, 'utf8')))
 const entries = dixToEntries(expander)
 
 const file: LexiconFile = {
+  _license: 'GPL-3.0-only',
   _source:
     'Expanded from apertium-cym (apertium-cym.cym.dix, commit caf86f27), GPL-3.0 — ' +
     'https://github.com/apertium/apertium-cym. This file is a derivative of GPL data; ' +

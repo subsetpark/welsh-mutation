@@ -29,5 +29,9 @@ export interface LexEntry {
 
 export interface LexiconFile {
   _source: string
+  /** SPDX id of THIS FILE's license — derived data files carry their
+   *  source's obligations (lexicon-full: CC-BY-SA-4.0; apertium artifact:
+   *  GPL-3.0-only, never committed). */
+  _license?: string
   entries: LexEntry[]
 }
