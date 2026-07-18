@@ -15,14 +15,15 @@ import { initialSegment } from './initclass.ts'
 export type MutationGrade = 'SM' | 'AM' | 'NM'
 
 /** Forward per-grade rewrites of a radical initial segment (King §4, §8, §7).
- *  SM mirrors src/mutate.ts SM_ORTH; AM/NM cover only their target initials. */
-const GRADE_MAP: Record<MutationGrade, Record<string, string>> = {
+ *  SM mirrors src/mutate.ts SM_ORTH; AM/NM cover only their target initials.
+ *  Single source of truth: demutate.ts derives its inverse maps from this. */
+export const GRADE_MAP: Record<MutationGrade, Record<string, string>> = {
   SM: { c: 'g', p: 'b', t: 'd', g: '', b: 'f', d: 'dd', ll: 'l', m: 'f', rh: 'r' },
   AM: { c: 'ch', p: 'ph', t: 'th' },
   NM: { c: 'ngh', p: 'mh', t: 'nh', g: 'ng', b: 'm', d: 'n' },
 }
 
-const VOWEL = /^[aeiouwyâêîôûŵŷáéíóúàèìòù]/
+export const VOWEL = /^[aeiouwyâêîôûŵŷáéíóúàèìòù]/
 
 /** Recover the radical surface form of a mutated token, or null if the form
  *  is inconsistent with (lemma initial, grade). Capitalization follows the

@@ -1,0 +1,72 @@
+/**
+ * Readings assembly (WORKSTREAM M2): compose tokenize → demutate → lexicon
+ * filter into the Token[] the M3 tagger will prune. Every candidate that the
+ * lexicon licenses is retained (ratified ambiguity-propagation policy);
+ * nothing here decides between readings.
+ *
+ * Resolution order per token: lexicon readings via de-mutation candidates;
+ * else a function-word reading when the form is a trigger lemma (i, o, am —
+ * closed classes are deliberately absent from the extracted lexicons);
+ * else the OOV policy — orthography-derived initClass, cat 'Other',
+ * `unknown` flag, never a throw (DoD-10).
+ */
+
+import triggersData from '../data/triggers.json' with { type: 'json' }
+import type { LexEntry } from './lexentry.ts'
+import type { MutationGrade } from './radical.ts'
+import { demutate } from './demutate.ts'
+import { initClassOf } from './initclass.ts'
+import { Lexicon, loadLexicon } from './lexicon.ts'
+import { tokenize, type RawKind } from './tokenize.ts'
+
+export interface Reading {
+  /** Candidate radical surface form (what the lexicon was consulted with). */
+  radical: string
+  /** Observed-mutation hypothesis; null = form is radical as written. */
+  grade: MutationGrade | null
+  /** Carries person ('0' = impersonal) through to M4's pro-drop exclusion. */
+  entry: LexEntry
+}
+
+export interface Token {
+  surface: string
+  kind: RawKind
+  /** Clitic expansion or multiword-trigger lemma, from the tokenizer. */
+  lemma?: string
+  readings: Reading[]
+  /** OOV: no lexicon entry and not a trigger lemma. */
+  unknown?: true
+}
+
+/** Trigger lemmas by their surface base — homograph keys like yn.pred and
+ *  ei.3sgm all license the bare form; picking between them is M3's job. */
+const TRIGGER_BASES = new Set(
+  (triggersData.frames as { lemma: string }[]).map(f => f.lemma.split('.')[0]!),
+)
+
+const functionReading = (form: string): Reading => ({
+  radical: form,
+  grade: null,
+  entry: { form, lemma: form.toLowerCase(), cat: 'Other', initClass: initClassOf(form), freq: 0 },
+})
+
+export function analyze(text: string, lexicon: Lexicon = loadLexicon()): Token[] {
+  return tokenize(text).map((raw): Token => {
+    if (raw.kind === 'punct') return { ...raw, readings: [] }
+
+    // Clitics are looked up by their lemma; words by de-mutation candidates.
+    const readings: Reading[] =
+      raw.kind === 'clitic'
+        ? lexicon.lookup(raw.lemma!).map(entry => ({ radical: raw.lemma!, grade: null, entry }))
+        : demutate(raw.surface).flatMap(c =>
+            lexicon.lookup(c.radical).map(entry => ({ radical: c.radical, grade: c.grade, entry })),
+          )
+    if (readings.length > 0) return { ...raw, readings }
+
+    const base = (raw.lemma ?? raw.surface).toLowerCase()
+    if (TRIGGER_BASES.has(base)) {
+      return { ...raw, readings: [functionReading(raw.lemma ?? raw.surface)] }
+    }
+    return { ...raw, readings: [functionReading(raw.surface)], unknown: true }
+  })
+}
