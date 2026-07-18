@@ -53,7 +53,10 @@ function matchCase(model: string, out: string): string {
 export function applyGrade(form: string, grade: MutationGrade): string {
   const lower = form.toLowerCase()
   const seg = initialSegment(form)
-  if (grade === 'AM' && VOWEL.test(seg)) return matchCase(form, 'h' + lower)
+  // Prothesis needs a radical of ≥2 letters: single-vowel words (i, o, y)
+  // are function words that are never possessed, and *"ei hi" is not Welsh.
+  // Mirrored in demutate() so the round-trip property stays exact.
+  if (grade === 'AM' && VOWEL.test(seg) && lower.length >= 2) return matchCase(form, 'h' + lower)
   const repl = GRADE_MAP[grade][seg]
   if (repl === undefined) return form
   return matchCase(form, repl + lower.slice(seg.length))
@@ -83,8 +86,8 @@ export function demutate(surface: string): Candidate[] {
       for (const rad of rads) push(rad + lower.slice(mut.length), grade)
     }
   }
-  if (lower.startsWith('h') && VOWEL.test(lower.slice(1))) {
-    push(lower.slice(1), 'AM') // h-prothesis
+  if (lower.startsWith('h') && VOWEL.test(lower.slice(1)) && lower.length >= 3) {
+    push(lower.slice(1), 'AM') // h-prothesis (radical ≥2 letters, see applyGrade)
   }
   return out
 }
