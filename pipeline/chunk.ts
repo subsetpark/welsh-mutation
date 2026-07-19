@@ -218,6 +218,15 @@ class Chunker {
           continue
         }
       }
+      // the partitive o°-complement is the nominal's own constituent, not
+      // clause material: [NP llawer [PP o °draffig]], dim llawer o °blant —
+      // King's quantifier + o° pattern (§193 contrasts peth, which takes
+      // its noun directly). NP-internal attachment also puts o inside the
+      // NP-internal exclusion: no XP-edge license ever reaches it.
+      if (this.lemma(this.cur()) === 'o') {
+        children.push(this.parsePP())
+        continue
+      }
       if (possessive && (PRONOUNS.has(this.sur()) || this.lemma(this.cur()) === 'i.pron')) {
         children.push(this.take()) // echo pronoun closes the possessive NP
       }

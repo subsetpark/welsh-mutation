@@ -254,6 +254,28 @@ const RULES: Rule[] = [
     },
   },
   {
+    // Surface o is both the preposition o° and the SM of the degree adverb
+    // go° (g-deletion). A following nominal takes the preposition (llawer
+    // o °draffig); a following adjective or adverb takes the degree
+    // reading (go °dda). Neighbor category only — never the target's grade.
+    id: 'o-prep-vs-go-adv',
+    prune(t, ctx) {
+      const hasO = t.readings.some(r => r.lemma === 'o')
+      const hasGo = t.readings.some(r => r.lemma === 'go')
+      if (!hasO || !hasGo) return null
+      const n = ctx.right[0]
+      if (
+        hasCat(n, 'N', 'Num', 'Vnoun') || isArticle(n) || isProper(n) ||
+        (n !== undefined && PRONOUNS.has(n.surface.toLowerCase())) ||
+        n?.unknown === true
+      ) {
+        return r => r.lemma === 'go'
+      }
+      if (hasCat(n, 'Adj', 'Adv')) return r => r.lemma === 'o'
+      return null
+    },
+  },
+  {
     // i after a 1st-person finite verb, or clause-final after a nominal
     // (fy nghath i), is the echo pronoun; before a nominal it is the
     // preposition. Order matters: the pronoun contexts are checked first.

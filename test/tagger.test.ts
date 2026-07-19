@@ -142,6 +142,25 @@ test('VSO and particle-position inference resolve demutation homographs', () => 
   assert.equal(mae3!.readings[0]!.entry.lemma, 'mae')
 })
 
+test('o-prep vs go-adv: surface o resolves by right context', () => {
+  // the broad lexicon carries the adverb go, whose SM (g-deletion) IS the
+  // surface o; the preposition reading is synthesized from the trigger
+  // lexicon and must survive alongside it, then win before a nominal
+  const noisy = new Lexicon([
+    { form: 'go', lemma: 'go', cat: 'Adv', initClass: 'g', freq: 3 },
+    { form: 'caws', lemma: 'caws', cat: 'N', gender: 'm', number: 'sg', initClass: 'c', freq: 3 },
+    { form: 'da', lemma: 'da', cat: 'Adj', initClass: 'd', freq: 3 },
+  ])
+  const [, o1, caws] = tag(analyze('llawer o gaws', noisy), noisy)
+  assert.equal(o1!.ambiguous, undefined)
+  assert.equal(o1!.readings[0]!.entry.lemma, 'o')
+  assert.equal(caws!.readings[0]!.radical, 'caws')
+  // …and lose to the degree-adverb reading before an adjective
+  const [o2] = tag(analyze('o dda', noisy), noisy)
+  assert.equal(o2!.ambiguous, undefined)
+  assert.equal(o2!.readings[0]!.entry.lemma, 'go')
+})
+
 test('rules never empty a token; impersonal person survives tagging', () => {
   const [gwelwyd] = tagged('Gwelwyd dyn')
   assert.equal(gwelwyd!.readings.length, 1)

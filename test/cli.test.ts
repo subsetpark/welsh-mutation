@@ -171,6 +171,15 @@ test('cmd: DoD-2/5 — explain shows the MWE trigger and negative invariants', (
   assert.ok(!merchBlock.includes('DISAGREES'))
 })
 
+test('cmd: a fixed-SM citation form in the broad lexicon cannot re-mutate', () => {
+  // the broad lexicon carries ddim as its own entry; taken as a radical it
+  // would soft-mutate AGAIN (*dddim) — King §5c forbids the second mutation
+  const { out, code } = cli(['--explain'], 'chlywais i ddim')
+  assert.equal(code, 0)
+  assert.ok(!out.includes('DISAGREES'))
+  assert.ok(!out.includes('dddim'))
+})
+
 test('cmd: explain renders the constituent tree with gaps and verdicts', () => {
   const { out, code } = cli(['--explain'], 'Pwy welodd ddraig?')
   assert.equal(code, 0)

@@ -43,6 +43,24 @@ test('verdict rendering: every leaf judged with provenance', () => {
   ].join('\n'))
 })
 
+test('annotate: continuation lines align under the leaf label, not the child gutter', () => {
+  const root = clause('S', [
+    phrase('NP', [leaf(dim), phrase('AP', [leaf(LEXICON.mawr)])]),
+  ])
+  const out = prettyTree(root, {
+    annotate: (l) =>
+      l.lexeme.id === 'dim' ? ['→ radical (no-license)', 'dim ⟨N⟩ → radical'] : [''],
+  })
+  assert.equal(out, [
+    'S',
+    '└─0 NP',
+    '   ├─0 dim ⟨Prt⟩ → radical (no-license)',
+    '   │   dim ⟨N⟩ → radical', // node content: right of the │ gutter, under the label
+    '   └─1 AP',
+    '      └─0 mawr ⟨Adj⟩',
+  ].join('\n'))
+})
+
 test('verdict rendering: polarity shown, mixed mutation provenance', () => {
   const root = clause('S', [
     leaf(dylu),

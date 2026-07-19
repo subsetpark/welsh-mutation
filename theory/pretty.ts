@@ -27,10 +27,13 @@ export interface PrettyOptions {
   register?: Register
   /** Per-leaf annotation, replacing the built-in verdict rendering: element
    *  [0] is appended to the leaf's own line, and any further elements render
-   *  as aligned sub-lines beneath it (a token's alternative readings, say).
-   *  This is how a caller with richer per-token knowledge — the CLI's judged
-   *  readings, with observed grades and agreement — folds it into the one
-   *  tree view instead of printing a second, parallel listing. */
+   *  as continuation lines of that same node (a token's alternative
+   *  readings, say) — aligned under the leaf's label column, so a node may
+   *  span several lines while the connector gutter stays reserved for
+   *  actual children. This is how a caller with richer per-token knowledge
+   *  — the CLI's judged readings, with observed grades and agreement —
+   *  folds it into the one tree view instead of printing a second,
+   *  parallel listing. */
   annotate?: (leaf: Leaf, path: TreePath) => string[]
 }
 
@@ -71,7 +74,10 @@ export function prettyTree(root: TreeNode, opts: PrettyOptions = {}): string {
     if (node.kind === 'leaf' && opts.annotate) {
       const [head, ...rest] = opts.annotate(node, path)
       lines.push(prefix + leafBase(node) + (head ? ` ${head}` : ''))
-      for (const extra of rest) lines.push(`${childIndent}  ${extra}`)
+      // continuation lines of THIS node: aligned under its label column
+      // (childIndent keeps the sibling bars; padding spans the connector)
+      const pad = ' '.repeat(prefix.length - childIndent.length)
+      for (const extra of rest) lines.push(childIndent + pad + extra)
       return
     }
     lines.push(prefix + label(node, path))

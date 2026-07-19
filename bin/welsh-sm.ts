@@ -166,6 +166,8 @@ function explainTree(s: JudgedSentence, compare: boolean): string {
       const primary =
         t.readings.find(r => r.lemma === leaf.lexeme.id && r.cat === leaf.lexeme.cat) ??
         t.readings[0]!
+      // alternative readings continue the same node's lines; alignment
+      // under the leaf's label (pretty.ts) carries the structure
       return [
         bits(t, primary, true),
         ...t.readings.filter(r => r !== primary).map(r => bits(t, r, false)),

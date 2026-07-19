@@ -188,6 +188,15 @@ test('displaced subject after a PP head: no pro gap in mae gyda fi …', () => {
   })
 })
 
+test('partitive o°-complement attaches inside the NP', () => {
+  const { root } = parse('llawer o gaws')
+  assert.equal(ser(root), 'S[NP[llawer PP[o NP[caws]]]]')
+  assert.deepEqual(judge(root, 'caws'), { grade: 'SM', licensedBy: ['lex:o'] })
+  // NP-internal exclusion: no XP-edge license ever reaches o — an idle
+  // immutability flag reports plain no-license, not a veto
+  assert.deepEqual(judge(root, 'o'), { grade: 'none', reason: 'no-license' })
+})
+
 test('renderSurface round-trips chunker trees across all grades', () => {
   assert.equal(renderSurface(parse('Roedd dyn wedi prynu beic').root),
     'roedd dyn wedi prynu beic')

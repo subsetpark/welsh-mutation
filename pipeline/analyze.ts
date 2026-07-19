@@ -70,12 +70,18 @@ export function analyze(text: string, lexicon: Lexicon = loadLexicon()): Token[]
         : demutate(raw.surface).flatMap(c =>
             lexicon.lookup(c.radical).map(entry => ({ radical: c.radical, grade: c.grade, entry })),
           )
+
+    // Closed classes are deliberately absent from the extracted lexicons, so
+    // lexicon readings reached only through de-mutation hypotheses must not
+    // preempt a function word the surface spells at face value: o is the SM
+    // of the adverb go (g-deletion), and only the trigger lexicon knows the
+    // preposition. A radical lexicon reading already carries the lemma.
+    const base = (raw.lemma ?? raw.surface).toLowerCase()
+    if (TRIGGER_BASES.has(base) && !readings.some(r => r.grade === null)) {
+      readings.push(functionReading(raw.lemma ?? raw.surface))
+    }
     if (readings.length > 0) return { ...raw, readings }
 
-    const base = (raw.lemma ?? raw.surface).toLowerCase()
-    if (TRIGGER_BASES.has(base)) {
-      return { ...raw, readings: [functionReading(raw.lemma ?? raw.surface)] }
-    }
     return { ...raw, readings: [functionReading(raw.surface)], unknown: true }
   })
 }
