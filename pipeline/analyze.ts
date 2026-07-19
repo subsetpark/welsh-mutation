@@ -16,7 +16,7 @@ import type { LexEntry } from './lexentry.ts'
 import type { MutationGrade } from '../theory/orthography.ts'
 import { demutate } from './demutate.ts'
 import { initClassOf } from '../theory/orthography.ts'
-import { Lexicon, loadLexicon } from './lexicon.ts'
+import { Lexicon, PREPOSITION_LEMMAS, loadLexicon } from './lexicon.ts'
 import { tokenize, type RawKind } from './tokenize.ts'
 
 export interface Reading {
@@ -44,15 +44,20 @@ const TRIGGER_BASES = new Set(
   (triggersData.frames as { lemma: string }[]).map(f => f.lemma.split('.')[0]!),
 )
 
-const functionReading = (form: string): Reading => ({
-  radical: form,
-  grade: null,
-  // form normalized: function words never keep sentence-initial caps
-  entry: {
-    form: form.toLowerCase(), lemma: form.toLowerCase(),
-    cat: 'Other', initClass: initClassOf(form), freq: 0,
-  },
-})
+const functionReading = (form: string): Reading => {
+  const lemma = form.toLowerCase()
+  return {
+    radical: form,
+    grade: null,
+    // form normalized: function words never keep sentence-initial caps;
+    // prepositions carry the class immutability (theory/immutables.json)
+    entry: {
+      form: lemma, lemma,
+      cat: 'Other', initClass: initClassOf(form), freq: 0,
+      ...(PREPOSITION_LEMMAS.has(lemma) ? { immutable: true } : {}),
+    },
+  }
+}
 
 export function analyze(text: string, lexicon: Lexicon = loadLexicon()): Token[] {
   return tokenize(text).map((raw): Token => {

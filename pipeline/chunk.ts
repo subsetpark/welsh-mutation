@@ -120,10 +120,11 @@ class Chunker {
     // curated names carry immutable, not proper); fold sentence-initial caps.
     const keepCase = r.entry.proper === true || /^\p{Lu}/u.test(r.entry.form)
     const lower = (s: string) => (keepCase ? s : s.toLowerCase())
+    // Leaf.form is always a radical shape (tree.ts): the renderer derives
+    // every mutated spelling from the verdict, whatever the grade.
     let form: string | undefined
     if (token.kind === 'clitic') form = token.surface
-    else if (r.grade === null || r.grade === 'SM') form = lower(r.radical)
-    else form = lower(token.surface) // authored AM/NM spelling (tree.ts note)
+    else form = lower(r.radical)
     if (form === lexeme.id) form = undefined
 
     const l = leaf(lexeme, key !== lexeme.id ? key : undefined, form)

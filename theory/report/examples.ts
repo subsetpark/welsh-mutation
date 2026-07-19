@@ -390,6 +390,18 @@ export const VETOES: Example[] = [
     tree: phrase('PP', [leaf(L.i), phrase('NP', [leaf(L.ysgol)])]),
     targets: [{ path: [1, 0], expect: 'veto:no-reflex' }],
   },
+  {
+    id: 'veto-preposition',
+    welsh: 'Mae rhywbeth arall gyda fi',
+    gloss: "'I have something else' — the subject NP's edge licenses SM on what follows, but prepositions are synchronically immutable targets (Tallerman 2006 fn. 6; Ball & Müller 1992): the veto names the silenced license",
+    tree: clause('S', [
+      leaf(L.mae, undefined, 'mae'),
+      phrase('NP', [leaf(L.rhywbeth), phrase('AP', [leaf(L.arall)])]),
+      phrase('PP', [leaf(L.gyda), phrase('NP', [leaf(L.fi)])]),
+    ]),
+    targets: [{ path: [2, 0], expect: 'veto:immutable' }],
+    note: 'King never marks gyda mutated — in any of its 70 occurrences, including directly after phrase edges. The northern equivalent keeps the license visible: mae gen i °gar mutates the displaced subject off the PP edge, and gen itself stays radical.',
+  },
 ]
 
 export const SECTIONS: { title: string; examples: Example[] }[] = [

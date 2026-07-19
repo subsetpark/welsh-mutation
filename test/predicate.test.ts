@@ -109,6 +109,17 @@ expectRadical('dy gêm — immutable loanword despite dy°', L.gem, E.after('dy'
 expectRadical('i Dafydd — personal name immune despite i°', L.Dafydd, E.after('i'), 'veto:immutable')
 expectRadical('i ysgol — vowel-initial: no SM reflex', L.ysgol, E.after('i'), 'veto:no-reflex')
 
+// prepositions are class-immutable targets (Tallerman 2006 fn. 6; Ball &
+// Müller 1992: 201): the XP-edge license fires and is silenced, counterfactually
+test('Mae rhywbeth arall GYDA fi — preposition immune to the XP-edge license', () => {
+  const r = mutation(L.gyda, {
+    prev: { lemma: 'arall', relationToTarget: 'other', isXPRightEdge: true },
+    agreement: null,
+    position: null,
+  })
+  assert.deepEqual(r, { grade: 'none', reason: 'veto:immutable', suppressed: ['synt:xp-edge'] })
+})
+
 // a working veto reports what it suppressed; an idle one reports no-license
 test('i DY gath — veto:immutable suppressing a live lex:i', () => {
   const r = mutation(L.dy, E.after('i'))

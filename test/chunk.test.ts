@@ -60,15 +60,15 @@ const TREES: [string, string][] = [
   ["Mae'r gath yn yr ardd", 'S[mae NP[y cath] PP[yn.loc NP[yr gardd]]]'],
   ['yn', 'S[yn.loc]'],
   ['Gwelodd hi ei gath e', 'S[gwelodd NP[hi] NP[ei.3sgm cath e]]'],
-  ['Gwelodd hi ei chath hi', 'S[gwelodd NP[hi] NP[ei.3sgf chath hi]]'],
+  ['Gwelodd hi ei chath hi', 'S[gwelodd NP[hi] NP[ei.3sgf cath hi]]'],
   ['Dyma ei gath', 'S[dyma NP[ei.3sgm cath]]'], // ambiguous ei: first reading
-  ['Gwelodd hi ei thŷ hi', 'S[gwelodd NP[hi] NP[ei.3sgf thŷ hi]]'],
+  ['Gwelodd hi ei thŷ hi', 'S[gwelodd NP[hi] NP[ei.3sgf tŷ hi]]'],
   ['Gwelodd ei gath hi', 'S[gwelodd NP[ei.3sgf cath hi]]'],
   ["Aeth hi i'w dŷ e", "S[aeth NP[hi] PP[i NP['w.3sgm tŷ e]]]"],
   ["Aeth hi i'w tŷ nhw", "S[aeth NP[hi] PP[i NP['w.3pl tŷ nhw]]]"],
   ['y dyn a welodd y gath', 'S[NP[y dyn S[a.rel gwelodd GAP NP[y cath]]]]'],
-  ['bara a chaws', 'S[NP[bara a.conj chaws]]'],
-  ['te a choffi', 'S[NP[te a.conj choffi]]'],
+  ['bara a chaws', 'S[NP[bara a.conj caws]]'],
+  ['te a choffi', 'S[NP[te a.conj coffi]]'],
   ['y gath a aeth adre', 'S[NP[y cath S[a.rel aeth GAP AdvP[adre]]]]'],
   ['cath a ci', 'S[NP[cath a.conj ci]]'],
   ['Pwy a welodd y gath?', 'S[NP[pwy] a.rel gwelodd GAP NP[y cath]]'],
@@ -76,7 +76,7 @@ const TREES: [string, string][] = [
   ['Rhaid i Emrys fynd', 'S[NP[rhaid] PP[i NP[Emrys]] VNP[mynd]]'],
   ["Aeth hi i'r dre", 'S[aeth NP[hi] PP[i NP[y tre]]]'],
   ['Es i adre', 'S[es NP[i.pron] AdvP[adre]]'],
-  ['fy nghath i', 'S[NP[fy nghath i.pron]]'],
+  ['fy nghath i', 'S[NP[fy cath i.pron]]'],
   ["Aeth y plant i'r ysgol", 'S[aeth NP[y plant] PP[i NP[y ysgol]]]'],
   ['Dyma dy gath di', 'S[dyma NP[dy cath ti]]'],
   ['Gwelodd hi ei dy e', 'S[gwelodd NP[hi] NP[ei.3sgm tŷ e]]'],
@@ -179,6 +179,13 @@ test('displaced subject after a PP head: no pro gap in mae gyda fi …', () => {
   assert.ok(!JSON.stringify(root).includes('"gap"'), 'no gap in the tree')
   assert.deepEqual(judge(root, 'gyda'), { grade: 'none', reason: 'no-license' })
   assert.deepEqual(judge(root, 'rhywbeth'), { grade: 'SM', licensedBy: ['synt:xp-edge'] })
+
+  // VSO order: the subject's edge licenses synt:xp-edge on gyda, and the
+  // preposition class immutability silences it (Tallerman 2006 fn. 6)
+  const vso = parse('Mae rhywbeth arall gyda fi').root
+  assert.deepEqual(judge(vso, 'gyda'), {
+    grade: 'none', reason: 'veto:immutable', suppressed: ['synt:xp-edge'],
+  })
 })
 
 test('renderSurface round-trips chunker trees across all grades', () => {

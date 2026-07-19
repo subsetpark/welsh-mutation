@@ -135,6 +135,11 @@ test('VSO and particle-position inference resolve demutation homographs', () => 
   const [mae2] = tag(analyze('Mae gyda fi rywbeth arall', noisy), noisy)
   assert.equal(mae2!.ambiguous, undefined)
   assert.equal(mae2!.readings[0]!.entry.lemma, 'mae')
+
+  // an OOV neighbor (typo, rare word) is open-class and continues a clause
+  const [mae3] = tag(analyze('Mae rhywybeth arall gyda fi', noisy), noisy)
+  assert.equal(mae3!.ambiguous, undefined)
+  assert.equal(mae3!.readings[0]!.entry.lemma, 'mae')
 })
 
 test('rules never empty a token; impersonal person survives tagging', () => {

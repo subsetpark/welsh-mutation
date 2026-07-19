@@ -8,7 +8,9 @@
  *   - lexeme list: immutable on matching form or lemma
  *   - class rules, DATA-driven: 'personal-name' maps to PROPN-derived
  *     entries (the ratified M1 DoD reading; placename mutation variability
- *     is catalogued in theory/contested.json). 'non-welsh-placename' and
+ *     is catalogued in theory/contested.json); 'preposition' maps by lemma
+ *     through the class's member list (closed class, no data signal —
+ *     extraction is open-class only). 'non-welsh-placename' and
  *     'already-mutated' have no implementable signal yet and are skipped —
  *     visibly, in UNIMPLEMENTED_CLASSES.
  */
@@ -27,6 +29,19 @@ const dedupeKey = (e: LexEntry): string =>
  *  context. A NEW class in immutables.json that is neither implemented nor
  *  listed here fails loudly instead of being silently ignored. */
 const UNIMPLEMENTED_CLASSES = new Set(['non-welsh-placename', 'already-mutated'])
+const IMPLEMENTED_CLASSES = new Set(['personal-name', 'preposition'])
+
+/** The preposition class's member lemmas (theory/immutables.json):
+ *  synchronically immutable mutation targets — Tallerman (2006 fn. 6),
+ *  citing Ball & Müller (1992: 201). Exported because closed-class
+ *  readings are synthesized outside the layered lexicon (analyze's
+ *  trigger-lemma fallback, the tagger's homograph expansion) and must
+ *  carry the flag too. */
+export const PREPOSITION_LEMMAS: ReadonlySet<string> = new Set(
+  (immutablesData.classes as { class: string; members?: string[] }[])
+    .find(c => c.class === 'preposition')
+    ?.members?.map(m => m.toLowerCase()) ?? [],
+)
 
 export class Lexicon {
   private byForm = new Map<string, LexEntry[]>()
@@ -65,16 +80,19 @@ export class Lexicon {
     const immutableIds = new Set(immutablesData.lexemes.map(l => l.id.toLowerCase()))
     const classRules = new Set(immutablesData.classes.map(c => c.class))
     const personalNames = classRules.has('personal-name')
+    const prepositions = classRules.has('preposition')
     for (const entries of this.byForm.values()) {
       for (const e of entries) {
         if (immutableIds.has(e.form.toLowerCase()) || immutableIds.has(e.lemma.toLowerCase())) {
           e.immutable = true
         }
         if (personalNames && e.proper) e.immutable = true // King §12d, via theory data
+        // Tallerman 2006 fn. 6; Ball & Müller 1992: 201 — via theory data
+        if (prepositions && PREPOSITION_LEMMAS.has(e.lemma.toLowerCase())) e.immutable = true
       }
     }
     for (const c of classRules) {
-      if (c !== 'personal-name' && !UNIMPLEMENTED_CLASSES.has(c)) {
+      if (!IMPLEMENTED_CLASSES.has(c) && !UNIMPLEMENTED_CLASSES.has(c)) {
         throw new Error(`immutability class '${c}' is neither implemented nor declared unimplemented`)
       }
     }

@@ -64,6 +64,8 @@ export const LEXICON = {
   car: { id: 'car', cat: 'N', gender: 'm', number: 'sg', initClass: 'c' },
   plant: { id: 'plant', cat: 'N', gender: 'm', number: 'pl', initClass: 'p' },
 
+  rhywbeth: { id: 'rhywbeth', cat: 'N', gender: 'm', number: 'sg', initClass: 'rh' },
+
   // ─── nouns, feminine ───
   cath: { id: 'cath', cat: 'N', gender: 'f', number: 'sg', initClass: 'c' },
   cathod: { id: 'cathod', cat: 'N', gender: 'f', number: 'pl', initClass: 'c' },
@@ -94,6 +96,7 @@ export const LEXICON = {
   llawn: { id: 'llawn', cat: 'Adj', initClass: 'll' },
   hen: { id: 'hen', cat: 'Adj', initClass: 'other' },
   prif: { id: 'prif', cat: 'Adj', initClass: 'p' },
+  arall: { id: 'arall', cat: 'Adj', initClass: 'v' },
 
   // ─── numerals ───
   dau: { id: 'dau', cat: 'Num', initClass: 'd' },
@@ -103,6 +106,9 @@ export const LEXICON = {
 
   // ─── particles & function words ───
   wedi: { id: 'wedi', cat: 'Prt', initClass: 'v' },
+  // immutable as a preposition: the class does not undergo SM even in an
+  // appropriate environment (Tallerman 2006 fn. 6; Ball & Müller 1992: 201)
+  gyda: { id: 'gyda', cat: 'Other', initClass: 'g', immutable: true },
   dim: { id: 'dim', cat: 'Prt', initClass: 'd' },
   y: { id: 'y', cat: 'Other', initClass: 'other' },
   i: { id: 'i', cat: 'Other', initClass: 'v' },

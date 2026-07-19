@@ -1,6 +1,6 @@
 {
   "_about": "§4 of the theory — THE EXCEPTION LEXICON. Some words resist mutation in contexts that would otherwise license it, and the resistance is a fact about the WORD, not its shape: gêm keeps its g- after triggers that soften every native g-word (it is a recent loan); beth, ddoe and dros are FOSSILIZED mutations — historically softened forms that became citation forms and cannot mutate again; dy, pan, mae, mor simply resist (King §12b). This is why Lexeme carries identity (§2): a theory quantifying only over initials could not state these facts. Two kinds of entry: `lexemes` lists individual words; `classes` records class-level generalizations that no finite list can capture — personal names do not mutate in the modern language (i Dafydd, King §12d), non-Welsh placenames resist while Welsh ones mutate (i Birmingham vs i °Fanceinion, §12c — genuinely variable, see contested.json), and an already-mutated initial cannot mutate again (§5c). At judgment time the whole file surfaces as one bit, Lexeme.immutable, whose veto reports counterfactually (§5).",
-  "_source": "King §12, Appendix A p.489: words/classes resistant to mutation. Feeds Lexeme.immutable in the future pipeline; tests hand-set the flag. Class-level rules cannot be a lexeme list and are recorded as classes.",
+  "_source": "King §12, Appendix A p.489: words/classes resistant to mutation; preposition class per Tallerman (2006 fn. 6) and Ball & Müller (1992: 201). Feeds Lexeme.immutable in the pipeline; theory tests hand-set the flag. Class-level rules are recorded as classes; a closed class with no data signal carries an explicit member list.",
   "lexemes": [
     { "id": "beth", "why": "fixed mutation of peth (King §12a)" },
     { "id": "ddoe", "why": "fixed mutation of doe (King App A)" },
@@ -22,6 +22,18 @@
   "classes": [
     { "class": "personal-name", "why": "personal names do not mutate in the modern language: i Dafydd, i Pedr (King §12d, §36)" },
     { "class": "non-welsh-placename", "why": "i Birmingham; but places with special Welsh names DO mutate (i °Fanceinion), as do Welsh geographical names incl. ll-: i °Landeilo (King §12c, §§37-38); speech variable — CONTESTED (placenames)" },
-    { "class": "already-mutated", "why": "a consonant already mutated cannot mutate again (King §5c)" }
+    { "class": "already-mutated", "why": "a consonant already mutated cannot mutate again (King §5c)" },
+    {
+      "class": "preposition",
+      "why": "prepositions do not undergo soft mutation synchronically, even in an appropriate environment (Tallerman 2006 fn. 6, citing Ball & Müller 1992: 201); King's practice agrees — gyda is never marked mutated in 70 occurrences, including directly after NP edges. The forcing datum is the possession construction, Mae rhywbeth arall gyda fi: the subject NP's edge would otherwise license synt:xp-edge SM on gyda. The historical d-doublets (dan/tan, dros/tros, drwy/trwy — King §12a on dros) froze in the earlier phonological-mutation era and are radical lexemes now. No data layer carries prepositionhood (extraction is open-class only), so this closed class is operationalized by the member list; dotted keys name the prepositional homograph (yn.loc, cyn.prep).",
+      "members": [
+        "am", "ar", "at", "â", "cyn.prep", "dan", "o dan", "oddidan", "dros", "tros", "drost",
+        "efo", "gan", "gyn", "ger", "gerbron", "gyda", "heb", "hyd", "i", "mewn", "o",
+        "oddiar", "oddiwrth", "rhag", "rhwng", "tan", "trwy", "drwy", "trw", "tua", "wrth",
+        "wth", "yn.loc", "er", "ers", "erbyn", "nes",
+        "ar bwys", "ar draws", "ar gyfer", "ar ôl", "er mwyn", "o flaen", "o gwmpas",
+        "wrth ymyl", "ymhlith", "ymysg", "yn lle"
+      ]
+    }
   ]
 }

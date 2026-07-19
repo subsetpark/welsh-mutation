@@ -18,7 +18,7 @@ import type { Cat } from '../theory/types.ts'
 import type { Reading, Token } from './analyze.ts'
 import type { LexEntry } from './lexentry.ts'
 import { initClassOf } from '../theory/orthography.ts'
-import type { Lexicon } from './lexicon.ts'
+import { PREPOSITION_LEMMAS, type Lexicon } from './lexicon.ts'
 
 export interface TaggedToken extends Token {
   /** Set when rules could not reduce the token to a single reading. */
@@ -76,9 +76,11 @@ const HOMOGRAPHS: Record<string, string[]> = {
 const functionReading = (surface: string, lemma: string): Reading => ({
   radical: surface,
   grade: null,
+  // prepositional homographs (yn.loc, i) carry the class immutability
   entry: {
     form: surface.toLowerCase(), lemma,
     cat: 'Other', initClass: initClassOf(surface), freq: 0,
+    ...(PREPOSITION_LEMMAS.has(lemma) ? { immutable: true } : {}),
   },
 })
 
@@ -163,10 +165,14 @@ const RULES: Rule[] = [
       if (ctx.left.length !== 0) return null
       if (!t.readings.some(r => r.cat === 'V')) return null
       const n = ctx.right[0]
+      // An OOV neighbor is open-class (the closed classes are enumerable:
+      // trigger lemmas, hand lexicon, homographs), so it patterns with the
+      // nominal case.
       const continuesClause =
         hasCat(n, 'N', 'Num') || isArticle(n) ||
         (n !== undefined && PRONOUNS.has(n.surface.toLowerCase())) ||
-        (n !== undefined && PREPOSITIONS.has(n.surface.toLowerCase()))
+        (n !== undefined && PREPOSITIONS.has(n.surface.toLowerCase())) ||
+        n?.unknown === true
       if (!continuesClause) return null
       return r => r.cat === 'N'
     },

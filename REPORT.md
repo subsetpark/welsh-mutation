@@ -545,6 +545,17 @@ reflex for the word's initial under the governed grade (vowels, *n-*, *s-*,
 The two are distinguished throughout because they are different theoretical
 claims: one is lexical listing, the other phonological vacuity.
 
+One exemption is a word class rather than a list of words: **prepositions do
+not undergo soft mutation synchronically**, even in an appropriate environment
+(Tallerman 2006 fn. 6, citing Ball & Müller 1992: 201) — King's practice
+agrees, never marking *gyda* mutated in any position. King's own [SUBJECT]º
+rule (§14: "whatever follows the subject") is stated without this restriction
+and so overgenerates against his own examples; the exemption has to be
+supplied from the research literature. The historical d-doublets (*dan/tan*,
+*dros/tros*, *drwy/trwy* — King §12a on *dros*) froze in the earlier era of
+phonologically conditioned mutation and are radical lexemes in the modern
+language, not evidence of a live alternation.
+
 **dy gêm**  
 'your game' — g-initial loanwords are immutable even under a live trigger (King §12e)
 
@@ -573,6 +584,24 @@ PP
 └─1 NP
    └─0 ysgol ⟨N f sg⟩ → radical (veto:no-reflex blocks lex:i)
 ```
+
+**Mae rhywbeth arall gyda fi**  
+'I have something else' — the subject NP's edge licenses SM on what follows, but prepositions are synchronically immutable targets (Tallerman 2006 fn. 6; Ball & Müller 1992): the veto names the silenced license
+
+```text
+S
+├─0 mae ⟨V⟩ immutable → radical (veto:no-reflex blocks synt:v1-aff)
+├─1 NP
+│  ├─0 rhywbeth ⟨N m sg⟩ → radical (no-license)
+│  └─1 AP
+│     └─0 arall ⟨Adj⟩ → radical (no-license)
+└─2 PP
+   ├─0 gyda ⟨Other⟩ immutable → radical (veto:immutable blocks synt:xp-edge)
+   └─1 NP
+      └─0 fi ⟨Other⟩ → radical (veto:no-reflex blocks lex:gyda)
+```
+
+> King never marks gyda mutated — in any of its 70 occurrences, including directly after phrase edges. The northern equivalent keeps the license visible: mae gen i °gar mutates the displaced subject off the PP edge, and gen itself stays radical.
 
 ## 7. Contested territory
 
@@ -782,6 +811,9 @@ single word may govern several distinct conditions (*y*, *chwe*); grade
 
 ## 10. Bibliography
 
+- Ball, M. J. & Müller, N. (1992). *Mutation in Welsh*. Routledge.
+  [Cited via Tallerman (2006) for the synchronic immutability of
+  prepositions.]
 - Borsley, R. D. (1997). Mutation and Case in Welsh. *Canadian Journal of
   Linguistics* 42(1–2). <https://www.cambridge.org/core/journals/canadian-journal-of-linguistics-revue-canadienne-de-linguistique/article/abs/mutation-and-case-in-welsh/0E72D77DD54054EC98DE4520A75A1702>
 - Borsley, R. D., Tallerman, M. & Willis, D. (2007). *The Syntax of Welsh*.
