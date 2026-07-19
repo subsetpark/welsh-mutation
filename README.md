@@ -51,14 +51,15 @@ disagreement between prose and program.
 
 | Path | What | License |
 |------|------|---------|
-| `theory/` | The account itself: code, trigger/exception data, literate report source | MIT |
-| `pipeline/`, `bin/`, `test/` | Tokenizer, de-mutation, tagger, chunker, judge, CLI, suites | MIT |
+| `theory/` | The account itself: code, trigger/exception data, literate report source | BSD-3-Clause |
+| `pipeline/`, `bin/`, `test/` | Tokenizer, de-mutation, tagger, chunker, judge, CLI, suites | BSD-3-Clause |
 | `data/lexicon-full.json` | Broad lexicon derived from [UD_Welsh-CCG](https://github.com/UniversalDependencies/UD_Welsh-CCG) (Heinecke & Tyers 2019) | **CC BY-SA 4.0** |
 | `data/ud/`, `data/apertium/`, `data/lexicon-apertium.json` | Local downloads / GPL-derived build artifact — not distributed | fetched per their own licenses |
 
 ## Licensing
 
-Code and hand-authored content are **MIT** (see `LICENSE`). Two exceptions:
+Code and hand-authored content are **BSD-3-Clause** (see `LICENSE`). Two
+exceptions:
 
 - `data/lexicon-full.json` is a ShareAlike derivative of the UD_Welsh-CCG
   treebank and is licensed **CC BY-SA 4.0**; the file self-declares this in

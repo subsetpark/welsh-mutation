@@ -24,7 +24,7 @@ const file: LexiconFile = {
     'Extracted from UD_Welsh-CCG r2.18 (train+dev splits; test split held out for coverage), ' +
     'CC BY-SA 4.0, Heinecke & Tyers 2019 (https://github.com/UniversalDependencies/UD_Welsh-CCG). ' +
     'ShareAlike: this derived file is itself licensed CC BY-SA 4.0 (unlike the rest of this ' +
-    'repository, which is MIT). ' +
+    'repository, which is BSD-3-Clause). ' +
     'Radical forms recovered via the Mutation feature + lemma initial (pipeline/radical.ts). ' +
     'Regenerate: npm run ud:fetch && npm run ud:extract.',
   entries,

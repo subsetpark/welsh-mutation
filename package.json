@@ -2,7 +2,7 @@
   "name": "welsh-sm",
   "version": "0.1.0",
   "private": true,
-  "license": "MIT",
+  "license": "BSD-3-Clause",
   "type": "module",
   "description": "Predicate over (Lexeme, Environment): does this token exhibit Welsh soft mutation?",
   "bin": {
