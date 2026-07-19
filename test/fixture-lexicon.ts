@@ -31,6 +31,7 @@ export const FIX: LexEntry[] = [
   { form: 'man', lemma: 'man', cat: 'N', gender: 'm', number: 'sg', initClass: 'm', freq: 3 },
   { form: 'ban', lemma: 'ban', cat: 'N', gender: 'f', number: 'sg', initClass: 'b', freq: 1 },
   { form: 'cinio', lemma: 'cinio', cat: 'N', gender: 'm', number: 'sg', initClass: 'c', freq: 5 },
+  { form: 'rhywbeth', lemma: 'rhywbeth', cat: 'N', gender: 'm', number: 'sg', initClass: 'rh', freq: 4 },
   { form: 'bwrdd', lemma: 'bwrdd', cat: 'N', gender: 'm', number: 'sg', initClass: 'b', freq: 3 },
   { form: 'dydd', lemma: 'dydd', cat: 'N', gender: 'm', number: 'sg', initClass: 'd', freq: 5 },
   { form: 'bore', lemma: 'bore', cat: 'N', gender: 'm', number: 'sg', initClass: 'b', freq: 4 },
@@ -41,6 +42,7 @@ export const FIX: LexEntry[] = [
   { form: 'tal', lemma: 'tal', cat: 'Adj', initClass: 't', freq: 5 },
   { form: 'dal', lemma: 'dal', cat: 'Vnoun', initClass: 'd', freq: 5 },
   { form: 'da', lemma: 'da', cat: 'Adj', initClass: 'd', freq: 6 },
+  { form: 'arall', lemma: 'arall', cat: 'Adj', initClass: 'v', freq: 4 },
   { form: 'gwen', lemma: 'gwyn', cat: 'Adj', initClass: 'g', freq: 2 },
   // pronouns
   { form: 'nhw', lemma: 'nhw', cat: 'Other', initClass: 'other', freq: 5 },

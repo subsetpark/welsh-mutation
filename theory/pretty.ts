@@ -19,16 +19,32 @@
  */
 
 import { mutation } from './predicate.ts'
-import { environmentFor, type TreeNode, type TreePath } from './tree.ts'
+import { environmentFor, type Leaf, type TreeNode, type TreePath } from './tree.ts'
 import type { Register } from './types.ts'
 
 export interface PrettyOptions {
   verdicts?: boolean
   register?: Register
+  /** Per-leaf annotation, replacing the built-in verdict rendering: element
+   *  [0] is appended to the leaf's own line, and any further elements render
+   *  as aligned sub-lines beneath it (a token's alternative readings, say).
+   *  This is how a caller with richer per-token knowledge — the CLI's judged
+   *  readings, with observed grades and agreement — folds it into the one
+   *  tree view instead of printing a second, parallel listing. */
+  annotate?: (leaf: Leaf, path: TreePath) => string[]
 }
 
 export function prettyTree(root: TreeNode, opts: PrettyOptions = {}): string {
   const lines: string[] = []
+
+  const leafBase = (node: Leaf): string => {
+    const l = node.lexeme
+    const feats = [l.cat, l.gender, l.number].filter(Boolean).join(' ')
+    let s = `${node.form ?? l.id} ⟨${feats}⟩`
+    if (node.lemma && node.lemma !== l.id) s += ` lemma=${node.lemma}`
+    if (l.immutable) s += ' immutable'
+    return s
+  }
 
   const label = (node: TreeNode, path: TreePath): string => {
     switch (node.kind) {
@@ -39,13 +55,9 @@ export function prettyTree(root: TreeNode, opts: PrettyOptions = {}): string {
       case 'gap':
         return `gap:${node.cat}` + (node.reason ? ` (${node.reason})` : '')
       case 'leaf': {
-        const l = node.lexeme
-        const feats = [l.cat, l.gender, l.number].filter(Boolean).join(' ')
-        let s = `${node.form ?? l.id} ⟨${feats}⟩`
-        if (node.lemma && node.lemma !== l.id) s += ` lemma=${node.lemma}`
-        if (l.immutable) s += ' immutable'
+        let s = leafBase(node)
         if (opts.verdicts) {
-          const r = mutation(l, environmentFor(root, path, opts.register))
+          const r = mutation(node.lexeme, environmentFor(root, path, opts.register))
           s += r.grade !== 'none'
             ? ` → ${r.grade} (${r.licensedBy.join(', ')})`
             : ` → radical (${r.reason}${r.suppressed ? ` blocks ${r.suppressed.join(', ')}` : ''})`
@@ -56,6 +68,12 @@ export function prettyTree(root: TreeNode, opts: PrettyOptions = {}): string {
   }
 
   const walk = (node: TreeNode, path: TreePath, prefix: string, childIndent: string) => {
+    if (node.kind === 'leaf' && opts.annotate) {
+      const [head, ...rest] = opts.annotate(node, path)
+      lines.push(prefix + leafBase(node) + (head ? ` ${head}` : ''))
+      for (const extra of rest) lines.push(`${childIndent}  ${extra}`)
+      return
+    }
     lines.push(prefix + label(node, path))
     if (node.kind === 'leaf' || node.kind === 'gap') return
     node.children.forEach((child, i) => {

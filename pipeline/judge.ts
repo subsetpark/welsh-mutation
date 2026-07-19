@@ -124,7 +124,10 @@ function judgeSentence(text: string, lexicon: Lexicon, register: Register): Judg
       distinctPrev.length > 1 ? distinctPrev : [undefined]
 
     // near-duplicate lexicon entries (UD + Apertium differing only in
-    // features the verdict never consults) must not fake ambiguity
+    // features the verdict never consults, or in lemma case: arall/Arall)
+    // must not fake ambiguity — case-normalized on both radical and lemma;
+    // a genuinely proper reading distinguishes itself through its verdict
+    // (immutability), which stays in the key
     const seen = new Set<string>()
     for (const r of t.readings) {
       const lexeme = toLexeme(r.entry)
@@ -140,7 +143,7 @@ function judgeSentence(text: string, lexicon: Lexicon, register: Register): Judg
             : radical
         const agrees = agreesWithObservedGrade(verdict, r.grade)
         const key = [
-          r.radical.toLowerCase(), r.entry.lemma, r.entry.cat, r.grade ?? '',
+          r.radical.toLowerCase(), r.entry.lemma.toLowerCase(), r.entry.cat, r.grade ?? '',
           r.entry.person ?? '', pl ?? '', JSON.stringify(verdict),
         ].join('|')
         if (seen.has(key)) continue

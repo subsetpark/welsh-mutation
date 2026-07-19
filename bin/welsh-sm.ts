@@ -13,10 +13,12 @@
  *
  * --predict swaps the sentence line from the comparison view to the pure
  * predicted line — full-grade (SM/AM/NM/prothesis), well-formed Welsh
- * regenerated from the recovered radicals. --explain appends per-token
- * provenance beneath whichever line view is active; the two compose.
- * --json is the machine format and already contains everything, so it
- * combines with neither.
+ * regenerated from the recovered radicals. --explain appends §9's
+ * constituent tree beneath whichever line view is active, each leaf
+ * annotated with its judged reading — observed grade, verdict with
+ * provenance, agreement — and a token's alternative readings as sub-lines;
+ * the two flags compose. --json is the machine format and already
+ * contains everything, so it combines with neither.
  *
  * Mutated tokens carry King §7's grade marks: ° soft, ʰ aspirate, ⁿ nasal.
  */
@@ -24,6 +26,8 @@
 import { readFileSync } from 'node:fs'
 import { loadLexicon } from '../pipeline/lexicon.ts'
 import { judgeText, segment, type JudgedSentence, type JudgedToken } from '../pipeline/judge.ts'
+import { prettyTree } from '../theory/pretty.ts'
+import type { TreeNode, TreePath } from '../theory/tree.ts'
 import type { MutationGrade } from '../theory/orthography.ts'
 import type { Register } from '../theory/types.ts'
 
@@ -120,29 +124,55 @@ function renderDefault(rec: SentenceRecord): string {
   return joinTokens(rec.sentence.tokens.map(t => ({ text: defaultToken(t), kind: t.kind, surface: t.surface })))
 }
 
-/** Per-token provenance detail, appended by --explain under the line view.
- *  In the prediction view the surface is discarded by design, so the
- *  observed grade and the agreement marks are omitted with it. */
-function tokenDetails(rec: SentenceRecord, compare: boolean): string {
-  if (!rec.sentence) return ''
-  const lines: string[] = []
-  for (const t of rec.sentence.tokens) {
-    if (t.kind === 'punct') continue
-    const head = `  ${t.surface}${t.lemma ? ` [${t.lemma}]` : ''}${t.unknown ? ' UNKNOWN' : ''}${t.ambiguous ? ' AMBIGUOUS' : ''}${t.prev ? `  (prev: ${t.prev})` : ''}`
-    lines.push(head)
-    for (const r of t.readings) {
-      const bits = [
-        `${r.radical} ⟨${r.cat}${r.person !== undefined ? ` p${r.person}` : ''}⟩`,
-        r.lemma !== r.radical.toLowerCase() ? `lemma=${r.lemma}` : null,
-        r.prevLemma !== undefined ? `if prev=${r.prevLemma}` : null,
-        compare && r.observed !== null ? `observed ${r.observed}` : null,
-        `→ ${verdictStr(r)}`,
-        compare ? (r.agrees ? '✓' : '✗ DISAGREES') : null,
-      ].filter(b => b !== null)
-      lines.push(`    ${bits.join('  ')}`)
+/** The unified --explain view: §9's tree, each leaf annotated with its
+ *  judged reading — observed grade, verdict, agreement — and a token's
+ *  alternative readings as aligned sub-lines beneath its leaf. Leaves pair
+ *  with non-punct tokens positionally (the chunker guarantees the
+ *  correspondence); the reading matching the leaf's lexeme leads, so the
+ *  annotation explains the form the tree shows. In the prediction view the
+ *  surface is discarded by design, so observed grades and agreement marks
+ *  are omitted with it. */
+function explainTree(s: JudgedSentence, compare: boolean): string {
+  const tokens = s.tokens.filter(t => t.kind !== 'punct')
+  const byPath = new Map<string, JudgedToken>()
+  let i = 0
+  const pair = (n: TreeNode, path: TreePath) => {
+    if (n.kind === 'leaf') {
+      const t = tokens[i++]
+      if (t) byPath.set(JSON.stringify(path), t)
+      return
     }
+    if (n.kind === 'gap') return
+    n.children.forEach((c, j) => pair(c, [...path, j]))
   }
-  return lines.join('\n')
+  pair(s.tree, [])
+
+  const bits = (t: JudgedToken, r: JudgedToken['readings'][number], main: boolean): string =>
+    [
+      main && t.unknown ? 'UNKNOWN' : null,
+      main ? null : `${r.radical} ⟨${r.cat}${r.person !== undefined ? ` p${r.person}` : ''}⟩`,
+      main || r.lemma === r.radical.toLowerCase() ? null : `lemma=${r.lemma}`,
+      r.prevLemma !== undefined ? `if prev=${r.prevLemma}` : null,
+      compare && r.observed !== null ? `observed ${r.observed}` : null,
+      `→ ${verdictStr(r)}`,
+      compare ? (r.agrees ? '✓' : '✗ DISAGREES') : null,
+    ].filter(b => b !== null).join('  ')
+
+  const rendered = prettyTree(s.tree, {
+    register,
+    annotate: (leaf, path) => {
+      const t = byPath.get(JSON.stringify(path))
+      if (!t || t.readings.length === 0) return [t?.unknown ? 'UNKNOWN' : '']
+      const primary =
+        t.readings.find(r => r.lemma === leaf.lexeme.id && r.cat === leaf.lexeme.cat) ??
+        t.readings[0]!
+      return [
+        bits(t, primary, true),
+        ...t.readings.filter(r => r !== primary).map(r => bits(t, r, false)),
+      ]
+    },
+  })
+  return rendered.split('\n').map(l => `  ${l}`).join('\n')
 }
 
 if (json) {
@@ -161,6 +191,8 @@ if (json) {
 } else {
   const line = predict ? renderPredict : renderDefault
   const renderSentence = (rec: SentenceRecord): string =>
-    explain && rec.sentence ? `${line(rec)}\n${tokenDetails(rec, !predict)}` : line(rec)
+    explain && rec.sentence
+      ? `${line(rec)}\n${explainTree(rec.sentence, !predict)}`
+      : line(rec)
   process.stdout.write(records.map(renderSentence).join(explain ? '\n\n' : '\n') + '\n')
 }

@@ -161,14 +161,22 @@ test('cmd: DoD-9/11/12 — the register toggle changes exactly the v1 verdicts',
   assert.deepEqual(imp.tokens[1].readings[0].verdict, { grade: 'none', reason: 'no-license' })
 })
 
-test('cmd: DoD-2/5 — explain shows prev lemma and negative invariants', () => {
+test('cmd: DoD-2/5 — explain shows the MWE trigger and negative invariants', () => {
   const { out, code } = cli(['--explain'], 'ar ôl cinio\ncath merch')
   assert.equal(code, 0)
-  assert.ok(out.includes('(prev: ar ôl)'))
+  assert.ok(out.includes('ar ôl ⟨')) // the MWE preposition is one leaf
   assert.ok(out.includes('radical (no-license)'))
   const merchBlock = out.split('\n\n')[1]!
   assert.ok(merchBlock.includes('merch'))
   assert.ok(!merchBlock.includes('DISAGREES'))
+})
+
+test('cmd: explain renders the constituent tree with gaps and verdicts', () => {
+  const { out, code } = cli(['--explain'], 'Pwy welodd ddraig?')
+  assert.equal(code, 0)
+  assert.ok(out.includes('└─'), 'tree connectors present')
+  assert.ok(out.includes('gap:NP (extraction)'), 'extraction gap shown')
+  assert.ok(out.includes('→ SM (synt:xp-edge)'), 'per-leaf verdicts shown')
 })
 
 test('cmd: --predict and --explain compose; --json combines with neither', () => {

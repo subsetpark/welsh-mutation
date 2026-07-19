@@ -172,6 +172,15 @@ test('the contract holds: environmentFor + sm consume chunker output', () => {
   assert.deepEqual(judge(neg.root, 'dim'), { grade: 'SM', licensedBy: ['synt:xp-edge'] })
 })
 
+test('displaced subject after a PP head: no pro gap in mae gyda fi …', () => {
+  // the possession construction — the subject follows its PP, so the verb
+  // is not subjectless and no gap edge may license SM on the PP head
+  const { root } = parse('Mae gyda fi rywbeth arall')
+  assert.ok(!JSON.stringify(root).includes('"gap"'), 'no gap in the tree')
+  assert.deepEqual(judge(root, 'gyda'), { grade: 'none', reason: 'no-license' })
+  assert.deepEqual(judge(root, 'rhywbeth'), { grade: 'SM', licensedBy: ['synt:xp-edge'] })
+})
+
 test('renderSurface round-trips chunker trees across all grades', () => {
   assert.equal(renderSurface(parse('Roedd dyn wedi prynu beic').root),
     'roedd dyn wedi prynu beic')

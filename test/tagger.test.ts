@@ -129,6 +129,12 @@ test('VSO and particle-position inference resolve demutation homographs', () => 
   assert.equal(i!.readings[0]!.entry.lemma, 'i') // prep before a pronoun
   assert.equal(fi!.ambiguous, undefined)
   assert.equal(fi!.readings[0]!.entry.lemma, 'fi') // particle-mi impossible mid-clause
+
+  // possession construction: the verb candidate is followed by a PP head,
+  // not a nominal — *bae gyda fi rywbeth arall is not a clause shape either
+  const [mae2] = tag(analyze('Mae gyda fi rywbeth arall', noisy), noisy)
+  assert.equal(mae2!.ambiguous, undefined)
+  assert.equal(mae2!.readings[0]!.entry.lemma, 'mae')
 })
 
 test('rules never empty a token; impersonal person survives tagging', () => {

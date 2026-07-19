@@ -124,6 +124,15 @@ const ECHO_FEM = new Set(['hi'])
 const ECHO_PL = new Set(['nhw', 'hwy'])
 const PRONOUNS = new Set(['fi', 'ti', 'di', 'e', 'fe', 'fo', 'ef', 'hi', 'ni', 'chi', 'nhw', 'hwy'])
 
+/** Simple prepositions that can head the phrase straight after a finite
+ *  verb (mae gyda fi…, mae yn yr ardd…). Surface-keyed closed-class
+ *  knowledge, like PRONOUNS above. */
+const PREPOSITIONS = new Set([
+  'am', 'ar', 'at', 'dan', 'dros', 'drwy', 'efo', 'gan', 'gen', 'ger',
+  'gyda', 'gyn', 'heb', 'hyd', 'i', 'mewn', 'o', 'rhag', 'rhwng', 'tan',
+  'trwy', 'tua', 'wrth', 'yn',
+])
+
 // ─── the rule sequence ───
 
 /** Once context decides a homograph key, the token IS that function word:
@@ -144,18 +153,21 @@ const RULES: Rule[] = [
   },
   {
     // VSO: a clause-initial token with a verb reading followed by a nominal
-    // IS the verb — *bae rhaid is not a Welsh clause shape. This is the
-    // guard-legal way to kill de-mutation homographs like mae ⇐ NM-of-bae:
-    // the evidence is position and category, never the reading's grade.
+    // or a PP head IS the verb — *bae rhaid and *bae gyda fi are not Welsh
+    // clause shapes, while mae gyda fi… and mae yn yr ardd… are ordinary
+    // bod-clauses. This is the guard-legal way to kill de-mutation
+    // homographs like mae ⇐ NM-of-bae: the evidence is position and
+    // category, never the reading's grade.
     id: 'vso-clause-initial-verb',
     prune(t, ctx) {
       if (ctx.left.length !== 0) return null
       if (!t.readings.some(r => r.cat === 'V')) return null
       const n = ctx.right[0]
-      const nominal =
+      const continuesClause =
         hasCat(n, 'N', 'Num') || isArticle(n) ||
-        (n !== undefined && PRONOUNS.has(n.surface.toLowerCase()))
-      if (!nominal) return null
+        (n !== undefined && PRONOUNS.has(n.surface.toLowerCase())) ||
+        (n !== undefined && PREPOSITIONS.has(n.surface.toLowerCase()))
+      if (!continuesClause) return null
       return r => r.cat === 'N'
     },
   },

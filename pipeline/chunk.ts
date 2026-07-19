@@ -376,7 +376,15 @@ class Chunker {
         }
       } else {
         const subj = this.tryNP(false)
-        children.push(subj ?? gap('NP', 'pro'))
+        if (subj) {
+          children.push(subj)
+        } else if (!PREPS.has(this.lemma(this.cur()))) {
+          // A PP head directly after the verb is a bod-construction with a
+          // displaced subject (mae gyda fi rywbeth, mae yn yr ardd ddraig):
+          // the subject follows its PP, so no null subject exists and no
+          // gap is inserted — the PP and the subject parse as complements.
+          children.push(gap('NP', 'pro'))
+        }
       }
     }
 
