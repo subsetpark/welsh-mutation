@@ -18,6 +18,8 @@
 import { existsSync, readFileSync } from 'node:fs'
 import type { Lexeme } from '../theory/types.ts'
 import { LEXICON } from '../theory/lexicon.ts'
+import { MUTATION_SHAPED_INITIALS } from '../theory/orthography.ts'
+import { demutate } from './demutate.ts'
 import type { LexEntry, LexiconFile } from './lexentry.ts'
 import immutablesData from '../theory/immutables.json' with { type: 'json' }
 
@@ -75,6 +77,27 @@ export class Lexicon {
         ...(lex.immutable ? { immutable: true } : {}),
         freq: 0,
       })
+    }
+
+    // An entry whose form begins with a mutation-shaped initial (theory §1)
+    // is, with narrow exceptions, an already-mutated shape. When its de-mutated radical has an entry of
+    // the same category, the two are ONE lexeme and the mutated spelling is
+    // a duplicate citation form (UD lemmatizes ddim as its own lemma) — it
+    // is dropped, so surface ddim analyzes as dim + observed SM. Without a
+    // radical counterpart the entry survives: a relexified form (ddoe,
+    // immutable per theory/immutables.json) or a genuine radical in this
+    // shape (the pronoun nhw — no tw lexeme exists).
+    for (const [key, entries] of this.byForm) {
+      if (!MUTATION_SHAPED_INITIALS.test(key)) continue
+      const kept = entries.filter(e => {
+        const radicals = demutate(e.form).filter(c => c.grade !== null)
+        return !radicals.some(c =>
+          (this.byForm.get(c.radical.toLowerCase()) ?? []).some(r => r.cat === e.cat),
+        )
+      })
+      if (kept.length === entries.length) continue
+      if (kept.length === 0) this.byForm.delete(key)
+      else this.byForm.set(key, kept)
     }
 
     const immutableIds = new Set(immutablesData.lexemes.map(l => l.id.toLowerCase()))

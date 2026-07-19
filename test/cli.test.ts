@@ -171,11 +171,13 @@ test('cmd: DoD-2/5 — explain shows the MWE trigger and negative invariants', (
   assert.ok(!merchBlock.includes('DISAGREES'))
 })
 
-test('cmd: a fixed-SM citation form in the broad lexicon cannot re-mutate', () => {
-  // the broad lexicon carries ddim as its own entry; taken as a radical it
-  // would soft-mutate AGAIN (*dddim) — King §5c forbids the second mutation
+test('cmd: an already-mutated citation form dedups against its radical lexeme', () => {
+  // the broad lexicon carries ddim as its own lemma; ddim ⟨Adv⟩ and
+  // dim ⟨Adv⟩ + SM are ONE lexeme, so the mutated spelling never surfaces
+  // as a reading — no face-value radical, no second mutation (*dddim)
   const { out, code } = cli(['--explain'], 'chlywais i ddim')
   assert.equal(code, 0)
+  assert.ok(!out.includes('ddim ⟨'))
   assert.ok(!out.includes('DISAGREES'))
   assert.ok(!out.includes('dddim'))
 })

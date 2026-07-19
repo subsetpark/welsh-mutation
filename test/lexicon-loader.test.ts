@@ -26,6 +26,25 @@ test('layering: hand-curated entry wins per (form, cat); other cats survive', ()
   assert.equal(gem.filter(e => e.cat === 'Adj').length, 1)
 })
 
+test('mutated-only initials: duplicate citation forms dedup against their radical', () => {
+  const lex = new Lexicon([
+    ...FULL,
+    // ddim ⟨Adv⟩ and dim ⟨Adv⟩ are one lexeme — the mutated spelling drops
+    { form: 'ddim', lemma: 'ddim', cat: 'Adv', initClass: 'd', freq: 9 },
+    { form: 'dim', lemma: 'dim', cat: 'Adv', initClass: 'd', freq: 9 },
+    // no radical counterpart of the same cat — a relexified form survives
+    { form: 'mhen', lemma: 'mhen', cat: 'N', gender: 'm', number: 'sg', initClass: 'm', freq: 1 },
+    // nh- is not proof of mutation: the pronoun nhw is a genuine radical
+    // in that shape, kept because no tw counterpart exists
+    { form: 'nhw', lemma: 'nhw', cat: 'Other', initClass: 'other', freq: 9 },
+  ])
+  assert.equal(lex.lookup('ddim').length, 0)
+  assert.equal(lex.lookup('dim').filter(e => e.cat === 'Adv').length, 1)
+  assert.equal(lex.lookup('mhen').length, 1)
+  assert.equal(lex.lookup('nhw').length, 1)
+  // ddoe survives too (no radical doe entry) — asserted below with its flag
+})
+
 test('immutables lexeme list and personal-name class rule applied', () => {
   const lex = new Lexicon(FULL)
   assert.equal(lex.lookup('ddoe')[0]!.immutable, true) // fixed mutation of doe

@@ -102,6 +102,18 @@ export function initialSegment(form: string): string {
  *  as their first letter (chwech is not c-initial), and without SM reflex
  *  (King §5a: ch is a separate letter from c; likewise ll/l, rh/r). */
 const RADICAL_DIGRAPHS = ['ch', 'ff', 'th', 'ph', 'ng']
+
+/** Word-initial shapes that are, with narrow exceptions, mutation
+ *  reflexes: radical dd-, ngh-, mh- and nh- words are otherwise absent
+ *  from the lexicon. (Contrast ch-/ff-/th-/ph-/ng- above, radical letters
+ *  in their own right, and the SM products f-/g-/b-/d-/l-/r-, which all
+ *  collide freely with genuine radical initials.) The exceptions are
+ *  relexified mutations whose radical is dead (ddoe — King App A) and the
+ *  pronoun nhw (with nhwythau), so these initials are evidence of an
+ *  already-mutated shape (§5c) only ALONGSIDE a check that a live radical
+ *  counterpart exists — never on their own. */
+export const MUTATION_SHAPED_INITIALS = /^(dd|ngh|mh|nh)/
+
 // Derived from the SM row: every initial that responds to ANY grade
 // responds to SM (King §4 — encoded in §2's target chain, where AMTarget
 // and NMTarget are subtypes of SMTarget), so the single-letter SM keys are

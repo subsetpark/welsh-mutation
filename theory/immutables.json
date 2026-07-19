@@ -3,8 +3,7 @@
   "_source": "King §12, Appendix A p.489: words/classes resistant to mutation; preposition class per Tallerman (2006 fn. 6) and Ball & Müller (1992: 201). Feeds Lexeme.immutable in the pipeline; theory tests hand-set the flag. Class-level rules are recorded as classes; a closed class with no data signal carries an explicit member list.",
   "lexemes": [
     { "id": "beth", "why": "fixed mutation of peth (King §12a)" },
-    { "id": "ddoe", "why": "fixed mutation of doe (King App A)" },
-    { "id": "ddim", "why": "already-mutated shape of dim carried as a citation form by the broad lexicon (UD lemmatization artifact); a mutated consonant cannot mutate again (King §5c). The live analysis — radical dim, observed SM off the subject edge (King §11a's °ddim) — is untouched: this flag matches only form/lemma ddim" },
+    { "id": "ddoe", "why": "fixed mutation of doe (King App A); survives the mutated-only-initial dedup because no radical doe entry exists — a genuinely relexified citation form" },
     { "id": "dros", "why": "fixed mutation of tros (King §12a)" },
     { "id": "dy", "why": "King §12b" },
     { "id": "pan", "why": "King §12b" },
