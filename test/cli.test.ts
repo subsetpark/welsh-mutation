@@ -69,6 +69,15 @@ test('full-grade agreement: observed AM/NM confirmed by matching predictions', (
   assert.equal(nghath.agrees, true)
 })
 
+test('category-only reading splits with identical verdicts are not ambiguity', () => {
+  // iawn is Adj and Adv in the lexicon; both yield the same verdict here,
+  // so the split is mutation-irrelevant and must not flag the token
+  const [s] = judgeText("i'r byd go iawn", LEX)
+  const iawn = s!.tokens.find(t => t.surface === 'iawn')!
+  assert.equal(iawn.ambiguous, undefined)
+  assert.equal(iawn.readings.length, 1)
+})
+
 test('DoD-7 shape: yn resolved by context, never by target mutation', () => {
   const [loc] = judgeText('mae hi yn yr ardd', LEX)
   assert.equal(loc!.tokens[2]!.readings[0]!.lemma, 'yn.loc')

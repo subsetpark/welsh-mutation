@@ -51,6 +51,11 @@ const PREPS = new Set([
   ...MWE_PREPS,
 ])
 const SUBORDINATORS = new Set(['os', 'pan'])
+/** Degree adverbs that premodify an Adj/Adv head as one unit (go iawn,
+ *  rhy °boeth). Closed class; go/rhy/pur/reit/tra/mor are trigger lemmas. */
+const DEGREE = new Set([
+  'go', 'rhy', 'pur', 'reit', 'tra', 'mor', 'lled', 'gweddol', 'eitha', 'eithaf', 'hollol',
+])
 /** Clause-initial preverbal particles → their trigger-lexicon keys. */
 const PARTICLES: Record<string, string> = { fe: 'fe.prt', mi: 'mi.prt', ni: 'ni', na: 'na.neg' }
 const PRONOUNS = new Set(['fi', 'ti', 'di', 'e', 'fe', 'fo', 'ef', 'hi', 'ni', 'chi', 'nhw', 'hwy'])
@@ -195,6 +200,13 @@ class Chunker {
 
     // post-head material
     for (;;) {
+      // a degree-adverb + Adj/Adv unit postmodifies inside the NP: y byd
+      // [AP go iawn] — NP-internal attachment puts the whole unit under
+      // the NP-internal exclusion, so no XP edge reaches the degree word
+      if (DEGREE.has(this.lemma(this.cur())) && this.hasCat(this.cur(1), 'Adj', 'Adv')) {
+        children.push(phrase('AP', [this.take(), this.take(['Adj', 'Adv'])]))
+        continue
+      }
       if (this.hasCat(this.cur(), 'Adj') && this.lemma(this.cur()) !== 'a.conj') {
         children.push(phrase('AP', [this.take(['Adj'])]))
         continue

@@ -28,6 +28,10 @@ export function recoverRadical(form: string, lemma: string, grade: MutationGrade
   if (mutated === undefined) return null
   const lower = form.toLowerCase()
   if (!lower.startsWith(mutated)) return null
+  // SM of g- is deletion, which makes the startsWith check above vacuous:
+  // a still-g-initial surface cannot be the SM of a g-lemma, and prepending
+  // g would coin impossible gg- radicals (annotation noise: ggo, ggallaf).
+  if (mutated === '' && lower.startsWith('g')) return null
   const radical = seg + lower.slice(mutated.length)
   const wasUpper = form[0] !== undefined && form[0] !== form[0].toLowerCase()
   return wasUpper ? radical[0]!.toUpperCase() + radical.slice(1) : radical

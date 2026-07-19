@@ -188,6 +188,17 @@ test('displaced subject after a PP head: no pro gap in mae gyda fi …', () => {
   })
 })
 
+test('degree-adverb unit postmodifies inside the NP', () => {
+  const { root } = parse("i'r byd go iawn")
+  assert.equal(ser(root), 'S[PP[i NP[y byd AP[go iawn]]]]')
+  // NP-internal exclusion: no XP edge reaches go — radical, as attested
+  assert.deepEqual(judge(root, 'go'), { grade: 'none', reason: 'no-license' })
+  // go° still licenses within its unit; iawn's vowel has no reflex
+  assert.deepEqual(judge(root, 'iawn'), {
+    grade: 'none', reason: 'veto:no-reflex', suppressed: ['lex:go'],
+  })
+})
+
 test('partitive o°-complement attaches inside the NP', () => {
   const { root } = parse('llawer o gaws')
   assert.equal(ser(root), 'S[NP[llawer PP[o NP[caws]]]]')

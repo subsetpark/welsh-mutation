@@ -21990,40 +21990,6 @@
    "freq": 1
   },
   {
-   "form": "ggallaf",
-   "lemma": "gallu",
-   "cat": "V",
-   "initClass": "g",
-   "number": "sg",
-   "person": "1",
-   "freq": 1
-  },
-  {
-   "form": "ggallwch",
-   "lemma": "gallu",
-   "cat": "V",
-   "initClass": "g",
-   "number": "pl",
-   "person": "2",
-   "freq": 1
-  },
-  {
-   "form": "ggemau",
-   "lemma": "gêm",
-   "cat": "N",
-   "initClass": "g",
-   "gender": "m",
-   "number": "pl",
-   "freq": 1
-  },
-  {
-   "form": "ggo",
-   "lemma": "go",
-   "cat": "Adv",
-   "initClass": "g",
-   "freq": 1
-  },
-  {
    "form": "giamster",
    "lemma": "giamster",
    "cat": "N",
