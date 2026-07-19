@@ -38,7 +38,7 @@ into *producing* that record.
 | 2 | `types.ts` | The shape a theory must take: the Trigger Constraint, the `Environment` record, lexeme identity, the grade vocabulary, registers, and the verdict type with its provenance. |
 | 3 | `triggers.json` | The lexical component: every contact-trigger frame, with King § references. Data, not code — the arbitrariness of the list is itself a theoretical claim. |
 | 4 | `immutables.json` | The exception lexicon: words and word-classes that resist mutation. |
-| 5 | `predicate.ts` | The licensing calculus: how the three subsystems propose, how grades filter through initial classes, how vetoes report counterfactually, and what counts as agreement with an observed form. |
+| 5 | `predicate.ts` | The licensing calculus: how the three subsystems propose, how governed grades resolve against initial classes into surface grades, how conflicts are arbitrated, how vetoes report counterfactually, and what counts as agreement with an observed form. |
 | 6 | `tree.ts` | Syntax: where Environments come from. The XPTH made geometric, the NP-internal exclusion, the empty-category inventory (extraction gaps and pro), designated positions as particle-drop residue, and the register switch. |
 | 7 | `lexicon.ts` | The worked lexemes used by the report and tests, carrying the per-word exception facts. |
 | 8 | `surface.ts` | Realization: from verdicts back to the printed Welsh line. |

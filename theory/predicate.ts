@@ -1,10 +1,10 @@
 /**
- * §5 — THE LICENSING CALCULUS: sm(Lexeme, Environment) → verdict
- * ==============================================================
+ * §5 — THE LICENSING CALCULUS: mutation(Lexeme, Environment) → verdict
+ * ====================================================================
  *
- * With the evidence record fixed (§2), the trigger lexicon stated (§3) and
- * the exceptions listed (§4), the predicate itself is small — deliberately
- * so. It works in two phases:
+ * With the evidence record fixed (§2), the trigger lexicon stated (§3) and the
+ * exceptions listed (§4), the predicate itself is small. It works in two
+ * phases:
  *
  *   COLLECT.  Each subsystem contributes POTENTIALS — (rule, grade) pairs
  *   whose ENVIRONMENTAL conditions hold, with no attention yet to the
@@ -12,31 +12,38 @@
  *   trigger lexicon off env.prev; P_gend reads the agreement record;
  *   P_synt reads the XP-edge flag and the position tag.
  *
- *   FILTER.  Only then is the target's InitClass consulted: does each
- *   potential's grade actually surface as soft mutation on THIS initial?
- *   (SM-ltd spares ll/rh; mixed yields SM only off c/p/t; AM/NM never
- *   yield SM.) Everything that survives has fired; the vetoes then have
- *   the last word.
+ *   RESOLVE.  Only then is the target's InitClass consulted: each
+ *   potential's governed grade is resolved through the reflex table into
+ *   the surface grade it realizes on THIS initial, or into nothing
+ *   (SM-ltd has no reflex on ll-/rh-; mixed realizes AM on c/p/t and SM
+ *   elsewhere; AM touches the voiceless stops and, as h-prothesis, the
+ *   vowels). Everything that resolves has fired; the vetoes then have the
+ *   last word.
  *
  * The two-phase split is not an implementation nicety — it is what makes
  * the vetoes COUNTERFACTUAL, and the counterfactual is the interesting
  * part of a negative verdict. Because potentials are collected before
- * filtering, a veto can report exactly which rules it silenced:
+ * resolution, a veto can report exactly which rules it silenced:
  * "i Dafydd: radical, but lex:i would have fired were the name not
  * immutable" is a stronger, more falsifiable claim than "radical".
  * A veto with nothing to block is not reported at all — removing it would
  * change nothing, and a theory should not claim credit for idle machinery.
  *
- * Order among subsystems carries no weight: all fired rules are collected
- * (a token can be multiply licensed — a fem sg noun after y inside an
- * adverbial, say), and any unvetoed license mutates. There is no rule
- * competition to arbitrate because all roads lead to the same exponent.
+ * Order among subsystems carries no weight: all fired rules are collected,
+ * and a token can be multiply licensed (a fem sg noun after y inside an
+ * adverbial, say) — rules resolving to the same surface grade are all
+ * reported. Where fired rules resolve to DIFFERENT grades, the more
+ * specific wins: NM > AM > SM. The non-soft grades only ever come from
+ * contact triggers and mixed — the positional subsystem is SM-only — so
+ * precedence encodes "a specific lexical requirement beats the general
+ * configurational one". Conflicts are rare; the policy makes them
+ * deterministic and reportable.
  */
 
 import type {
-  Environment, Grade, InitClass, Lexeme, MutationResult, RuleId, SMResult, TriggerFrame,
+  Environment, Grade, InitClass, Lexeme, MutationResult, RuleId, TriggerFrame,
 } from './types.ts'
-import type { MutationGrade } from './orthography.ts'
+import { GRADE_ORTH, type MutationGrade } from './orthography.ts'
 import triggersData from './triggers.json' with { type: 'json' }
 
 // A lemma may carry several frames (y: fem-sg nouns vs. the numerals dau/dwy;
@@ -48,56 +55,51 @@ for (const f of triggersData.frames as TriggerFrame[]) {
   else FRAMES.set(f.lemma, [f])
 }
 
-const SM_TARGETS = new Set<InitClass>(['c', 'p', 't', 'g', 'b', 'd', 'll', 'm', 'rh'])
-const SM_LTD_EXCLUDED = new Set<InitClass>(['ll', 'rh'])
-const MIXED_SM = new Set<InitClass>(['g', 'b', 'd', 'll', 'm', 'rh']) // AM claims c/p/t (King §10)
-/** Grades with an SM reflex for at least one initial — the counterfactual
- *  test for a no-reflex word: would this rule fire on any mutable initial? */
-const SM_YIELDING = new Set<Grade>(['SM', 'SM-ltd', 'mixed'])
+/** One reflex row: each target initial maps to the SURFACE grade it
+ *  realizes; an initial absent from the row has no reflex. */
+type Reflexes = Partial<Record<InitClass, MutationGrade>>
 
-// Full-grade reflex classes (mutation() below; §1 for the orthography):
-// AM touches the voiceless stops and — as h-prothesis — the vowels; NM the
-// six stops. m/ll/rh mutate only softly.
-const AM_TARGETS = new Set<InitClass>(['c', 'p', 't', 'v'])
-const NM_TARGETS = new Set<InitClass>(['c', 'p', 't', 'g', 'b', 'd'])
-const MIXED_AM = new Set<InitClass>(['c', 'p', 't'])
+// §1's GRADE_ORTH is the single statement of the mutation alternations.
+// The licensing calculus needs only each map's DOMAIN — which initials
+// respond — never the letters, and derives it from there rather than
+// restating it. Object.keys erases the row's key union; domainOf reasserts
+// it, soundly, because each row is a TOTAL Record over exactly that union
+// (§2's target chain) — the compiler, not a test, holds the two statements
+// of King §4's table together.
+const domainOf = <K extends InitClass>(orth: Record<K, string>): K[] =>
+  Object.keys(orth) as K[]
+const row = (inits: InitClass[], surface: MutationGrade): Reflexes =>
+  Object.fromEntries(inits.map(i => [i, surface]))
+
+/**
+ * THE REFLEX TABLE: what each governable grade (§2) does to each initial.
+ * A governed grade is a function from initials to surface grades; each row
+ * here is that function stated as data, with its domain derived from §1 so
+ * the two statements of King §4's table cannot drift apart.
+ */
+const GRADE_REFLEX: Record<Exclude<Grade, 'none'>, Reflexes> = {
+  // King §4, SM column: the nine soft-mutable initials.
+  SM: row(domainOf(GRADE_ORTH.SM), 'SM'),
+  // King §9 marks y, un, mor, yn.pred 'not ll-, rh-'.
+  'SM-ltd': row(domainOf(GRADE_ORTH.SM).filter(i => i !== 'll' && i !== 'rh'), 'SM'),
+  // King §10: 'AM where possible (i.e. on c, p and t)', SM otherwise.
+  mixed: { ...row(domainOf(GRADE_ORTH.SM), 'SM'), ...row(domainOf(GRADE_ORTH.AM), 'AM') },
+  // King §4, AM column — plus the vowels, where AM contexts surface as
+  // h-prothesis after ei(f)/ein/eu (King §109; §1 realizes the h-).
+  AM: { ...row(domainOf(GRADE_ORTH.AM), 'AM'), v: 'AM' },
+  // King §4, NM column: the six stops.
+  NM: row(domainOf(GRADE_ORTH.NM), 'NM'),
+}
+
 /** Conflict policy: the more specific contact grade beats configurational
- *  soft mutation. See mutation() for the argument. */
+ *  soft mutation. See the header for the argument. */
 const GRADE_PRECEDENCE: MutationGrade[] = ['NM', 'AM', 'SM']
 
 /** The surface grade a GOVERNED grade realizes on a given initial, or null
- *  when that initial has no reflex under it — the full-grade analogue of
- *  gradeYieldsSM below. */
+ *  when that initial has no reflex under it. */
 function gradeReflex(grade: Grade, init: InitClass): MutationGrade | null {
-  switch (grade) {
-    case 'SM': return SM_TARGETS.has(init) ? 'SM' : null
-    case 'SM-ltd': return SM_TARGETS.has(init) && !SM_LTD_EXCLUDED.has(init) ? 'SM' : null
-    case 'mixed': return MIXED_AM.has(init) ? 'AM' : MIXED_SM.has(init) ? 'SM' : null
-    case 'AM': return AM_TARGETS.has(init) ? 'AM' : null
-    case 'NM': return NM_TARGETS.has(init) ? 'NM' : null
-    case 'none': return null
-    default: {
-      const _exhaustive: never = grade
-      return _exhaustive
-    }
-  }
-}
-
-/** The grade → SM-reflex logic (§2 motivated the six-way vocabulary):
- *  does `grade`, as governed by a trigger, surface as SM on this initial? */
-function gradeYieldsSM(grade: Grade, init: InitClass): boolean {
-  switch (grade) {
-    case 'SM': return SM_TARGETS.has(init)
-    case 'SM-ltd': return SM_TARGETS.has(init) && !SM_LTD_EXCLUDED.has(init)
-    case 'mixed': return MIXED_SM.has(init)
-    case 'AM':
-    case 'NM':
-    case 'none': return false
-    default: {
-      const _exhaustive: never = grade
-      return _exhaustive
-    }
-  }
+  if (grade === 'none') return null
+  return GRADE_REFLEX[grade][init] ?? null
 }
 
 /** A frame's target-side conditions (§2: category, gender, number, or a
@@ -134,7 +136,8 @@ function lexicalPotentials(lexeme: Lexeme, env: Environment): Potential[] {
   return out
 }
 
-/** P_gend — modifier agreeing with a fem sg controller. Deliberately not
+/** P_gend — modifier agreeing with a fem sg controller (King §102:
+ *  adjectives after a feminine singular noun take SM). Deliberately not
  *  adjacency-based: the agreement record was resolved upstream precisely
  *  because chains break adjacency (y ferch fach wen — wen agrees with
  *  ferch across fach). Full SM, no ll-/rh- sparing: King §100 mutates ll-
@@ -154,17 +157,24 @@ function genderPotentials(env: Environment): Potential[] {
  *  intervening word can starve them of their evidence. */
 function syntacticPotentials(env: Environment): Potential[] {
   const out: Potential[] = []
+  // XPTH (Harlow 1989; Borsley 1997; Tallerman 2006; Green 2003 for the
+  // intervening-phrase datum). King states the descriptive counterparts:
+  // the [SUBJECT]° rule (§11a, §14) and the 'intrusive word' rule (§11e).
   if (env.prev?.isXPRightEdge) out.push({ rule: 'synt:xp-edge', grade: 'SM' })
   switch (env.position) {
+    // King §11b, §403 (SM of time adverbs)
     case 'adv-np':
       out.push({ rule: 'synt:adv-np', grade: 'SM' })
       break
+    // King §11c
     case 'vocative':
       out.push({ rule: 'synt:vocative', grade: 'SM' })
       break
+    // King §11d
     case 'v1-finite-aff':
       out.push({ rule: 'synt:v1-aff', grade: 'SM' })
       break
+    // King §10 (mixed mutation on NEG inflected verbs)
     case 'v1-finite-neg':
       out.push({ rule: 'synt:v1-neg-mixed', grade: 'mixed' })
       break
@@ -178,71 +188,19 @@ function syntacticPotentials(env: Environment): Potential[] {
   return out
 }
 
-export function sm(lexeme: Lexeme, env: Environment): SMResult {
-  // Potentials are environmental only; the initial-class filter is applied
-  // here, so BOTH vetoes report counterfactually: they name the rules that
-  // would otherwise fire, and an idle veto (nothing to block) reports plain
-  // no-license, because removing it would change nothing.
-  const potentials = [
-    ...lexicalPotentials(lexeme, env),
-    ...genderPotentials(env),
-    ...syntacticPotentials(env),
-  ]
-
-  const fired = potentials
-    .filter(p => gradeYieldsSM(p.grade, lexeme.initClass))
-    .map(p => p.rule)
-  if (fired.length > 0) {
-    return lexeme.immutable
-      ? { mutates: false, reason: 'veto:immutable', suppressed: fired }
-      : { mutates: true, licensedBy: fired }
-  }
-
-  if (!SM_TARGETS.has(lexeme.initClass)) {
-    // Would any present rule fire on SOME mutable initial? (AM/NM frames
-    // would not — a vowel word after ei 'her' is no-license, not no-reflex.)
-    const wouldFire = potentials.filter(p => SM_YIELDING.has(p.grade)).map(p => p.rule)
-    if (wouldFire.length > 0) {
-      return { mutates: false, reason: 'veto:no-reflex', suppressed: wouldFire }
-    }
-  }
-  return { mutates: false, reason: 'no-license' }
-}
-
-/** What counts as AGREEMENT between a verdict and an OBSERVED surface
- *  grade — part of this predicate's contract, because the account is
- *  SM-only by charter: a mutating verdict is confirmed only by observed
- *  SM, while a non-mutating verdict is consistent with radical, AM and NM
- *  alike — all three mean "soft mutation did not apply". Whether an
- *  observed AM/NM was itself correct is the trigger lexicon's business,
- *  outside this predicate's scope; conflating "predicted no SM" with
- *  "predicted radical" would count every ei chath as a failure. */
-export function agreesWithObserved(result: SMResult, observed: MutationGrade | null): boolean {
-  return result.mutates ? observed === 'SM' : observed !== 'SM'
-}
-
 /**
- * THE FULL-GRADE GENERALIZATION. sm() answers the theory's charter
- * question; mutation() answers the application's: which grade, if any,
- * does the environment impose here? Same collectors, same two-phase
- * shape — the difference is that each fired rule's governed grade is
- * RESOLVED against the target's initial into a surface grade (fy + cath
- * ⇒ NM; ei(f) + cath ⇒ AM; ei(f) + iaith ⇒ AM realized as h-prothesis on
- * the vowel class; ni + collith ⇒ mixed's AM half) instead of being
- * filtered down to a soft-or-not boolean.
+ * THE PREDICATE. Answers: which grade, if any, does the environment
+ * impose here? Each fired rule's governed grade is resolved against the
+ * target's initial into a surface grade (fy + cath ⇒ NM; ei(f) + cath ⇒
+ * AM; ei(f) + iaith ⇒ AM realized as h-prothesis on the vowel class;
+ * ni + collith ⇒ mixed's AM half); grade conflicts are arbitrated by
+ * GRADE_PRECEDENCE (see the header).
  *
- * Where rules resolve to DIFFERENT grades on the same token, the more
- * specific wins: NM > AM > SM. The non-soft grades only ever come from
- * contact triggers and mixed — the positional subsystem is SM-only — so
- * precedence encodes "a specific lexical requirement beats the general
- * configurational one". Conflicts are rare; the policy makes them
- * deterministic and reportable.
- *
- * The vetoes parallel sm()'s, with one semantic difference worth noting:
- * an AM frame over a g-initial word reports veto:no-reflex here (the rule
- *  fired; this initial has no aspirate shape) where sm() reports plain
- * no-license (no SOFT-mutation rule was ever in play). Each is the honest
- * counterfactual for its own question.
+ * Both vetoes report counterfactually — they name the rules they
+ * silenced, and an idle veto (nothing to block) reports plain no-license.
+ * veto:no-reflex covers any governed grade: an AM frame over a g-initial
+ * word is a fired rule whose grade has no shape on this initial, exactly
+ * as an SM-ltd frame over ll- is.
  */
 export function mutation(lexeme: Lexeme, env: Environment): MutationResult {
   const potentials = [
@@ -274,9 +232,9 @@ export function mutation(lexeme: Lexeme, env: Environment): MutationResult {
 
 /** Full-grade agreement: the verdict names a surface grade (or 'none'),
  *  and confirmation is grade equality — ei cath 'her cat' left unmutated
- *  is now a detectable miss, where the SM projection had to wave it
- *  through. Colloquial AM-erosion contexts will disagree often; that is
- *  what theory/contested.json exists to absorb. */
+ *  is a detectable miss (grade AM predicted, radical observed). Colloquial
+ *  AM-erosion contexts disagree often; theory/contested.json absorbs
+ *  them. */
 export function agreesWithObservedGrade(
   result: MutationResult,
   observed: MutationGrade | null,

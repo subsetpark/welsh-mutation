@@ -5,17 +5,22 @@
  */
 
 import { clause, gap, leaf, phrase, type TreeNode, type TreePath } from '../tree.ts'
+import type { MutationGrade } from '../orthography.ts'
 import type { NoMutationReason, RuleId } from '../types.ts'
 
 export interface ExampleTarget {
   path: TreePath
-  /** RuleId[] = must mutate with exactly this provenance; otherwise the
-   *  expected no-mutation reason. */
+  /** RuleId[] = must be licensed with exactly this provenance, at `grade`;
+   *  otherwise the expected no-mutation reason. */
   expect: RuleId[] | NoMutationReason
+  /** Expected surface grade when `expect` lists rules. Defaults to 'SM'. */
+  grade?: MutationGrade
 }
 export interface Example {
   id: string
-  /** Welsh surface form, mutations marked with ° on the mutated word. */
+  /** Welsh surface form: soft mutations marked with ° on the mutated word;
+   *  aspirate and nasal shapes written plain (fy nghath). Asserted against
+   *  the renderer (§8) at build time. */
   welsh: string
   gloss: string
   tree: TreeNode
@@ -46,14 +51,14 @@ export const CONTACT: Example[] = [
     gloss: "'his cat' (SM) vs 'her cat' (AM — outside soft mutation) — one orthographic word, two lemmas, two grades (King §112)",
     tree: phrase('NP', [leaf(L.ei, 'ei.3sgm'), leaf(L.cath), leaf(L.e)]),
     targets: [{ path: [1], expect: ['lex:ei.3sgm'] }],
-    note: "As `ei.3sgf` the governed grade is AM: the same position shows `radical (no-license)` — 'her' never soft-mutates.",
+    note: "As `ei.3sgf` the governed grade is AM: the same position shows `AM (lex:ei.3sgf)` — 'her' never soft-mutates.",
   },
   {
     id: 'poss-fy',
     welsh: 'fy nghath',
-    gloss: "'my cat' — fy governs NM, so soft mutation is correctly withheld (King §110)",
-    tree: phrase('NP', [leaf(L.fy), leaf(L.cath, undefined, 'nghath')]),
-    targets: [{ path: [1], expect: 'no-license' }],
+    gloss: "'my cat' — fy governs NM (King §110); the nasal shape nghath is derived from the verdict, and soft mutation is correctly withheld",
+    tree: phrase('NP', [leaf(L.fy), leaf(L.cath)]),
+    targets: [{ path: [1], expect: ['lex:fy'], grade: 'NM' }],
   },
   {
     id: 'mor-limited',
@@ -61,14 +66,14 @@ export const CONTACT: Example[] = [
     gloss: "'so small' vs 'so full' — mor° is limited SM: it spares ll-/rh- (King §105e)",
     tree: phrase('AP', [leaf(L.mor), leaf(L.bach)]),
     targets: [{ path: [1], expect: ['lex:mor'] }],
-    note: 'Substituting llawn (ll-) at the same position yields `radical (no-license)`: the SM-ltd grade has no reflex for ll-/rh-.',
+    note: 'Substituting llawn (ll-) at the same position yields `radical (veto:no-reflex blocks lex:mor)`: the SM-ltd grade has no reflex for ll-/rh-.',
   },
   {
     id: 'mor-ll',
     welsh: 'mor llawn',
-    gloss: "'so full' — the ll- target resists the limited-SM trigger",
+    gloss: "'so full' — the ll- target resists the limited-SM trigger; the veto reports the silenced rule counterfactually",
     tree: phrase('AP', [leaf(L.mor), leaf(L.llawn)]),
-    targets: [{ path: [1], expect: 'no-license' }],
+    targets: [{ path: [1], expect: 'veto:no-reflex' }],
   },
   {
     id: 'num-dwy-tair',
@@ -87,17 +92,17 @@ export const CONTACT: Example[] = [
   {
     id: 'chwe-am',
     welsh: 'chwe cheffyl',
-    gloss: "'six horses' — chwe governs AM, never SM (King §162e)",
-    tree: phrase('NP', [leaf(L.chwe), leaf(L.ceffyl, undefined, 'cheffyl')]),
-    targets: [{ path: [1], expect: 'no-license' }],
+    gloss: "'six horses' — chwe governs AM, never SM (King §162e); cheffyl is derived from the verdict",
+    tree: phrase('NP', [leaf(L.chwe), leaf(L.ceffyl)]),
+    targets: [{ path: [1], expect: ['lex:chwe'], grade: 'AM' }],
   },
   {
     id: 'chwe-nm',
     welsh: 'chwe mlynedd — dwy °flynedd',
     gloss: "'six years' (NM via the year-word frame) vs 'two years' (plain SM) — one lemma, two frames (King §176)",
-    tree: phrase('NP', [leaf(L.chwe), leaf(L.blynedd, undefined, 'mlynedd')]),
-    targets: [{ path: [1], expect: 'no-license' }],
-    note: 'chwe governs two distinct conditions: AM generally, NM restricted to blwydd/blynedd/diwrnod. Neither yields SM. dwy °flynedd (example above) shows the same noun soft-mutating after a genuine SM trigger.',
+    tree: phrase('NP', [leaf(L.chwe), leaf(L.blynedd)]),
+    targets: [{ path: [1], expect: ['lex:chwe'], grade: 'NM' }],
+    note: 'chwe governs two distinct conditions: AM generally, NM restricted to blwydd/blynedd/diwrnod. On blynedd only the NM frame has a reflex. Neither yields SM. dwy °flynedd (example above) shows the same noun soft-mutating after a genuine SM trigger.',
   },
   {
     id: 'hen-prenominal',
@@ -148,9 +153,9 @@ export const GENDER: Example[] = [
   {
     id: 'art-ll',
     welsh: 'y llong',
-    gloss: "'the ship' — feminine singular in ll- resists the article (King §28 note b)",
+    gloss: "'the ship' — feminine singular in ll- resists the article (King §28 note b): the frame fires, ll- has no reflex under its limited grade",
     tree: phrase('NP', [leaf(L.y), leaf(L.llong)]),
-    targets: [{ path: [1], expect: 'no-license' }],
+    targets: [{ path: [1], expect: 'veto:no-reflex' }],
   },
   {
     id: 'art-pl',
@@ -325,9 +330,9 @@ export const SYNTACTIC: Example[] = [
   {
     id: 'v1-neg-am',
     welsh: 'Pharith hi °ddim',
-    gloss: "'It won't last' — the negative v1 grade is MIXED: AM on p-, so no soft mutation; the grade tracks the dropped particle ni (King §10)",
-    tree: clause('S', [leaf(L.para, undefined, 'pharith'), phrase('NP', [leaf(L.hi)]), leaf(L.dim)], 'neg'),
-    targets: [{ path: [0], expect: 'no-license' }],
+    gloss: "'It won't last' — the negative v1 grade is MIXED: AM on p-, so no soft mutation; the grade tracks the dropped particle ni (King §10), and pharith is derived from the radical parith",
+    tree: clause('S', [leaf(L.para, undefined, 'parith'), phrase('NP', [leaf(L.hi)]), leaf(L.dim)], 'neg'),
+    targets: [{ path: [0], expect: ['synt:v1-neg-mixed'], grade: 'AM' }],
   },
   {
     id: 'v1-shielded',

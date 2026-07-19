@@ -5,10 +5,10 @@
  * Where §8 renders the sentence as Welsh, this chapter renders the
  * ANALYSIS: the tree itself, with child indices on the connectors so a
  * leaf's TreePath can be read straight off the drawing, and — with
- * { verdicts: true } — every leaf annotated with its sm() judgment and
- * full provenance, counterfactual vetoes included. This is the form the
- * report's worked examples take, and the debugging view of the whole
- * system: a claim like
+ * { verdicts: true } — every leaf annotated with its full-grade
+ * mutation() judgment and full provenance, counterfactual vetoes
+ * included. This is the form the report's worked examples take, and the
+ * debugging view of the whole system: a claim like
  *
  *     └─2 NP
  *        └─0 draig ⟨N f sg⟩ → SM (synt:xp-edge)
@@ -18,7 +18,7 @@
  * judgments (default colloquial).
  */
 
-import { sm } from './predicate.ts'
+import { mutation } from './predicate.ts'
 import { environmentFor, type TreeNode, type TreePath } from './tree.ts'
 import type { Register } from './types.ts'
 
@@ -45,9 +45,9 @@ export function prettyTree(root: TreeNode, opts: PrettyOptions = {}): string {
         if (node.lemma && node.lemma !== l.id) s += ` lemma=${node.lemma}`
         if (l.immutable) s += ' immutable'
         if (opts.verdicts) {
-          const r = sm(l, environmentFor(root, path, opts.register))
-          s += r.mutates
-            ? ` → SM (${r.licensedBy.join(', ')})`
+          const r = mutation(l, environmentFor(root, path, opts.register))
+          s += r.grade !== 'none'
+            ? ` → ${r.grade} (${r.licensedBy.join(', ')})`
             : ` → radical (${r.reason}${r.suppressed ? ` blocks ${r.suppressed.join(', ')}` : ''})`
         }
         return s

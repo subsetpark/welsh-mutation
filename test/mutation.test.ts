@@ -1,9 +1,9 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { agreesWithObservedGrade, mutation, sm } from '../theory/predicate.ts'
+import { agreesWithObservedGrade, mutation } from '../theory/predicate.ts'
 import { applyGrade } from '../theory/orthography.ts'
 import { LEXICON as L } from '../theory/lexicon.ts'
-import type { Environment, Lexeme } from '../theory/types.ts'
+import type { Environment } from '../theory/types.ts'
 import { judgeText } from '../pipeline/judge.ts'
 import { LEX } from './fixture-lexicon.ts'
 
@@ -43,21 +43,21 @@ test('mutation(): mixed splits by initial; vetoes report counterfactually', () =
   })
 })
 
-test('mutation() vs sm(): projections agree on SM; divergence is documented', () => {
-  // consistency: sm().mutates ⟺ mutation().grade === 'SM'
-  const cases: [Lexeme, Environment][] = [
-    [L.cath, after('y')], [L.cath, after('fy')], [L.cath, after('ei.3sgm')],
-    [L.dyn, after('i')], [L.merch, { prev: { lemma: 'cath', relationToTarget: 'possessor', isXPRightEdge: false }, agreement: null, position: null }],
-  ]
-  for (const [lex, env] of cases) {
-    assert.equal(sm(lex, env).mutates, mutation(lex, env).grade === 'SM')
-  }
-  // the documented semantic difference: an AM frame over a g-initial is
-  // no-license for the SM question, no-reflex for the full-grade one
-  assert.deepEqual(sm(L.gorsaf, after('ei.3sgf')), { mutates: false, reason: 'no-license' })
+test('veto:no-reflex covers every governed grade, not just SM', () => {
+  // an AM frame over a g-initial word: the rule fired, g- has no aspirate
+  // shape — reported counterfactually, exactly like SM-ltd over ll-
   assert.deepEqual(mutation(L.gorsaf, after('ei.3sgf')), {
     grade: 'none', reason: 'veto:no-reflex', suppressed: ['lex:ei.3sgf'],
   })
+  // possessor immunity is the ABSENCE of a license, not a veto
+  assert.deepEqual(
+    mutation(L.merch, {
+      prev: { lemma: 'cath', relationToTarget: 'possessor', isXPRightEdge: false },
+      agreement: null,
+      position: null,
+    }),
+    { grade: 'none', reason: 'no-license' },
+  )
 })
 
 test('conflict policy: specific contact grade beats configurational SM', () => {

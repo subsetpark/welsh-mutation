@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { sm } from '../theory/predicate.ts'
+import { mutation } from '../theory/predicate.ts'
 import {
   clause, environmentFor, gap, leaf, phrase, resolveLeaf,
   type TreeNode, type TreePath,
@@ -12,12 +12,12 @@ const check = (name: string, root: TreeNode, path: TreePath, expected: RuleId[] 
   test(name, () => {
     const target = resolveLeaf(root, path)
     const env = environmentFor(root, path)
-    const r = sm(target.lexeme, env)
+    const r = mutation(target.lexeme, env)
     if (expected === 'radical') {
-      assert.equal(r.mutates, false, `expected radical, got ${JSON.stringify({ r, env })}`)
+      assert.equal(r.grade, 'none', `expected radical, got ${JSON.stringify({ r, env })}`)
     } else {
-      assert.equal(r.mutates, true, `expected SM, got ${JSON.stringify({ r, env })}`)
-      if (r.mutates) assert.deepEqual(r.licensedBy.sort(), expected.sort())
+      assert.ok(r.grade === 'SM', `expected SM, got ${JSON.stringify({ r, env })}`)
+      assert.deepEqual([...r.licensedBy].sort(), [...expected].sort())
     }
   })
 

@@ -175,7 +175,7 @@ test('cmd: --predict and --explain compose; --json combines with neither', () =>
   const { out, code } = cli(['--predict', '--explain'], 'fy nghath i')
   assert.equal(code, 0)
   const [head, ...detail] = out.trimEnd().split('\n')
-  assert.equal(head, 'fy °nghath i') // predicted line view…
+  assert.equal(head, 'fy ⁿnghath i') // predicted line view, NM marked ⁿ (King §7)…
   assert.ok(detail.some(l => l.includes('NM (lex:fy)'))) // …with provenance under it
   // prediction view discards the surface: no observed grades, no agreement
   assert.ok(!out.includes('observed'))

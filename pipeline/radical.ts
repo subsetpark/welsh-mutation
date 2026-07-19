@@ -21,7 +21,10 @@ import { GRADE_ORTH, VOWEL, initialSegment, type MutationGrade } from '../theory
  *  reading we take. */
 export function recoverRadical(form: string, lemma: string, grade: MutationGrade): string | null {
   const seg = initialSegment(lemma)
-  const mutated = grade === 'AM' && VOWEL.test(seg) ? 'h' + seg : GRADE_ORTH[grade][seg]
+  // Widened for lookup: seg is an arbitrary initial segment, and a key
+  // absent from the row means no reflex under that grade.
+  const orth: Partial<Record<string, string>> = GRADE_ORTH[grade]
+  const mutated = grade === 'AM' && VOWEL.test(seg) ? 'h' + seg : orth[seg]
   if (mutated === undefined) return null
   const lower = form.toLowerCase()
   if (!lower.startsWith(mutated)) return null

@@ -116,11 +116,11 @@ export interface Leaf {
   lexeme: Lexeme
   /** Trigger-lexicon key when it differs from lexeme.id (yn.pred, ei.3sgm, y for 'r…). */
   lemma?: string
-  /** Surface form of the token ABSENT soft mutation, when it differs from
-   *  the citation form: inflected verbs (gwelodd for gweld), contractions
-   *  ('r for y), feminine adjective forms (gwen for gwyn), and authored
-   *  AM/NM spellings (nghath, cheffyl) — the SM predicate does not model
-   *  those grades, so their display forms are surface facts, not verdicts. */
+  /** Surface form of the token ABSENT mutation, when it differs from the
+   *  citation form: inflected verbs (gwelodd for gweld, parith for para),
+   *  contractions ('r for y) and feminine adjective forms (gwen for gwyn).
+   *  Always a radical shape — the renderer (§8) derives every mutated
+   *  spelling, whatever its grade, from the verdict. */
   form?: string
 }
 /** The empty-category inventory (see the header): a silent XP-edge
@@ -128,10 +128,12 @@ export interface Leaf {
  *  phrase for XP-edge purposes; blocks contact adjacency (its sentinel
  *  lemma matches no trigger frame — a gap between trigger and target
  *  starves the trigger of adjacency exactly as an overt intervener would).
- *  `reason` records why it exists: 'extraction' (wh-trace, relative gap)
- *  or 'pro' (literary null subject — inserted only after person-inflected
- *  subjectless verbs, NEVER impersonals). The geometry is identical either
- *  way; the reason is for honest reporting. */
+ *  `reason` records why it exists: 'extraction' (wh-trace, relative gap —
+ *  transparency to mutation documented by Willis 2007) or 'pro' (literary
+ *  null subject — inserted only after person-inflected subjectless verbs,
+ *  NEVER impersonals). The two-member inventory follows Dowle (2024).
+ *  The geometry is identical either way; the reason is for honest
+ *  reporting. */
 export interface Gap {
   kind: 'gap'
   cat: PhraseCat
@@ -197,9 +199,11 @@ function ancestors(node: TreeNode, parents: Map<TreeNode, TreeNode>): TreeNode[]
   return out
 }
 
-/** The XPTH, geometrically: some phrasal (never clausal) node X whose
- *  rightmost terminal is `prev` c-commands `target`. A Gap is its own
- *  one-node phrase.
+/** The XPTH, geometrically (Harlow 1989; Borsley 1997; Tallerman 2006;
+ *  King's [SUBJECT]° rule, §11a and §14, and 'intrusive word' rule, §11e,
+ *  are the descriptive counterparts): some phrasal (never clausal) node X
+ *  whose rightmost terminal is `prev` c-commands `target`. A Gap is its
+ *  own one-node phrase.
  *
  *  NP-INTERNAL EXCLUSION: a candidate whose parent (the node where trigger
  *  and target join) is an NP never licenses. The forcing datum is the
@@ -235,7 +239,9 @@ function xpRightEdge(prev: Terminal, target: Leaf, parents: Map<TreeNode, TreeNo
  *  when the target sits in the GENITIVE CONFIGURATION [NP N NP] — an NP
  *  following the head noun within an NP is the possessor (cath merch,
  *  canol y dre), derived rather than authored because Welsh gives that
- *  geometry no other reading; 'other' otherwise (subjects, gaps). Known
+ *  geometry no other reading; 'other' otherwise (subjects, gaps).
+ *  Possessor immunity as absence-of-license: Mittendorf & Sadler (2006);
+ *  Dowle (2024). Known
  *  edge: common-noun apposition shares the configuration, but appositive
  *  NPs are overwhelmingly personal names, which are immutable regardless.
  *  Note that immunity attaches to the possessor BOUNDARY only — the
@@ -259,8 +265,10 @@ function relationToTarget(prev: Terminal, target: Leaf, parents: Map<TreeNode, T
   return 'other'
 }
 
-/** Adjective modifiers: controller features come from the head noun of the
- *  containing NP (first leaf child with cat N), REGARDLESS of adjacency —
+/** Adjective modifiers (King §102: adjectives after a fem sg noun take SM;
+ *  agreement as a feature borne by the target: Breit 2019): controller
+ *  features come from the head noun of the containing NP (first leaf child
+ *  with cat N), REGARDLESS of adjacency —
  *  this is what carries chains like y ferch fach wen, and it looks
  *  rightward too: prenominal adjectives agree with a FOLLOWING head
  *  (y °brif °ddinas). The adjacency-independence is the §2 argument for
@@ -302,12 +310,15 @@ function positionFor(
 ): PositionTag | null {
   for (const anc of ancestors(target, parents)) {
     if (firstOvertLeaf(anc) !== target) break
+    // King §11c
     if (anc.kind === 'phrase' && anc.role === 'vocative') return 'vocative'
+    // King §11b, §403
     if (anc.kind === 'phrase' && anc.role === 'adverbial' && (anc.cat === 'NP' || anc.cat === 'NumP')) {
       return 'adv-np'
     }
     // v1 positions are particle-drop residue and exist only in the
     // colloquial register (King §11d); literary mode does not emit them.
+    // Grade per polarity: aff plain SM (King §11d), neg mixed (King §10).
     if (
       register === 'colloquial' &&
       anc.kind === 'clause' && anc.cat === 'S' && target.lexeme.cat === 'V'

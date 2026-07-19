@@ -7,15 +7,17 @@
  * full trigger inventory (§3) and the contested registry (§10), plus
  * bibliography. It is not documentation ABOUT the theory but the theory's
  * own output: every example tree is rendered by prettyTree and every
- * declared verdict is asserted against sm() — generation FAILS if the
- * document disagrees with the program, so REPORT.md cannot drift.
+ * declared verdict is asserted against mutation() — the full-grade
+ * licensing calculus, so AM/NM claims are checked as positively as SM
+ * ones — and generation FAILS if the document disagrees with the program,
+ * so REPORT.md cannot drift.
  *
  * Build: npm run report
  */
 
 import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { sm } from '../predicate.ts'
+import { mutation } from '../predicate.ts'
 import { environmentFor, resolveLeaf } from '../tree.ts'
 import { renderSurface } from '../surface.ts'
 import { prettyTree } from '../pretty.ts'
@@ -26,9 +28,13 @@ import contestedData from '../contested.json' with { type: 'json' }
 function assertAndRender(ex: Example): string {
   for (const t of ex.targets) {
     const lexeme = resolveLeaf(ex.tree, t.path).lexeme
-    const r = sm(lexeme, environmentFor(ex.tree, t.path))
-    const actual = r.mutates ? [...r.licensedBy].sort().join(',') : r.reason
-    const expected = Array.isArray(t.expect) ? [...t.expect].sort().join(',') : t.expect
+    const r = mutation(lexeme, environmentFor(ex.tree, t.path))
+    const actual = r.grade !== 'none'
+      ? `${r.grade} (${[...r.licensedBy].sort().join(',')})`
+      : r.reason
+    const expected = Array.isArray(t.expect)
+      ? `${t.grade ?? 'SM'} (${[...t.expect].sort().join(',')})`
+      : t.expect
     if (actual !== expected) {
       throw new Error(
         `report assertion failed [${ex.id} @ ${JSON.stringify(t.path)}]: expected ${expected}, program says ${actual}`,
@@ -95,7 +101,10 @@ export function buildReport(): string {
 **Scope.** Prescriptive standard modern **colloquial** Welsh, with Gareth King's
 *Modern Welsh: A Comprehensive Grammar* (3rd ed., 2016) as the normative
 reference. The account is strictly **predictive**: given a word and its
-grammatical context, does it exhibit soft mutation (SM)? Real spoken usage is
+grammatical context, does it exhibit soft mutation (SM)? The licensing
+calculus resolves the full grade system, so aspirate (AM) and nasal (NM)
+outcomes — which pre-empt SM — are predicted and asserted alongside it in
+every example below. Real spoken usage is
 not categorical (Jones, n.d.; Knight et al. 2020) — §7 records where prescription
 and usage genuinely diverge. The phonological *content* of mutation (t→d, p→b,
 c→g, …) is taken as opaque throughout; only the *trigger conditions* are at
@@ -134,14 +143,18 @@ respects it: each conditions only on the immediately preceding element and on
 the word's own resolved features.
 ${S(2, 'Reading the analyses')}
 Each example shows a constituent analysis; numbers on the branches index a
-node's daughters. Every word is annotated with its outcome: \`→ SM\` names the
-licensing rule; \`→ radical\` names the reason — \`no-license\` (no rule is in
-force at that position), \`veto:no-reflex blocks …\` (a rule is in force, but
-the word's initial has no soft-mutation reflex; the blocked rule is named), or
+node's daughters. Every word is annotated with its outcome: \`→ SM\`/\`→ AM\`/
+\`→ NM\` names the surface grade and the licensing rule; \`→ radical\` names
+the reason — \`no-license\` (no rule is in force at that position),
+\`veto:no-reflex blocks …\` (a rule is in force, but the word's initial has no
+reflex under the grade it governs; the blocked rule is named), or
 \`veto:immutable blocks …\` (the word is lexically immutable; the blocked rule
 is named). \`⟨N f sg⟩\` gives category and features; \`lemma=\` distinguishes
 homographs (the two *yn*, the two *ei*); \`gap:NP\` is an extraction site. In
-the Welsh text, \`°\` marks a soft-mutated word. Annotations appear on *every*
+the Welsh text, \`°\` marks a soft-mutated word; aspirate and nasal shapes
+(*nghath*, *cheffyl*) are written plain — every mutated form on the line,
+whatever its grade, is derived from the verdict and asserted at build time,
+never authored. Annotations appear on *every*
 word, so incidental facts (the colloquial mutation of the clause-initial verb,
 exemptions on function words) are visible alongside each example's point.
 ${S(3, 'Contact triggers')}
@@ -209,7 +222,8 @@ ${S(6, 'Vetoes')}
 Two ways a word can be exempt no matter what licenses it: a per-lexeme
 immutability flag (King §12: fixed mutations like *beth*; personal names;
 g-initial loanwords; miscellaneous grammatical words), and the absence of any
-SM reflex for the word's initial (vowels, *n-*, *s-*, *ch-*, *ff-* …, King §5a).
+reflex for the word's initial under the governed grade (vowels, *n-*, *s-*,
+*ch-*, *ff-* … under SM, King §5a; *ll-/rh-* under the limited-SM grade).
 The two are distinguished throughout because they are different theoretical
 claims: one is lexical listing, the other phonological vacuity.
 

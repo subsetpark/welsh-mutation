@@ -1,10 +1,10 @@
 /**
- * The judge (WORKSTREAM M6): compose analyze → tag → chunk → sm() into
- * per-token verdicts with observed-vs-predicted agreement. Pure module; the
- * CLI formats what this returns.
+ * The judge (WORKSTREAM M6): compose analyze → tag → chunk → mutation()
+ * into per-token full-grade verdicts with observed-vs-predicted agreement.
+ * Pure module; the CLI formats what this returns.
  *
- * Agreement semantics are the theory's own — see agreesWithObserved in
- * theory/predicate.ts; this module only applies them per reading.
+ * Agreement semantics are the theory's own — see agreesWithObservedGrade
+ * in theory/predicate.ts; this module only applies them per reading.
  *
  * Ambiguity propagates two ways (ratified policy):
  * - a token's own retained readings are each judged (fan → fan/man/ban);
@@ -34,8 +34,7 @@ export interface ReadingVerdict {
   person?: '0' | '1' | '2' | '3'
   /** Set when the verdict assumes one reading of an ambiguous predecessor. */
   prevLemma?: string
-  /** Full-grade verdict (theory/predicate.ts mutation()); the report's
-   *  sm() is its SM projection and stays untouched. */
+  /** Full-grade verdict (theory/predicate.ts mutation()). */
   verdict: MutationResult
   /** Surface form predicted under this verdict — correct Welsh across all
    *  grades (fy nghath, ei chath, ei hiaith), not just SM. */

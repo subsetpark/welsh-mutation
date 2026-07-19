@@ -20,11 +20,12 @@
  * Three grades, one asymmetry. Soft mutation (SM, the traditional
  * 'lenition') touches nine initials; aspirate (AM, 'spirantization') only
  * the voiceless stops c/p/t; nasal (NM) six. Because SM has by far the
- * widest domain and the most intricate grammar, the predictive account in
- * this directory is SM-only in its public verdicts — but the orthography
- * of all three grades is stated here, once, because AM/NM shapes appear in
- * attested text and anything reading or writing Welsh must know them.
- * (King §4 soft, §7 nasal, §8 aspirate; §5a for the participating
+ * widest domain and the most intricate grammar, soft mutation is the
+ * account's primary subject; the licensing calculus (§5) resolves the
+ * full grade system, and the orthography of all three grades is stated
+ * here, once, because AM/NM shapes appear in attested text and anything
+ * reading or writing Welsh must know them.
+ * (King §4 tabulates all three grades; §5a lists the participating
  * initials.)
  *
  * Two orthographic subtleties recur everywhere downstream:
@@ -43,21 +44,25 @@
  *   and any inverse must be a derived, candidate-generating operation.
  *
  * One rider: H-PROTHESIS. A few triggers (ei 'her', ein 'our', eu 'their')
- * prefix h- to a following vowel (ei hiaith 'her language' ← iaith). It is
- * not one of the three grades, but it patterns with aspirate-mutation
- * contexts, so this account files it as AM's reflex on vowels. It demands
+ * prefix h- to a following vowel (ei hiaith 'her language' ← iaith —
+ * King §109: required in the standard written language, inconsistent in
+ * speech). It is not one of the three grades, but it patterns with
+ * aspirate-mutation contexts, so this account files it as AM's reflex on
+ * vowels. It demands
  * a radical of at least two letters: the single-vowel words (i, o, y) are
  * function words that are never possessed, and *"ei hi" is not Welsh.
  *
  * This file is the SINGLE statement of these facts. The surface renderer
- * (§8) reads SM forward from here; the processing pipeline outside this
- * directory derives its de-mutation candidate maps from GRADE_ORTH rather
- * than stating inverses of its own. The predicate (§5) never consults this
- * file at all — deciding WHETHER a word mutates requires only the
- * equivalence class of its initial (InitClass, §2), never the letters.
+ * (§8) realizes verdict grades through applyGrade below; the processing
+ * pipeline outside this directory derives its de-mutation candidate maps
+ * from GRADE_ORTH rather than stating inverses of its own. The predicate (§5) consults only the
+ * DOMAINS of these maps — which initials respond to which grade — never
+ * the letters: deciding WHETHER a word mutates requires only the
+ * equivalence class of its initial (InitClass, §2), and §5's reflex table
+ * derives those domains from here rather than restating them.
  */
 
-import type { InitClass } from './types.ts'
+import type { AMTarget, InitClass, NMTarget, SMTarget } from './types.ts'
 
 /** The three surface mutation grades. The richer vocabulary a trigger may
  *  govern (SM-ltd, mixed — §2) consists of restrictions over these three,
@@ -66,11 +71,18 @@ export type MutationGrade = 'SM' | 'AM' | 'NM'
 
 export const VOWEL = /^[aeiouwyâêîôûŵŷáéíóúàèìòù]/
 
-/** Radical initial segment → its written form under each grade. SM's g-row
- *  is deletion (gardd → ardd); every segment absent from a grade's row has
- *  no reflex under that grade — AM touches only the voiceless stops, NM
- *  only the stops. Note the SM collisions (b→f, m→f) discussed above. */
-export const GRADE_ORTH: Record<MutationGrade, Record<string, string>> = {
+/** Radical initial segment → its written form under each grade (King §4's
+ *  table, verbatim). SM's g-row is deletion (gardd → ardd); every segment
+ *  absent from a grade's row has no reflex under that grade — AM touches
+ *  only the voiceless stops, NM only the stops. Note the SM collisions
+ *  (b→f, m→f) discussed above. Each row is a TOTAL Record over its
+ *  column's target union (§2's AMTarget ⊆ NMTarget ⊆ SMTarget chain), so
+ *  a missing, extra, or misplaced key is a compile error, not a drift. */
+export const GRADE_ORTH: {
+  SM: Record<SMTarget, string>
+  AM: Record<AMTarget, string>
+  NM: Record<NMTarget, string>
+} = {
   SM: { c: 'g', p: 'b', t: 'd', g: '', b: 'f', d: 'dd', ll: 'l', m: 'f', rh: 'r' },
   AM: { c: 'ch', p: 'ph', t: 'th' },
   NM: { c: 'ngh', p: 'mh', t: 'nh', g: 'ng', b: 'm', d: 'n' },
@@ -87,9 +99,14 @@ export function initialSegment(form: string): string {
 }
 
 /** Digraphs that are radical consonants in their own right — never misread
- *  as their first letter (chwech is not c-initial), and without SM reflex. */
+ *  as their first letter (chwech is not c-initial), and without SM reflex
+ *  (King §5a: ch is a separate letter from c; likewise ll/l, rh/r). */
 const RADICAL_DIGRAPHS = ['ch', 'ff', 'th', 'ph', 'ng']
-const MUTABLE_SINGLES = new Set(['c', 'p', 't', 'g', 'b', 'd', 'm'])
+// Derived from the SM row: every initial that responds to ANY grade
+// responds to SM (King §4 — encoded in §2's target chain, where AMTarget
+// and NMTarget are subtypes of SMTarget), so the single-letter SM keys are
+// exactly the mutable singles (ll/rh are the digraph cases above).
+const MUTABLE_SINGLES = new Set(Object.keys(GRADE_ORTH.SM).filter(k => k.length === 1))
 
 /** Orthography-derived InitClass of a RADICAL form (King §5a): the
  *  equivalence class that is ALL the predicate ever needs to know about a
@@ -122,17 +139,21 @@ export function applyGrade(form: string, grade: MutationGrade): string {
   if (grade === 'AM' && VOWEL.test(seg) && lower.length >= 2) {
     return matchCase(form, 'h' + lower) // h-prothesis
   }
-  const repl = GRADE_ORTH[grade][seg]
+  // Widened for lookup: seg is an arbitrary initial segment, and a key
+  // absent from the row means no reflex.
+  const orth: Partial<Record<string, string>> = GRADE_ORTH[grade]
+  const repl = orth[seg]
   if (repl === undefined) return form
   return matchCase(form, repl + lower.slice(seg.length))
 }
 
-/** Soft mutation keyed by the Lexeme's InitClass — the form the surface
- *  renderer (§8) writes when the predicate fires. Equivalent to
- *  applyGrade(form, 'SM') whenever the class matches the orthography; kept
+/** Soft mutation keyed by the Lexeme's InitClass. Equivalent to
+ *  applyGrade(form, 'SM') whenever the class matches the orthography;
  *  class-keyed because a Lexeme carries its class, not its letters. */
 export function softMutate(form: string, initClass: InitClass): string {
-  const repl = GRADE_ORTH.SM[initClass]
-  if (repl === undefined) return form // 'v' and 'other': no soft reflex
+  // Widened from SMTarget to InitClass: 'v' and 'other' have no soft reflex.
+  const orth: Partial<Record<InitClass, string>> = GRADE_ORTH.SM
+  const repl = orth[initClass]
+  if (repl === undefined) return form
   return matchCase(form, repl + form.slice(initClass.length))
 }

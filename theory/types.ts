@@ -2,10 +2,11 @@
  * §2 — THE SHAPE OF THE THEORY: what a predictive account must look like
  * ======================================================================
  *
- * A theory of soft mutation owes, for every token of every sentence, a
- * verdict — mutates or not — and a REASON. The empirical landscape it must
- * cover is, by research consensus, heterogeneous. Three subsystems share
- * the one exponent described in §1:
+ * A theory of mutation owes, for every token of every sentence, a
+ * verdict — the surface grade the environment imposes, or none — and a
+ * REASON. The empirical landscape it must cover is, by research
+ * consensus, heterogeneous. Three subsystems share the exponents
+ * described in §1:
  *
  *   1. CONTACT TRIGGERS (King §9): a closed, arbitrary list of words that
  *      mutate the word immediately following them — the preposition i, the
@@ -14,7 +15,7 @@
  *      list is data (§3), and each member carries a small FRAME saying
  *      what grade it governs and under what target conditions.
  *
- *   2. GENDER (King §§28, 100): feminine singular nouns mutate after the
+ *   2. GENDER (King §§28, 102): feminine singular nouns mutate after the
  *      article (y gath), and their modifiers mutate after them — even
  *      non-adjacent ones, y ferch fach WEN — so this subsystem cannot ride
  *      on string adjacency and needs resolved agreement facts instead.
@@ -45,15 +46,25 @@
  *   yn.pred and mor govern this narrower grade (King §9): y LLONG stays
  *   radical where y GATH softens.
  * - 'mixed' (King §10) splits by initial: aspirate on c/p/t, soft on the
- *   rest. The negative markers ni/na/oni govern it. A public API that is
- *   SM-only STILL cannot collapse mixed into AM or SM, because mixed
- *   licenses SM for some initials and not others — collapsing would
- *   misclassify every negative clause.
+ *   rest. The negative markers ni/na/oni govern it. It cannot be
+ *   collapsed into AM or SM, because it realizes AM on some initials and
+ *   SM on others — collapsing would misclassify every negative clause.
  * - 'none' marks words POSITIVELY known not to trigger (pob, mewn, os…).
  *   Absence is data: a lemma with a none-frame was considered and
  *   rejected, not overlooked.
  */
 export type Grade = 'SM' | 'SM-ltd' | 'AM' | 'NM' | 'mixed' | 'none'
+
+/** King §4's column structure, stated as a subtype chain: AM touches the
+ *  voiceless stops; NM those plus the voiced stops; SM all six stops plus
+ *  the sonorants m/ll/rh (ll/rh being the pair the SM-ltd triggers spare).
+ *  §1's GRADE_ORTH rows are TOTAL Records over exactly these unions, so
+ *  the table's shape is compiler-enforced: a row missing one of its
+ *  column's initials, growing a key outside it, or violating
+ *  AM ⊆ NM ⊆ SM cannot typecheck. */
+export type AMTarget = 'c' | 'p' | 't'
+export type NMTarget = AMTarget | 'g' | 'b' | 'd'
+export type SMTarget = NMTarget | 'm' | 'll' | 'rh'
 
 /** Equivalence class of a lexeme's initial segment — everything the
  *  predicate ever knows about a word's shape (the letters live in §1).
@@ -62,12 +73,7 @@ export type Grade = 'SM' | 'SM-ltd' | 'AM' | 'NM' | 'mixed' | 'none'
  *  full-grade predicate must tell them apart from the truly inert
  *  initials. `other` = no reflex under ANY grade: s-, n-, h-, f-, and the
  *  radical digraphs ch-/ff-/th- (King §5a). */
-export type InitClass =
-  | 'c' | 'p' | 't'          // SM + AM targets
-  | 'g' | 'b' | 'd' | 'm'    // SM (b, d, m also NM targets)
-  | 'll' | 'rh'              // SM only, spared by SM-ltd triggers
-  | 'v'                      // vowels: AM contexts realize as h-prothesis
-  | 'other'
+export type InitClass = SMTarget | 'v' | 'other'
 
 /** Category matters to mutation in specific, attested ways: trigger frames
  *  restrict by it (neu° spares finite verbs), the v1 positions apply only
@@ -114,10 +120,14 @@ export type Register = 'colloquial' | 'literary'
  *  contexts where mutation attaches to a POSITION rather than to any
  *  preceding element. A word is judged against at most one. */
 export type PositionTag =
-  | 'adv-np'         // NP as time/manner adverbial (King 11b)
-  | 'vocative'       // King 11c
-  | 'v1-finite-aff'  // clause-initial inflected verb, colloquial (King 11d)
-  | 'v1-finite-neg'  // negative inflected verb: mixed mutation (King §10)
+  // NP as time/manner adverbial (King §11b, §403)
+  | 'adv-np'
+  // King §11c
+  | 'vocative'
+  // clause-initial inflected verb, colloquial (King §11d)
+  | 'v1-finite-aff'
+  // negative inflected verb: mixed mutation (King §10)
+  | 'v1-finite-neg'
 
 /**
  * THE EVIDENCE RECORD. The Trigger Constraint bounds what may appear here,
@@ -179,14 +189,23 @@ export interface TriggerFrame {
  *  letting a test assert not merely THAT a word mutates but that it
  *  mutates for the claimed reason. */
 export type RuleId =
-  | `lex:${string}`      // contact trigger, by lemma
-  | 'gend:art-fem-sg'    // y/yr/'r + fem sg noun
-  | 'gend:un-fem-sg'     // un + fem sg noun
-  | 'gend:agr-mod'       // modifier agreeing with fem sg controller
-  | 'synt:xp-edge'       // XPTH (DOM, post-intrusive)
+  // contact trigger, by lemma (King §9; per-frame refs in triggers.json)
+  | `lex:${string}`
+  // y/yr/'r + fem sg noun (King §28)
+  | 'gend:art-fem-sg'
+  // un + fem sg noun (King §162a)
+  | 'gend:un-fem-sg'
+  // modifier agreeing with fem sg controller (King §102)
+  | 'gend:agr-mod'
+  // XPTH (Harlow 1989; Borsley 1997; Tallerman 2006); King §11a/e, §14
+  | 'synt:xp-edge'
+  // King §11b, §403
   | 'synt:adv-np'
+  // King §11c
   | 'synt:vocative'
+  // King §11d
   | 'synt:v1-aff'
+  // King §10
   | 'synt:v1-neg-mixed'
 
 export type NoMutationReason =
@@ -194,31 +213,19 @@ export type NoMutationReason =
   | 'veto:no-reflex'     // initClass has no SM reflex (King §5a)
   | 'no-license'
 
-/** The verdict. A mutating result names every rule that licensed it (a
- *  token can be multiply licensed). A non-mutating result distinguishes
- *  three situations a bare boolean would conflate: nothing fired
- *  (no-license — the possessor-immunity case), something fired but the
- *  word is exempt (veto:immutable), or something fired but this initial
- *  has no soft reflex (veto:no-reflex). */
-export type SMResult =
-  | { mutates: true; licensedBy: RuleId[] }
-  /** Both vetoes report counterfactually: `suppressed` lists the rules the
-   *  veto actually blocked (veto:immutable — rules that fired on this
-   *  initial; veto:no-reflex — SM-yielding rules that would fire on some
-   *  mutable initial). An idle veto reports plain `no-license`, since
-   *  removing it would change nothing. */
-  | { mutates: false; reason: NoMutationReason; suppressed?: RuleId[] }
-
-/** The FULL-GRADE verdict — the generalization of which SMResult is the
- *  soft-mutation projection. The same licensing calculus (§5) resolves
- *  each fired rule's governed grade against the target's initial and
- *  reports the surface grade that results: fy + cath is grade NM, ei(f) +
- *  cath grade AM, ei(f) + iaith grade AM realized as h-prothesis. The
- *  report and the sm() contract are deliberately SM-only (the theory's
- *  charter); this type exists so the application can EMIT correct Welsh —
- *  a predicted line that wrote *fy cath would be ungrammatical — and so
- *  agreement with attested text can be checked per grade instead of
- *  treating every non-SM observation as vacuously consistent. */
+/** The verdict. The licensing calculus (§5) resolves each fired rule's
+ *  governed grade against the target's initial and reports the surface
+ *  grade that results: fy + cath is grade NM, ei(f) + cath grade AM,
+ *  ei(f) + iaith grade AM realized as h-prothesis. A mutating result
+ *  names every rule that licensed the winning grade (a token can be
+ *  multiply licensed). A grade-none result distinguishes three situations
+ *  a bare 'none' would conflate: nothing fired (no-license — the
+ *  possessor-immunity case), something fired but the word is exempt
+ *  (veto:immutable), or something fired but this initial has no reflex
+ *  under the governed grade (veto:no-reflex). Both vetoes report
+ *  counterfactually: `suppressed` lists the rules the veto actually
+ *  blocked, and an idle veto reports plain `no-license`, since removing
+ *  it would change nothing. */
 export type MutationResult =
   | { grade: 'SM' | 'AM' | 'NM'; licensedBy: RuleId[] }
   | { grade: 'none'; reason: NoMutationReason; suppressed?: RuleId[] }

@@ -38,9 +38,11 @@ export const LEXICON = {
   para: { id: 'para', cat: 'V', initClass: 'p' },
   prynodd: { id: 'prynu', cat: 'V', initClass: 'p' },
   dod: { id: 'dod', cat: 'V', initClass: 'd' },
-  roedd: { id: 'bod', cat: 'V', initClass: 'other' }, // r- is not rh-
+  // r- is not rh-
+  roedd: { id: 'bod', cat: 'V', initClass: 'other' },
   aeth: { id: 'mynd', cat: 'V', initClass: 'v' },
-  mae: { id: 'mae', cat: 'V', initClass: 'other', immutable: true }, // King §12b
+  // immutable: King §12b
+  mae: { id: 'mae', cat: 'V', initClass: 'other', immutable: true },
 
   // ─── imperatives (resist v1 and neu°, King §512) ───
   dewch: { id: 'dod', cat: 'Vimp', initClass: 'd' },
@@ -73,12 +75,14 @@ export const LEXICON = {
   llong: { id: 'llong', cat: 'N', gender: 'f', number: 'sg', initClass: 'll' },
   gorsaf: { id: 'gorsaf', cat: 'N', gender: 'f', number: 'sg', initClass: 'g' },
   blynedd: { id: 'blynedd', cat: 'N', gender: 'f', number: 'sg', initClass: 'b' },
-  gem: { id: 'gêm', cat: 'N', gender: 'f', number: 'sg', initClass: 'g', immutable: true }, // King §12e
+  // immutable g-initial loanword: King §12e
+  gem: { id: 'gêm', cat: 'N', gender: 'f', number: 'sg', initClass: 'g', immutable: true },
   ysgol: { id: 'ysgol', cat: 'N', gender: 'f', number: 'sg', initClass: 'v' },
 
   // ─── other nominals ───
   rhaid: { id: 'rhaid', cat: 'N', initClass: 'rh' },
-  Mair: { id: 'Mair', cat: 'N', initClass: 'm', immutable: true },     // personal name, King §12d
+  // personal names do not mutate: King §12d
+  Mair: { id: 'Mair', cat: 'N', initClass: 'm', immutable: true },
   Emrys: { id: 'Emrys', cat: 'N', initClass: 'v', immutable: true },
   Dafydd: { id: 'Dafydd', cat: 'N', initClass: 'd', immutable: true },
 
@@ -103,14 +107,17 @@ export const LEXICON = {
   y: { id: 'y', cat: 'Other', initClass: 'other' },
   i: { id: 'i', cat: 'Other', initClass: 'v' },
   i_pron: { id: 'i', cat: 'Other', initClass: 'v' },
-  dy: { id: 'dy', cat: 'Other', initClass: 'd', immutable: true },     // King §12b
+  // immutable: King §12b
+  dy: { id: 'dy', cat: 'Other', initClass: 'd', immutable: true },
   ei: { id: 'ei', cat: 'Other', initClass: 'v' },
   fy: { id: 'fy', cat: 'Other', initClass: 'other' },
-  mor: { id: 'mor', cat: 'Adv', initClass: 'm', immutable: true },     // King §12b
+  // immutable: King §12b
+  mor: { id: 'mor', cat: 'Adv', initClass: 'm', immutable: true },
   neu: { id: 'neu', cat: 'Other', initClass: 'other' },
   pob: { id: 'pob', cat: 'Other', initClass: 'p' },
   pwy: { id: 'pwy', cat: 'Other', initClass: 'p' },
-  ti: { id: 'ti', cat: 'Other', initClass: 't', immutable: true },     // Jones corpus exception list
+  // immutable per the Jones corpus exception list
+  ti: { id: 'ti', cat: 'Other', initClass: 't', immutable: true },
   fi: { id: 'fi', cat: 'Other', initClass: 'other' },
   hi: { id: 'hi', cat: 'Other', initClass: 'other' },
   e: { id: 'e', cat: 'Other', initClass: 'v' },

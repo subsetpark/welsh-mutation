@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { clause, environmentFor, gap, leaf, phrase } from '../theory/tree.ts'
-import { sm } from '../theory/predicate.ts'
+import { mutation } from '../theory/predicate.ts'
 import { renderSurface } from '../theory/surface.ts'
 import { LEXICON as L } from '../theory/lexicon.ts'
 import type { Lexeme, Register } from '../theory/types.ts'
@@ -11,7 +11,7 @@ import { chunk } from '../pipeline/chunk.ts'
 import { LEX } from './fixture-lexicon.ts'
 
 function verdict(root: ReturnType<typeof clause>, path: number[], lexeme: Lexeme, reg: Register) {
-  return sm(lexeme, environmentFor(root, path, reg))
+  return mutation(lexeme, environmentFor(root, path, reg))
 }
 
 test('DoD-9 shape: dom-basic judged both ways — only the v1 verdict differs', () => {
@@ -24,14 +24,14 @@ test('DoD-9 shape: dom-basic judged both ways — only the v1 verdict differs', 
   const t = dom()
 
   const collV = verdict(t, [0], L.gweld, 'colloquial')
-  assert.deepEqual(collV, { mutates: true, licensedBy: ['synt:v1-aff'] })
+  assert.deepEqual(collV, { grade: 'SM', licensedBy: ['synt:v1-aff'] })
   const litV = verdict(t, [0], L.gweld, 'literary')
-  assert.deepEqual(litV, { mutates: false, reason: 'no-license' })
+  assert.deepEqual(litV, { grade: 'none', reason: 'no-license' })
 
   // object mutation identical in both registers
   for (const reg of ['colloquial', 'literary'] as const) {
     assert.deepEqual(verdict(t, [2, 0], L.ty, reg), {
-      mutates: true, licensedBy: ['synt:xp-edge'],
+      grade: 'SM', licensedBy: ['synt:xp-edge'],
     })
   }
 
@@ -46,10 +46,10 @@ test('amended M5 DoD: hand-authored pro-drop tree judged literary', () => {
     phrase('NP', [leaf(L.draig)]),
   ])
   assert.deepEqual(verdict(t, [0], L.gweld, 'literary'), {
-    mutates: false, reason: 'no-license', // radical verb: no v1 in literary
+    grade: 'none', reason: 'no-license', // radical verb: no v1 in literary
   })
   assert.deepEqual(verdict(t, [2, 0], L.draig, 'literary'), {
-    mutates: true, licensedBy: ['synt:xp-edge'], // the PRO gap's edge
+    grade: 'SM', licensedBy: ['synt:xp-edge'], // the PRO gap's edge
   })
   assert.equal(renderSurface(t, 'literary'), 'gwelais °ddraig')
 })
@@ -57,10 +57,10 @@ test('amended M5 DoD: hand-authored pro-drop tree judged literary', () => {
 test('literary mode suppresses v1-neg (mixed) too; other positions survive', () => {
   const neg = clause('S', [leaf(L.dylu, undefined, 'dylset'), phrase('NP', [leaf(L.ti)])], 'neg')
   assert.deepEqual(verdict(neg, [0], L.dylu, 'colloquial'), {
-    mutates: true, licensedBy: ['synt:v1-neg-mixed'],
+    grade: 'SM', licensedBy: ['synt:v1-neg-mixed'],
   })
   assert.deepEqual(verdict(neg, [0], L.dylu, 'literary'), {
-    mutates: false, reason: 'no-license',
+    grade: 'none', reason: 'no-license',
   })
 
   // vocative and adv-np are register-independent
@@ -69,7 +69,7 @@ test('literary mode suppresses v1-neg (mixed) too; other positions survive', () 
     phrase('NP', [leaf(L.Dafydd)], 'vocative'),
   ])
   const v = verdict(voc, [1, 0], L.Dafydd, 'literary')
-  assert.ok(!v.mutates && v.reason === 'veto:immutable' && v.suppressed?.includes('synt:vocative'))
+  assert.ok(v.grade === 'none' && v.reason === 'veto:immutable' && v.suppressed?.includes('synt:vocative'))
 })
 
 test('M5 audit: a.int (SM, literary interrogative) and oni (mixed) frames', () => {
@@ -81,17 +81,19 @@ test('M5 audit: a.int (SM, literary interrogative) and oni (mixed) frames', () =
   ])
   for (const reg of ['colloquial', 'literary'] as const) {
     assert.deepEqual(verdict(q, [1], L.dod, reg), {
-      mutates: true, licensedBy: ['lex:a.int'], // particle present ⇒ no v1
+      grade: 'SM', licensedBy: ['lex:a.int'], // particle present ⇒ no v1
     })
   }
 
   const oni: Lexeme = { id: 'oni', cat: 'Other', initClass: 'other' }
   const oq = clause('S', [leaf(oni), leaf(L.dod, undefined, 'daw')], 'neg')
   assert.deepEqual(verdict(oq, [1], L.dod, 'literary'), {
-    mutates: true, licensedBy: ['lex:oni'], // mixed: SM on d-
+    grade: 'SM', licensedBy: ['lex:oni'], // mixed: SM on d-
   })
   const oc = clause('S', [leaf(oni), leaf(L.colli, undefined, 'collith')], 'neg')
-  assert.equal(verdict(oc, [1], L.colli, 'literary').mutates, false) // mixed: AM claims c-
+  assert.deepEqual(verdict(oc, [1], L.colli, 'literary'), {
+    grade: 'AM', licensedBy: ['lex:oni'], // mixed: AM claims c-
+  })
 })
 
 test('full pipeline, literary question: A welodd hi ddraig?', () => {
@@ -100,11 +102,11 @@ test('full pipeline, literary question: A welodd hi ddraig?', () => {
 
   const draigPath = [3, 0] // S[a.int gwelodd NP[hi] NP[draig]]
   const gwelodd = leaves[1]!.leaf
-  assert.deepEqual(sm(gwelodd.lexeme, environmentFor(root, [1], 'literary')), {
-    mutates: true, licensedBy: ['lex:a.int'],
+  assert.deepEqual(mutation(gwelodd.lexeme, environmentFor(root, [1], 'literary')), {
+    grade: 'SM', licensedBy: ['lex:a.int'],
   })
-  assert.deepEqual(sm(leaves[3]!.leaf.lexeme, environmentFor(root, draigPath, 'literary')), {
-    mutates: true, licensedBy: ['synt:xp-edge'],
+  assert.deepEqual(mutation(leaves[3]!.leaf.lexeme, environmentFor(root, draigPath, 'literary')), {
+    grade: 'SM', licensedBy: ['synt:xp-edge'],
   })
   assert.equal(renderSurface(root, 'literary'), 'a °welodd hi °ddraig')
 })

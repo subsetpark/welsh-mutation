@@ -4,7 +4,10 @@
 **Scope.** Prescriptive standard modern **colloquial** Welsh, with Gareth King's
 *Modern Welsh: A Comprehensive Grammar* (3rd ed., 2016) as the normative
 reference. The account is strictly **predictive**: given a word and its
-grammatical context, does it exhibit soft mutation (SM)? Real spoken usage is
+grammatical context, does it exhibit soft mutation (SM)? The licensing
+calculus resolves the full grade system, so aspirate (AM) and nasal (NM)
+outcomes — which pre-empt SM — are predicted and asserted alongside it in
+every example below. Real spoken usage is
 not categorical (Jones, n.d.; Knight et al. 2020) — §7 records where prescription
 and usage genuinely diverge. The phonological *content* of mutation (t→d, p→b,
 c→g, …) is taken as opaque throughout; only the *trigger conditions* are at
@@ -47,14 +50,18 @@ the word's own resolved features.
 ## 2. Reading the analyses
 
 Each example shows a constituent analysis; numbers on the branches index a
-node's daughters. Every word is annotated with its outcome: `→ SM` names the
-licensing rule; `→ radical` names the reason — `no-license` (no rule is in
-force at that position), `veto:no-reflex blocks …` (a rule is in force, but
-the word's initial has no soft-mutation reflex; the blocked rule is named), or
+node's daughters. Every word is annotated with its outcome: `→ SM`/`→ AM`/
+`→ NM` names the surface grade and the licensing rule; `→ radical` names
+the reason — `no-license` (no rule is in force at that position),
+`veto:no-reflex blocks …` (a rule is in force, but the word's initial has no
+reflex under the grade it governs; the blocked rule is named), or
 `veto:immutable blocks …` (the word is lexically immutable; the blocked rule
 is named). `⟨N f sg⟩` gives category and features; `lemma=` distinguishes
 homographs (the two *yn*, the two *ei*); `gap:NP` is an extraction site. In
-the Welsh text, `°` marks a soft-mutated word. Annotations appear on *every*
+the Welsh text, `°` marks a soft-mutated word; aspirate and nasal shapes
+(*nghath*, *cheffyl*) are written plain — every mutated form on the line,
+whatever its grade, is derived from the verdict and asserted at build time,
+never authored. Annotations appear on *every*
 word, so incidental facts (the colloquial mutation of the clause-initial verb,
 exemptions on function words) are visible alongside each example's point.
 
@@ -99,15 +106,15 @@ NP
 └─2 e ⟨Other⟩ → radical (no-license)
 ```
 
-> As `ei.3sgf` the governed grade is AM: the same position shows `radical (no-license)` — 'her' never soft-mutates.
+> As `ei.3sgf` the governed grade is AM: the same position shows `AM (lex:ei.3sgf)` — 'her' never soft-mutates.
 
 **fy nghath**  
-'my cat' — fy governs NM, so soft mutation is correctly withheld (King §110)
+'my cat' — fy governs NM (King §110); the nasal shape nghath is derived from the verdict, and soft mutation is correctly withheld
 
 ```text
 NP
 ├─0 fy ⟨Other⟩ → radical (no-license)
-└─1 nghath ⟨N f sg⟩ → radical (no-license)
+└─1 cath ⟨N f sg⟩ → NM (lex:fy)
 ```
 
 **mor °fach — mor llawn**  
@@ -119,15 +126,15 @@ AP
 └─1 bach ⟨Adj⟩ → SM (lex:mor)
 ```
 
-> Substituting llawn (ll-) at the same position yields `radical (no-license)`: the SM-ltd grade has no reflex for ll-/rh-.
+> Substituting llawn (ll-) at the same position yields `radical (veto:no-reflex blocks lex:mor)`: the SM-ltd grade has no reflex for ll-/rh-.
 
 **mor llawn**  
-'so full' — the ll- target resists the limited-SM trigger
+'so full' — the ll- target resists the limited-SM trigger; the veto reports the silenced rule counterfactually
 
 ```text
 AP
 ├─0 mor ⟨Adv⟩ immutable → radical (no-license)
-└─1 llawn ⟨Adj⟩ → radical (no-license)
+└─1 llawn ⟨Adj⟩ → radical (veto:no-reflex blocks lex:mor)
 ```
 
 **dwy °gath — tair cath**  
@@ -149,12 +156,12 @@ NP
 ```
 
 **chwe cheffyl**  
-'six horses' — chwe governs AM, never SM (King §162e)
+'six horses' — chwe governs AM, never SM (King §162e); cheffyl is derived from the verdict
 
 ```text
 NP
 ├─0 chwe ⟨Num⟩ → radical (no-license)
-└─1 cheffyl ⟨N m sg⟩ → radical (no-license)
+└─1 ceffyl ⟨N m sg⟩ → AM (lex:chwe)
 ```
 
 **chwe mlynedd — dwy °flynedd**  
@@ -163,10 +170,10 @@ NP
 ```text
 NP
 ├─0 chwe ⟨Num⟩ → radical (no-license)
-└─1 mlynedd ⟨N f sg⟩ → radical (no-license)
+└─1 blynedd ⟨N f sg⟩ → NM (lex:chwe)
 ```
 
-> chwe governs two distinct conditions: AM generally, NM restricted to blwydd/blynedd/diwrnod. Neither yields SM. dwy °flynedd (example above) shows the same noun soft-mutating after a genuine SM trigger.
+> chwe governs two distinct conditions: AM generally, NM restricted to blwydd/blynedd/diwrnod. On blynedd only the NM frame has a reflex. Neither yields SM. dwy °flynedd (example above) shows the same noun soft-mutating after a genuine SM trigger.
 
 **hen °ddyn**  
 'an old man' — prenominal adjectives govern SM (King §96)
@@ -238,12 +245,12 @@ NP
 ```
 
 **y llong**  
-'the ship' — feminine singular in ll- resists the article (King §28 note b)
+'the ship' — feminine singular in ll- resists the article (King §28 note b): the frame fires, ll- has no reflex under its limited grade
 
 ```text
 NP
 ├─0 y ⟨Other⟩ → radical (no-license)
-└─1 llong ⟨N f sg⟩ → radical (no-license)
+└─1 llong ⟨N f sg⟩ → radical (veto:no-reflex blocks gend:art-fem-sg)
 ```
 
 **y cathod**  
@@ -411,7 +418,7 @@ S
    ├─1 PP
    │  ├─0 yn ⟨Other⟩ lemma=yn.loc → radical (no-license)
    │  └─1 NP
-   │     ├─0 y ⟨Other⟩ → radical (no-license)
+   │     ├─0 y ⟨Other⟩ → radical (veto:no-reflex blocks lex:yn.loc)
    │     └─1 tre ⟨N f sg⟩ → SM (gend:art-fem-sg)
    └─2 NP
       └─0 beic ⟨N m sg⟩ → SM (synt:xp-edge)
@@ -482,11 +489,11 @@ S (neg)
 ```
 
 **Pharith hi °ddim**  
-'It won't last' — the negative v1 grade is MIXED: AM on p-, so no soft mutation; the grade tracks the dropped particle ni (King §10)
+'It won't last' — the negative v1 grade is MIXED: AM on p-, so no soft mutation; the grade tracks the dropped particle ni (King §10), and pharith is derived from the radical parith
 
 ```text
 S (neg)
-├─0 pharith ⟨V⟩ → radical (no-license)
+├─0 parith ⟨V⟩ → AM (synt:v1-neg-mixed)
 ├─1 NP
 │  └─0 hi ⟨Other⟩ → radical (no-license)
 └─2 dim ⟨Prt⟩ → SM (synt:xp-edge)
@@ -533,7 +540,8 @@ S
 Two ways a word can be exempt no matter what licenses it: a per-lexeme
 immutability flag (King §12: fixed mutations like *beth*; personal names;
 g-initial loanwords; miscellaneous grammatical words), and the absence of any
-SM reflex for the word's initial (vowels, *n-*, *s-*, *ch-*, *ff-* …, King §5a).
+reflex for the word's initial under the governed grade (vowels, *n-*, *s-*,
+*ch-*, *ff-* … under SM, King §5a; *ll-/rh-* under the limited-SM grade).
 The two are distinguished throughout because they are different theoretical
 claims: one is lexical listing, the other phonological vacuity.
 

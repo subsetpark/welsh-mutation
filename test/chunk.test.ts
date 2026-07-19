@@ -5,9 +5,9 @@ import { tag } from '../pipeline/tagger.ts'
 import { chunk } from '../pipeline/chunk.ts'
 import { LEX } from './fixture-lexicon.ts'
 import { environmentFor, type Leaf, type TreeNode, type TreePath } from '../theory/tree.ts'
-import { sm } from '../theory/predicate.ts'
+import { mutation } from '../theory/predicate.ts'
 import { renderSurface } from '../theory/surface.ts'
-import type { SMResult } from '../theory/types.ts'
+import type { MutationResult } from '../theory/types.ts'
 
 const parse = (text: string) => chunk(tag(analyze(text, LEX), LEX))
 
@@ -29,8 +29,8 @@ const ser = (n: TreeNode): string => {
   }
 }
 
-/** sm() verdict for the nth leaf satisfying pred (default: by lexeme id). */
-function judge(root: TreeNode, id: string, nth = 0): SMResult {
+/** mutation() verdict for the nth leaf satisfying pred (default: by lexeme id). */
+function judge(root: TreeNode, id: string, nth = 0): MutationResult {
   const hits: { leaf: Leaf; path: TreePath }[] = []
   const walk = (node: TreeNode, path: TreePath) => {
     if (node.kind === 'leaf') {
@@ -43,7 +43,7 @@ function judge(root: TreeNode, id: string, nth = 0): SMResult {
   walk(root, [])
   const hit = hits[nth]
   assert.ok(hit, `no leaf ${id}#${nth}`)
-  return sm(hit.leaf.lexeme, environmentFor(root, hit.path))
+  return mutation(hit.leaf.lexeme, environmentFor(root, hit.path))
 }
 
 /** Every tagger-gold sentence, path-exact (M4 DoD), plus the classic set. */
@@ -116,69 +116,70 @@ test(`chunker gold trees: ${TREES.length} sentences, path-exact`, () => {
 test('the contract holds: environmentFor + sm consume chunker output', () => {
   // DOM: object licensed by the subject NP's right edge
   const dom = parse('Gwelodd y dyn ddyn').root
-  assert.deepEqual(judge(dom, 'dyn', 1), { mutates: true, licensedBy: ['synt:xp-edge'] })
-  assert.deepEqual(judge(dom, 'dyn', 0).mutates, false)
+  assert.deepEqual(judge(dom, 'dyn', 1), { grade: 'SM', licensedBy: ['synt:xp-edge'] })
+  assert.deepEqual(judge(dom, 'dyn', 0).grade, 'none')
 
   // pro-drop: the PRO gap's edge licenses the object (amended DoD-11)
   const pro = parse('Gwelais ddraig').root
-  assert.deepEqual(judge(pro, 'draig'), { mutates: true, licensedBy: ['synt:xp-edge'] })
+  assert.deepEqual(judge(pro, 'draig'), { grade: 'SM', licensedBy: ['synt:xp-edge'] })
 
   // impersonal: no gap, object radical with NO license (amended DoD-12)
   const imp = parse('Gwelwyd dyn').root
-  assert.deepEqual(judge(imp, 'dyn'), { mutates: false, reason: 'no-license' })
+  assert.deepEqual(judge(imp, 'dyn'), { grade: 'none', reason: 'no-license' })
 
   // wh: fronted wh-phrase licenses the verb; the gap licenses the object
   const wh = parse('Pwy welodd ddraig?').root
-  assert.deepEqual(judge(wh, 'gweld'), { mutates: true, licensedBy: ['synt:xp-edge'] })
-  assert.deepEqual(judge(wh, 'draig'), { mutates: true, licensedBy: ['synt:xp-edge'] })
+  assert.deepEqual(judge(wh, 'gweld'), { grade: 'SM', licensedBy: ['synt:xp-edge'] })
+  assert.deepEqual(judge(wh, 'draig'), { grade: 'SM', licensedBy: ['synt:xp-edge'] })
 
   // fronted object: radical (nothing precedes); verb takes the XP edge
   const fr = parse('Beic brynodd y ddynes').root
-  assert.equal(judge(fr, 'beic').mutates, false)
-  assert.deepEqual(judge(fr, 'prynu'), { mutates: true, licensedBy: ['synt:xp-edge'] })
+  assert.equal(judge(fr, 'beic').grade, 'none')
+  assert.deepEqual(judge(fr, 'prynu'), { grade: 'SM', licensedBy: ['synt:xp-edge'] })
 
   // possessor immunity vs the possessor's inside
   assert.deepEqual(judge(parse('cath merch').root, 'merch'), {
-    mutates: false, reason: 'no-license',
+    grade: 'none', reason: 'no-license',
   })
   assert.deepEqual(judge(parse('canol y dre').root, 'tre'), {
-    mutates: true, licensedBy: ['gend:art-fem-sg'],
+    grade: 'SM', licensedBy: ['gend:art-fem-sg'],
   })
 
   // adjective chains: masc radical via NP-internal exclusion; fem agreement
   assert.deepEqual(judge(parse('ci mawr coch').root, 'coch'), {
-    mutates: false, reason: 'no-license',
+    grade: 'none', reason: 'no-license',
   })
   const fem = parse('y ferch fach wen').root
-  assert.deepEqual(judge(fem, 'bach'), { mutates: true, licensedBy: ['gend:agr-mod'] })
-  assert.deepEqual(judge(fem, 'gwyn'), { mutates: true, licensedBy: ['gend:agr-mod'] })
+  assert.deepEqual(judge(fem, 'bach'), { grade: 'SM', licensedBy: ['gend:agr-mod'] })
+  assert.deepEqual(judge(fem, 'gwyn'), { grade: 'SM', licensedBy: ['gend:agr-mod'] })
 
   // vocative on an immutable name: veto reports the suppressed license
   const voc = judge(parse('Bore da, Mair').root, 'Mair')
-  assert.equal(voc.mutates, false)
-  assert.ok(!voc.mutates && voc.reason === 'veto:immutable')
-  assert.ok(!voc.mutates && voc.suppressed?.includes('synt:vocative'))
+  assert.ok(voc.grade === 'none' && voc.reason === 'veto:immutable')
+  assert.ok(voc.grade === 'none' && voc.suppressed?.includes('synt:vocative'))
 
   // adverbial time-NP
   assert.deepEqual(judge(parse('Ddydd Sadwrn aeth hi adre').root, 'dydd'), {
-    mutates: true, licensedBy: ['synt:adv-np'],
+    grade: 'SM', licensedBy: ['synt:adv-np'],
   })
 
   // subordinator shields clause-initial v1
-  assert.equal(judge(parse('Os daw e').root, 'dod').mutates, false)
+  assert.equal(judge(parse('Os daw e').root, 'dod').grade, 'none')
 
   // ddim mutates off the subject XP edge; clause is negative
   const neg = parse('Dyw hi ddim yn mynd')
   assert.equal(neg.root.polarity, 'neg')
-  assert.deepEqual(judge(neg.root, 'dim'), { mutates: true, licensedBy: ['synt:xp-edge'] })
+  assert.deepEqual(judge(neg.root, 'dim'), { grade: 'SM', licensedBy: ['synt:xp-edge'] })
 })
 
-test('renderSurface round-trips chunker trees where all grades are SM-derivable', () => {
+test('renderSurface round-trips chunker trees across all grades', () => {
   assert.equal(renderSurface(parse('Roedd dyn wedi prynu beic').root),
     'roedd dyn wedi prynu beic')
   assert.equal(renderSurface(parse('Roedd dyn wedi prynu yn y dre feic').root),
     'roedd dyn wedi prynu yn y °dre °feic')
   assert.equal(renderSurface(parse('cath merch').root), 'cath merch')
+  // AM/NM shapes are derived from the verdict and written plain
+  assert.equal(renderSurface(parse('fy nghath i').root), 'fy nghath i')
 })
 
 test('token↔leaf correspondence covers every non-punct token in order', () => {

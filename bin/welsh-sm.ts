@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * welsh-sm (WORKSTREAM M6): read natural (attested, mutated) Welsh, annotate
- * every token with the account's soft-mutation verdict.
+ * every token with the account's mutation verdict — a surface grade
+ * (SM/AM/NM) with its licensing rules, or radical with its reason.
  *
  *   welsh-sm [file] [--json | [--predict] [--explain]] [--register colloquial|literary]
  *
@@ -16,11 +17,14 @@
  * provenance beneath whichever line view is active; the two compose.
  * --json is the machine format and already contains everything, so it
  * combines with neither.
+ *
+ * Mutated tokens carry King §7's grade marks: ° soft, ʰ aspirate, ⁿ nasal.
  */
 
 import { readFileSync } from 'node:fs'
 import { loadLexicon } from '../pipeline/lexicon.ts'
 import { judgeText, segment, type JudgedSentence, type JudgedToken } from '../pipeline/judge.ts'
+import type { MutationGrade } from '../theory/orthography.ts'
 import type { Register } from '../theory/types.ts'
 
 // ─── args ───
@@ -79,12 +83,16 @@ const verdictStr = (r: JudgedToken['readings'][number]): string =>
     ? `${r.verdict.grade} (${r.verdict.licensedBy.join(', ')})`
     : `radical (${r.verdict.reason}${r.verdict.suppressed ? ` blocks ${r.verdict.suppressed.join(', ')}` : ''})`
 
+// King §7's mutation marks: ° soft, ʰ aspirate, ⁿ nasal.
+const GRADE_MARK: Record<MutationGrade, string> = { SM: '°', AM: 'ʰ', NM: 'ⁿ' }
+const markOf = (grade: MutationGrade | 'none'): string =>
+  grade === 'none' ? '' : GRADE_MARK[grade]
+
 function defaultToken(t: JudgedToken): string {
   if (t.kind === 'punct' || t.readings.length === 0) return t.surface
   const r = t.readings[0]!
-  const mutated = r.verdict.grade !== 'none'
-  const marked = mutated ? `°${t.surface}` : t.surface
-  const out = r.agrees ? marked : `${t.surface}⟨pred ${mutated ? '°' : ''}${r.predicted}⟩`
+  const mark = markOf(r.verdict.grade)
+  const out = r.agrees ? `${mark}${t.surface}` : `${t.surface}⟨pred ${mark}${r.predicted}⟩`
   return t.ambiguous ? `${out}‽` : out
 }
 
@@ -92,7 +100,7 @@ function defaultToken(t: JudgedToken): string {
 function predictToken(t: JudgedToken): string {
   if (t.kind === 'punct' || t.readings.length === 0) return t.surface
   const r = t.readings[0]!
-  return r.verdict.grade !== 'none' ? `°${r.predicted}` : r.predicted
+  return `${markOf(r.verdict.grade)}${r.predicted}`
 }
 
 function renderPredict(rec: SentenceRecord): string {
