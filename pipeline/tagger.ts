@@ -155,11 +155,12 @@ const RULES: Rule[] = [
   },
   {
     // VSO: a clause-initial token with a verb reading followed by a nominal
-    // or a PP head IS the verb — *bae rhaid and *bae gyda fi are not Welsh
-    // clause shapes, while mae gyda fi… and mae yn yr ardd… are ordinary
-    // bod-clauses. This is the guard-legal way to kill de-mutation
-    // homographs like mae ⇐ NM-of-bae: the evidence is position and
-    // category, never the reading's grade.
+    // or a PP head IS the verb — *cân y bardd as a clause start reads as
+    // the verb, not the noun. Guard-legal: the evidence is position and
+    // category, never the reading's grade. NM/AM de-mutation homographs
+    // (mae ⇐ NM-of-bae) never reach this rule — analyze's licensing filter
+    // rejects their hypotheses wherever no licenser class is adjacent —
+    // so this rule's remaining work is radical and SM-shaped homographs.
     id: 'vso-clause-initial-verb',
     prune(t, ctx) {
       if (ctx.left.length !== 0) return null
