@@ -4,7 +4,10 @@ A formalization of initial-consonant mutation in Welsh, written as a linear,
 readable exposition (`theory/` — start at [`theory/README.md`](theory/README.md)),
 plus a text-processing pipeline that turns the theory into an annotator:
 read attested Welsh, recover each token's radical, judge every mutation, and
-report where the theory and the text disagree.
+report where the theory and the text disagree. Verdicts are full-grade —
+each names the surface grade the environment imposes (soft, aspirate, nasal,
+or none) and the rules that license it, so predicted lines are regenerable
+Welsh (*fy nghath*, never \**fy cath*).
 
 The theory's claims are rendered and *asserted* in the literate report,
 [`REPORT.md`](REPORT.md) — every worked example's verdicts and surface line
@@ -17,18 +20,22 @@ are checked at build time, so the document cannot drift from the program.
 npm install
 npm run ud:fetch && npm run ud:extract     # build the broad lexicon (CC BY-SA 4.0)
 
-echo "Gwelodd y dyn ddraig" | npm run -s cli
+echo "Welodd y dyn ddraig" | npm run -s cli
 # °Welodd y dyn °ddraig
 
 echo "mae rhaid i fi prynu dy cath" | npm run -s cli -- --predict
 # mae rhaid i fi °brynu dy °gath
 
-echo "ei cath hi" | npm run -s cli               # disagreements are flagged
-# ei cath⟨pred °chath⟩ hi
+echo "fy nghath i" | npm run -s cli -- --predict   # King §7 grade marks:
+# fy ⁿnghath i                                     # ° soft, ʰ aspirate, ⁿ nasal
 
-npm run -s cli -- --explain                       # per-token rule provenance
-npm run -s cli -- --json                          # trees, readings, verdicts
-npm run -s cli -- --register literary             # no colloquial v1 mutation
+echo "ei cath hi" | npm run -s cli                 # disagreements are flagged
+# ei cath⟨pred ʰchath⟩ hi
+
+npm run -s cli -- --explain    # the constituent tree, each leaf carrying its
+                               # verdict, provenance and observed-vs-predicted
+npm run -s cli -- --json       # trees, readings, verdicts as data
+npm run -s cli -- --register literary              # no colloquial v1 mutation
 ```
 
 Optional: `npm run apertium:fetch && npm run apertium:extract` builds a much
